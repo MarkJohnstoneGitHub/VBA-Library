@@ -34,7 +34,7 @@ Option Explicit
 '------------------------------------------------------------------
 'Types
 '------------------------------------------------------------------
-Private Type TInt64Static
+Private Type TBitwiseInt64
     Powers() As LongLong    'Used for bitwise operations
     Masks() As LongLong     'Used for bitwise operations
     RevMasks() As LongLong  'Used for bitwise operations
@@ -43,7 +43,7 @@ End Type
 '------------------------------------------------------------------
 'Private Variables
 '------------------------------------------------------------------
-Private this As TInt64Static
+Private this As TBitwiseInt64
 
 '------------------------------------------------------------------
 'Constructors and destructors
