@@ -80,7 +80,7 @@ Private Const MIN_BITSHIFT As Byte = 0
 '------------------------------------------------------------------
 'Types
 '------------------------------------------------------------------
-Private Type TBitwiseInt64
+Private Type TInt64Bitwise
     Powers() As LongLong    'Used for bitwise operations
     Masks() As LongLong     'Used for bitwise operations
     RevMasks() As LongLong  'Used for bitwise operations
@@ -89,7 +89,7 @@ End Type
 '------------------------------------------------------------------
 'Private Variables
 '------------------------------------------------------------------
-Private this As TBitwiseInt64
+Private this As TInt64Bitwise
 
 '------------------------------------------------------------------
 'Constructors and destructors
@@ -206,7 +206,6 @@ Public Function ShiftLeftArithmetic(ByVal val As LongLong, ByVal bitsShifted As 
     End If
     
 End Function
-
 
 '@TODO Implement
 '@Static
