@@ -10,9 +10,6 @@ Attribute VB_Exposed = False
 '@Folder("VBACorLib.DataTypes")
 '@PredeclaredId
 
-'@Folder("VBACorLib.DataTypes")
-'@PredeclaredId
-
 '@Singleton Class
 
 '@Version v1.0 (Date January 30, 2023)
@@ -209,25 +206,55 @@ Public Function ShiftRightArithmetic(ByVal val As Long, ByVal bitsShifted As Byt
     End If
 End Function
 
+'@TODO Implement
+'@Static
 '@Description "Bitwise operatation shifts each bit to the left, with the highest bit copied in the Carry flag and into the lowest bit."
+'@Parameters
+'   val: Long value
+'   bitsShifted: The number of bits to rotate-left by.
+'@Returns Long
+'   Returns a Int32 of the bitwise rotate-left, by the given number of bits.
+'@Remarks
 Public Function RotateLeft(ByVal val As Long, ByVal bitsShifted As Byte) As Long
-
 End Function
 
+'@TODO Implement
+'@Static
 '@Description "Bitwise operatation shifts each bit to the right, with the lowest bit copied in the Carry flag and into the highest bit."
+'@Parameters
+'   val: Long value
+'   bitsShifted: The number of bits to rotate-right by.
+'@Returns Long
+'   Returns a Int32 of the bitwise rotate-right, by the given number of bits.
+'@Remarks
 Public Function RotateRight(ByVal val As Long, ByVal bitsShifted As Byte) As Long
 End Function
 
-'@Description "Bitwise operatation shifts shifts each bit to the left, copies the Carry flag to the least significant bit and copies the most significant bit into the Carry flag."
+'@TODO Implement
+'@Static
+'@Description "Bitwise operatation shifts each bit to the right, copies the Carry flag to the most significant bit and copies the least significant bit into the Carry flag."
+'@Parameters
+'   val: Long value
+'   bitsShifted: The number of bits to rotate carry right by.
+'@Returns Long
+'   Returns a Int32 of the bitwise rotate carray right, by the given number of bits.
+'@Remarks
 Public Function RotateCarryLeft(ByVal val As Long, ByVal bitsShifted As Byte) As Long
 End Function
 
 
-'' The RCR (Rotate and Carry Right) instruction shifts each bit to the right, copies the Carry flag
-'' to the most significant bit and copies the least significant bit into the Carry flag.
+'@TODO Implement
+'@Static
+'@Description "Bitwise operatation shifts each bit to the right, copies the Carry flag to the most significant bit and copies the least significant bit into the Carry flag."
+'@Parameters
+'   val: Long value
+'   bitsShifted: The number of bits to rotate carry right by.
+'@Returns Long
+'   Returns a Int32 of the bitwise rotate carray right, by the given number of bits.
+'@Remarks
 Public Function RotateCarryRight(ByVal val As Long, ByVal bitsShifted As Byte) As Long
 End Function
-'
+
 '
 'Public Function ShiftLeftDouble()
 'End Function
@@ -244,7 +271,6 @@ End Function
 '@Returns String
 '   Returns a string representing an Int32 as bits.
 '@Remarks
-'   Left shifting is equal to multiplying Value by 2Shift.
 Public Function ToBinary(ByVal val As Long, Optional ByVal byteGrouping As Boolean = False) As String
     Const DELIMITER As String = " "
     Dim i
