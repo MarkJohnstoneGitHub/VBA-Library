@@ -1,6 +1,5 @@
 Attribute VB_Name = "Testing_MemoryDump"
 '@Folder("Utilities.MemoryDump")
-Option Compare Database
 Option Explicit
 
 Public Sub TestMemoryDumpToString()
