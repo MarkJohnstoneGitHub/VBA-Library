@@ -1,5 +1,5 @@
 Attribute VB_Name = "Test_Int32Bitwise"
-'@Folder("VBACorLib.DataTypes")
+'@Folder("Testing.VBACorLib.DataTypes")
 Option Explicit
 
 Private Sub TestInt32Bitshift()
@@ -38,4 +38,49 @@ Private Sub TestInt32Bitshift()
     binary = Int32Bitwise.ToBinary(result, True)
     Debug.Print "Shift left bits : " & numbits; result, binary
     Debug.Print
+End Sub
+
+
+Private Sub Testing_Int32Bitwise_SignNegative()
+    Dim val As Long
+    
+    val = -100
+    Debug.Print "Value: " & val, "Sign negative : " & Int32Bitwise.SignNegative(val) & VBA.vbTab & Int32Bitwise.ToBinary(val, True)
+
+    val = 100
+    Debug.Print "Value: " & val, "Sign negative : " & Int32Bitwise.SignNegative(val) & VBA.vbTab & Int32Bitwise.ToBinary(val, True)
+    
+    val = 0
+    Debug.Print "Value: " & val, "Sign negative : " & Int32Bitwise.SignNegative(val) & VBA.vbTab & Int32Bitwise.ToBinary(val, True)
+    
+    val = &HFFFFFFFF
+    Debug.Print "Value: " & val, "Sign negative : " & Int32Bitwise.SignNegative(val) & VBA.vbTab & Int32Bitwise.ToBinary(val, True)
+End Sub
+
+
+Private Sub Testing_Int32Bitwise_SignsOpposite()
+    Dim t1 As Long
+    Dim t2 As Long
+    
+    t1 = 0
+    t2 = 0
+    Debug.Print "Int32 Signs Opposite: " & t1 & ", "; t2 & " : " & Int32Bitwise.SignsOpposite(t1, t2)
+    
+    t1 = -1
+    t2 = 0
+    Debug.Print "Int32 Signs Opposite: " & t1 & ", "; t2 & " : " & Int32Bitwise.SignsOpposite(t1, t2)
+    
+    t1 = 2342134
+    t2 = 544
+    Debug.Print "Int32 Signs Opposite: " & t1 & ", "; t2 & " : " & Int32Bitwise.SignsOpposite(t1, t2)
+    
+    t1 = -1
+    t2 = 23355
+    Debug.Print "Int32 Signs Opposite: " & t1 & ", "; t2 & " : " & Int32Bitwise.SignsOpposite(t1, t2)
+    
+    
+    t1 = 234234
+    t2 = -34324
+    Debug.Print "Int32 Signs Opposite: " & t1 & ", "; t2 & " : " & Int32Bitwise.SignsOpposite(t1, t2)
+    
 End Sub
