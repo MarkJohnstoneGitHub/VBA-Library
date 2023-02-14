@@ -14,8 +14,8 @@ Attribute VB_Exposed = False
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-dotnet-CorLib is licensed under the MIT License
-'@Version v1.02 February 14, 2023
-'@LastModified  February 14, 2023
+'@Version v1.03 February 15, 2023
+'@LastModified  February 15, 2023
 
 ''
 '@Remarks
@@ -74,6 +74,7 @@ Attribute VB_Exposed = False
 ' https://graphics.stanford.edu/~seander/bithacks.html
 ' https://www.geeksforgeeks.org/detect-if-two-integers-have-opposite-signs/
 ' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs
+' http://something4skiddie.blogspot.com/2012/11/bit-shift.html
 
 Option Explicit
 
@@ -92,6 +93,7 @@ Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
 
 Private Const LEAST_SIGNIFICANT_BIT As Long = 1
 Private Const MOST_SIGNIFICANT_BIT As Long = 31
+Private Const UINT32_MAXVALUE As Long = &HFFFFFFFF
 
 '------------------------------------------------------------------
 'Types
@@ -120,6 +122,9 @@ End Sub
 '------------------------------------------------------------------
 'Public Methods
 '------------------------------------------------------------------
+Public Function Negate(ByVal val As Long) As Long
+    Negate = Not val
+End Function
 
 ''
 '@Static
@@ -156,6 +161,16 @@ End Function
 '@Remarks
 '   Right shifting is equal to dividing value by 2^Shift.
 Public Function ShiftRight(ByVal val As Long, ByVal offset As Long) As Long
+    If offset = 31 Then
+        If val And &H80000000 Then
+            ShiftRight = 1
+        Else
+            ShiftRight = 0
+        End If
+        Exit Function
+    End If
+
+    '@TODO Test to check for Div by 0 errors possible that divisor is incorrect  i.e. divide then apply mask?
     If offset > MIN_BITSHIFT And offset < SIZEOF_INT32_BITS Then
         ShiftRight = (val And this.RevMasks(offset)) \ _
                                  this.Powers(offset) And this.Masks(MAX_BITSHIFT - offset)
@@ -309,7 +324,9 @@ End Function
 '   http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
 ''
 Public Function SignFlag(ByVal val As Long) As Long
-    SignFlag = (val And this.RevMasks(MOST_SIGNIFICANT_BIT)) \ (this.Powers(MOST_SIGNIFICANT_BIT) And this.Masks(LEAST_SIGNIFICANT_BIT)) 'Bit shift right 31 bits
+    If val And &H80000000 Then
+         SignFlag = 1
+    End If
 End Function
 
 ''
@@ -365,6 +382,54 @@ Public Function ToBinary(ByVal val As Long, Optional ByVal byteGrouping As Boole
         End If
     Next
 End Function
+
+''
+'@Static
+'@Description "Twos Complement of an Int32."
+'@References https://stackoverflow.com/questions/20250456/get-twos-complement-for-a-byte
+''
+Public Function TwosComplement(ByVal val As Long) As Long
+    If val = 0 Then
+        TwosComplement = 0
+    Else
+        TwosComplement = (val Xor UINT32_MAXVALUE) + 1
+    End If
+End Function
+
+''
+'@Static
+'@Description "Compares two unsigned longs/UInt32 which their raw values are stored in a Long/Int32."
+'@Parameters
+'   ulngT1: Long
+'       unsigned long value to compare against
+'   ulngT2: Long
+'       unsigned long value to compare to ulngT1
+'
+'@Returns Long
+'   Returns If greater than returns 1, equals 0, less than -1
+'@Remarks
+''
+Public Function CompareUnsigned(ByRef ulngT1 As Long, ByRef ulngT2 As Long) As Long
+    'If the most significant bit are different
+    If (ulngT1 Xor ulngT2) < 0 Then
+        'If t1 most significant bit set it is the larger unsigned value
+        If ulngT1 And &H80000000 Then
+             CompareUnsigned = 1
+             Exit Function
+        Else
+            CompareUnsigned = -1
+            Exit Function
+        End If
+    End If
+
+    'If "same sign" compare raw values
+    If ulngT1 > ulngT2 Then
+        CompareUnsigned = 1
+    ElseIf ulngT1 < ulngT2 Then
+        CompareUnsigned = -1
+    End If
+End Function
+
 
 '------------------------------------------------------------------
 'Private Methods
