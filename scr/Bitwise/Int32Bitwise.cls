@@ -14,8 +14,8 @@ Attribute VB_Exposed = False
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-dotnet-CorLib is licensed under the MIT License
-'@Version v1.01 February 13, 2023
-'@LastModified  February 13, 2023
+'@Version v1.02 February 14, 2023
+'@LastModified  February 14, 2023
 
 ''
 '@Remarks
@@ -73,6 +73,7 @@ Attribute VB_Exposed = False
 ' https://gist.github.com/fernandofig/938cad4e0235a1f8e249
 ' https://graphics.stanford.edu/~seander/bithacks.html
 ' https://www.geeksforgeeks.org/detect-if-two-integers-have-opposite-signs/
+' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs
 
 Option Explicit
 
@@ -120,25 +121,26 @@ End Sub
 'Public Methods
 '------------------------------------------------------------------
 
+''
 '@Static
 '@Description "Bitwise logical left-shift operation, by the given number of bits."
 '@Parameters
 '   val: Long value
-'   bitsShifted: The number of bits to left-shift by.
+'   offset: The number of bits to left-shift by.
 '@Returns Long
 '   Returns a Int32 of the bitwise logical left-shift operation, by the given number of bits.
 '@Remarks
 '   Left shifting is equal to multiplying Value by 2Shift.
-Public Function ShiftLeft(ByVal val As Long, ByVal bitsShifted As Byte) As Long
-    If bitsShifted > MIN_BITSHIFT And bitsShifted < SIZEOF_INT32_BITS Then
-        ShiftLeft = (val And this.Masks(31 - bitsShifted)) * _
-                                this.Powers(bitsShifted)
-        If val And this.Powers(31 - bitsShifted) Then
+Public Function ShiftLeft(ByVal val As Long, ByVal offset As Long) As Long
+    If offset > MIN_BITSHIFT And offset < SIZEOF_INT32_BITS Then
+        ShiftLeft = (val And this.Masks(31 - offset)) * _
+                                this.Powers(offset)
+        If val And this.Powers(31 - offset) Then
             ShiftLeft = ShiftLeft Or MOST_SIGNIFICANT_BIT_MASK ' set bit 31
         End If
-    ElseIf bitsShifted <= 0 Then
+    ElseIf offset <= 0 Then
         ShiftLeft = val
-    ElseIf bitsShifted >= MAX_BITSHIFT Then
+    ElseIf offset >= MAX_BITSHIFT Then
         ShiftLeft = &H0
     End If
 End Function
@@ -148,18 +150,18 @@ End Function
 '@Description "Bitwise logical right-shift operation, by the given number of bits."
 '@Parameters
 '   val: Long value
-'   bitsShifted: The number of bits to right-shift by.
+'   offset: The number of bits to right-shift by.
 '@Returns Long
 '   Returns a Int32 of the bitwise logical right-shift operation, by the given number of bits.
 '@Remarks
 '   Right shifting is equal to dividing value by 2^Shift.
-Public Function ShiftRight(ByVal val As Long, ByVal bitsShifted As Byte) As Long
-    If bitsShifted > MIN_BITSHIFT And bitsShifted < SIZEOF_INT32_BITS Then
-        ShiftRight = (val And this.RevMasks(bitsShifted)) \ _
-                                 this.Powers(bitsShifted) And this.Masks(MAX_BITSHIFT - bitsShifted)
-    ElseIf bitsShifted = MIN_BITSHIFT Then
+Public Function ShiftRight(ByVal val As Long, ByVal offset As Long) As Long
+    If offset > MIN_BITSHIFT And offset < SIZEOF_INT32_BITS Then
+        ShiftRight = (val And this.RevMasks(offset)) \ _
+                                 this.Powers(offset) And this.Masks(MAX_BITSHIFT - offset)
+    ElseIf offset = MIN_BITSHIFT Then
         ShiftRight = val
-    ElseIf bitsShifted >= MAX_BITSHIFT Then
+    ElseIf offset >= MAX_BITSHIFT Then
         ShiftRight = &H0
     End If
 End Function
@@ -169,24 +171,25 @@ End Function
 '@Description "Bitwise arithmetic left-shift operation, by the given number of bits."
 '@Parameters
 '   val: Long value
-'   bitsShifted: The number of bits to left-shift by.
+'   offset: The number of bits to left-shift by.
 '@Returns Long
 '   Returns a Int32 of the bitwise arithmetic left-shift operation, by the given number of bits.
 '@Remarks
 '   Left shifting is equal to multiplying Value by 2Shift.
-Public Function ShiftLeftArithmetic(ByVal val As Long, ByVal bitsShifted As Byte) As Long
-    Const MAX_SHIFTLEFT As Byte = SIZEOF_INT32_BITS - 1
+''
+Public Function ShiftLeftArithmetic(ByVal val As Long, ByVal offset As Long) As Long
+    Const MAX_SHIFTLEFT As Long = SIZEOF_INT32_BITS - 1
 
-    If bitsShifted > MIN_BITSHIFT And bitsShifted < MAX_SHIFTLEFT Then
+    If offset > MIN_BITSHIFT And offset < MAX_SHIFTLEFT Then
         If val And MOST_SIGNIFICANT_BIT_MASK Then
-            val = val Or this.RevMasks(MAX_SHIFTLEFT - bitsShifted)
+            val = val Or this.RevMasks(MAX_SHIFTLEFT - offset)
         Else
-            val = val And this.Masks(MAX_SHIFTLEFT - bitsShifted)
+            val = val And this.Masks(MAX_SHIFTLEFT - offset)
         End If
-        ShiftLeftArithmetic = val * this.Powers(bitsShifted)
-    ElseIf bitsShifted = 0 Then
+        ShiftLeftArithmetic = val * this.Powers(offset)
+    ElseIf offset = 0 Then
         ShiftLeftArithmetic = val
-    ElseIf bitsShifted >= MAX_SHIFTLEFT Then
+    ElseIf offset >= MAX_SHIFTLEFT Then
         'To avoid an overflow error
         If val And MOST_SIGNIFICANT_BIT_MASK Then
             ShiftLeftArithmetic = MOST_SIGNIFICANT_BIT_MASK ' set bit 31
@@ -196,23 +199,24 @@ Public Function ShiftLeftArithmetic(ByVal val As Long, ByVal bitsShifted As Byte
     End If
 End Function
 
+''
 '@Static
 '@Description "Bitwise arithmetic right-shift operation, by the given number of bits."
 '@Parameters
 '   val: Long value
-'   bitsShifted: The number of bits to right-shift by.
+'   offset: The number of bits to right-shift by.
 '@Returns Long
 '   Returns a Int32 of the bitwise arithmetic right-shift operation, by the given number of bits.
 '@Return: Long value
-Public Function ShiftRightArithmetic(ByVal val As Long, ByVal bitsShifted As Byte) As Long
-    Const MAX_SHIFTRIGHT As Byte = SIZEOF_INT32_BITS - 1
+Public Function ShiftRightArithmetic(ByVal val As Long, ByVal offset As Long) As Long
+    Const MAX_SHIFTRIGHT As Long = SIZEOF_INT32_BITS - 1
     
-    If bitsShifted > MIN_BITSHIFT And bitsShifted < MAX_SHIFTRIGHT Then
-        ShiftRightArithmetic = (val And this.RevMasks(bitsShifted)) \ _
-                                    this.Powers(bitsShifted)
-    ElseIf bitsShifted = MIN_BITSHIFT Then
+    If offset > MIN_BITSHIFT And offset < MAX_SHIFTRIGHT Then
+        ShiftRightArithmetic = (val And this.RevMasks(offset)) \ _
+                                    this.Powers(offset)
+    ElseIf offset = MIN_BITSHIFT Then
         ShiftRightArithmetic = val
-    ElseIf bitsShifted >= MAX_SHIFTRIGHT Then
+    ElseIf offset >= MAX_SHIFTRIGHT Then
         If val And MOST_SIGNIFICANT_BIT_MASK Then
             ShiftRightArithmetic = &HFFFFFFFF
         Else
@@ -222,31 +226,40 @@ Public Function ShiftRightArithmetic(ByVal val As Long, ByVal bitsShifted As Byt
 End Function
 
 ''
-'@TODO Implement
 '@Static
-'@Description "Bitwise operatation shifts each bit to the left, with the highest bit copied in the Carry flag and into the lowest bit."
+'@Description "Rotates the specified value left by the specified number of bits."
+'"
 '@Parameters
 '   val: Long value
-'   bitsShifted: The number of bits to rotate-left by.
+'   offset: The number of bits to rotate-left by.
 '@Returns Long
 '   Returns a Int32 of the bitwise rotate-left, by the given number of bits.
+'
 '@Remarks
+'   Bitwise operatation shifts each bit to the left, with the highest bit copied in the Carry flag
+'   and into the lowest bit.
+'
+'@References
+'   https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs
 ''
-Public Function RotateLeft(ByVal val As Long, ByVal bitsShifted As Byte) As Long
+Public Function RotateLeft(ByVal val As Long, ByVal offset As Long) As Long
+    RotateLeft = ShiftLeft(val, offset) Or ShiftRight(val, (SIZEOF_INT32_BITS - offset))
 End Function
 
 ''
-'@TODO Implement
 '@Static
-'@Description "Bitwise operatation shifts each bit to the right, with the lowest bit copied in the Carry flag and into the highest bit."
+'@Description "Rotates the specified value right by the specified number of bits."
 '@Parameters
 '   val: Long value
-'   bitsShifted: The number of bits to rotate-right by.
+'   offset: The number of bits to rotate-right by.
 '@Returns Long
 '   Returns a Int32 of the bitwise rotate-right, by the given number of bits.
 '@Remarks
+'   Bitwise operatation shifts each bit to the right, with the lowest bit copied in the Carry flag
+'   and into the highest bit.
 ''
-Public Function RotateRight(ByVal val As Long, ByVal bitsShifted As Byte) As Long
+Public Function RotateRight(ByVal val As Long, ByVal offset As Long) As Long
+    RotateRight = ShiftRight(val, offset) Or ShiftLeft(val, (SIZEOF_INT32_BITS - offset))
 End Function
 
 ''
@@ -255,11 +268,11 @@ End Function
 '@Description "Bitwise operatation shifts each bit to the right, copies the Carry flag to the most significant bit and copies the least significant bit into the Carry flag."
 '@Parameters
 '   val: Long value
-'   bitsShifted: The number of bits to rotate carry right by.
+'   offset: The number of bits to rotate carry right by.
 '@Returns Long
 '   Returns a Int32 of the bitwise rotate carray right, by the given number of bits.
 '@Remarks
-Public Function RotateCarryLeft(ByVal val As Long, ByVal bitsShifted As Byte) As Long
+Public Function RotateCarryLeft(ByVal val As Long, ByVal offset As Long) As Long
 End Function
 
 ''
@@ -268,12 +281,12 @@ End Function
 '@Description "Bitwise operatation shifts each bit to the right, copies the Carry flag to the most significant bit and copies the least significant bit into the Carry flag."
 '@Parameters
 '   val: Long value
-'   bitsShifted: The number of bits to rotate carry right by.
+'   offset: The number of bits to rotate carry right by.
 '@Returns Long
 '   Returns a Int32 of the bitwise rotate carray right, by the given number of bits.
 '@Remarks
 ''
-Public Function RotateCarryRight(ByVal val As Long, ByVal bitsShifted As Byte) As Long
+Public Function RotateCarryRight(ByVal val As Long, ByVal offset As Long) As Long
 End Function
 
 ''
@@ -295,8 +308,8 @@ End Function
 '@References
 '   http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
 ''
-Public Function SignNegative(ByVal val As Long) As Long
-    SignNegative = (val And this.RevMasks(MOST_SIGNIFICANT_BIT)) \ (this.Powers(MOST_SIGNIFICANT_BIT) And this.Masks(LEAST_SIGNIFICANT_BIT)) 'Bit shift right 31 bits
+Public Function SignFlag(ByVal val As Long) As Long
+    SignFlag = (val And this.RevMasks(MOST_SIGNIFICANT_BIT)) \ (this.Powers(MOST_SIGNIFICANT_BIT) And this.Masks(LEAST_SIGNIFICANT_BIT)) 'Bit shift right 31 bits
 End Function
 
 ''
@@ -498,11 +511,3 @@ Private Sub InitRevMasks()
     
     this.RevMasks(32) = &H0&        ' 00000000000000000000000000000000      0
 End Sub
-
-
-'
-'Public Function ShiftLeftDouble()
-'End Function
-'
-'Public Function ShiftRightDouble()
-'End Function
