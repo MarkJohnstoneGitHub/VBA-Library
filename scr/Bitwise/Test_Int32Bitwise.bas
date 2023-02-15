@@ -3,51 +3,75 @@ Attribute VB_Name = "Test_Int32Bitwise"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-dotnet-CorLib is licensed under the MIT License
-'@Version v1.03 February 15, 2023
-'@LastModified  February 15, 2023
+'@Version v1.04 February 16, 2023
+'@LastModified  February 16, 2023
 
 Option Explicit
 
-Private Sub TestInt32Bitshift()
-    Dim int32Input As Long
+Private Sub TestingInt32Bitshift()
+    Dim value As Long
     Dim binary As String
     Dim result As Long
 
-    Dim numbits As Long
+    Dim offset As Long
     
-    numbits = 1
-    int32Input = "32431"
+    offset = 1
+    value = "32431"
     
-    binary = Int32Bitwise.ToBinary(int32Input, True)
-    Debug.Print "Input           :  "; int32Input, binary
+    binary = Int32Bitwise.ToBinary(value, True)
+    Debug.Print "Value           :  "; value, binary
     
-    result = Int32Bitwise.ShiftRight(int32Input, numbits)
+    result = Int32Bitwise.ShiftRight(value, offset)
     binary = Int32Bitwise.ToBinary(result, True)
-    Debug.Print "Shift right bits: " & numbits; result, binary
+    Debug.Print "Shift right bits: " & offset; result, binary
     
-    result = Int32Bitwise.ShiftLeft(result, numbits)
+    result = Int32Bitwise.ShiftLeft(result, offset)
     binary = Int32Bitwise.ToBinary(result, True)
-    Debug.Print "Shift left bits : " & numbits; result, binary
+    Debug.Print "Shift left bits : " & offset; result, binary
     Debug.Print
     
+    value = 129
+    binary = Int32Bitwise.ToBinary(value, True)
+    Debug.Print "Value           :  "; value, binary
     
-    int32Input = 129
-    
-    binary = Int32Bitwise.ToBinary(int32Input, True)
-    Debug.Print "Input           :  "; int32Input, binary
-    
-    result = Int32Bitwise.ShiftLeft(int32Input, numbits)
+    result = Int32Bitwise.ShiftLeft(value, offset)
     binary = Int32Bitwise.ToBinary(result, True)
-    Debug.Print "Shift right bits: " & numbits; result, binary
+    Debug.Print "Shift right bits: " & offset; result, binary
     
-    result = Int32Bitwise.ShiftRight(result, numbits)
+    result = Int32Bitwise.ShiftRight(result, offset)
     binary = Int32Bitwise.ToBinary(result, True)
-    Debug.Print "Shift left bits : " & numbits; result, binary
+    Debug.Print "Shift left bits : " & offset; result, binary
     Debug.Print
+        
+    value = &HFF67FF2F
+    offset = 30
+    Debug.Print "Value:       " & value & " " & VBA.vbTab & Int32Bitwise.ToBinary(value, True)
+    result = Int32Bitwise.ShiftRight(value, offset)
+    binary = Int32Bitwise.ToBinary(result, True)
+    Debug.Print "Shift left bits : " & offset & " " & " " & VBA.vbTab & binary
+    Debug.Print
+
 End Sub
 
+Private Sub TestingInt32BitshiftAll()
+    Dim value As Long
+    Dim offset As Long
+    Dim binary As String
+    Dim result As Long
+    
+    value = &H2F67FF2F
+    
+    For offset = 0 To 32
+        Debug.Print "Value:    " & value & " " & VBA.vbTab & Int32Bitwise.ToBinary(value, True)
+        result = Int32Bitwise.ShiftRight(value, offset)
+        binary = Int32Bitwise.ToBinary(result, True)
+        Debug.Print "Shift left bits : " & offset & " " & " " & VBA.vbTab & binary
+        Debug.Print
+    Next
 
-Private Sub Testing_Int32Bitwise_SignNegative()
+End Sub
+
+Private Sub TestingInt32BitwiseSignFlag()
     Dim val As Long
     
     val = -100
@@ -64,7 +88,7 @@ Private Sub Testing_Int32Bitwise_SignNegative()
 End Sub
 
 
-Private Sub Testing_Int32Bitwise_SignsOpposite()
+Private Sub TestingInt32BitwiseSignsOpposite()
     Dim t1 As Long
     Dim t2 As Long
     
@@ -91,7 +115,7 @@ Private Sub Testing_Int32Bitwise_SignsOpposite()
     
 End Sub
 
-Private Sub Testing_Int32Bitwise_TwosComplement()
+Private Sub TestingInt32BitwiseTwosComplement()
     Dim val As Long
     Dim result As Long
     
@@ -112,7 +136,7 @@ End Sub
 ' Conversion of signed and unsigned longs note use 8 character hex values
 ' https://www.binaryconvert.com/convert_signed_int.html
 ' https://www.binaryconvert.com/convert_unsigned_int.html
-Private Sub Testing_Int32Bitwise_CompareUnsigned()
+Private Sub TestingInt32BitwiseCompareUnsigned()
     Dim ulngT1 As Long
     Dim ulngT2 As Long
     Dim result As Long
@@ -122,18 +146,21 @@ Private Sub Testing_Int32Bitwise_CompareUnsigned()
     Debug.Print "Comparing two unsigned longs"
     result = Int32Bitwise.CompareUnsigned(ulngT1, ulngT2)
     Debug.Print "Result: " & result & " " & "values:  " & "4294967294" & ", " & "268435454"
+    Debug.Print
     
     ulngT1 = "&H0FFFFFFE"   'i.e.unsigned = 268435454,  signed = 268435454
     ulngT2 = &HFFFFFFFE     'i.e.unsigned = 4294967294, signed = -2
     Debug.Print "Comparing two unsigned longs"
     result = Int32Bitwise.CompareUnsigned(ulngT1, ulngT2)
     Debug.Print "Result: " & result & " " & "values:  " & "268435454" & ", " & "4294967294"
+    Debug.Print
     
     ulngT1 = &HFFFFFFFE    'i.e.unsigned = 4294967294,  signed = -2
     ulngT2 = &HFFFFFFFE     'i.e.unsigned = 4294967294, signed = -2
     Debug.Print "Comparing two unsigned longs"
     result = Int32Bitwise.CompareUnsigned(ulngT1, ulngT2)
     Debug.Print "Result: " & result & " " & "values:  " & "4294967294" & ", " & "4294967294"
+    Debug.Print
 End Sub
 
 

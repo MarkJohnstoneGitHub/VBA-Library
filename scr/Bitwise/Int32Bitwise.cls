@@ -14,8 +14,8 @@ Attribute VB_Exposed = False
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-dotnet-CorLib is licensed under the MIT License
-'@Version v1.03 February 15, 2023
-'@LastModified  February 15, 2023
+'@Version v1.04 February 16, 2023
+'@LastModified  February 16, 2023
 
 ''
 '@Remarks
@@ -136,10 +136,12 @@ End Function
 '   Returns a Int32 of the bitwise logical left-shift operation, by the given number of bits.
 '@Remarks
 '   Left shifting is equal to multiplying Value by 2Shift.
+'   If offset <= 0 the value is returned
+'   If the offset >= the maximum bitshift i.e. 32 then 0 is returned
+''
 Public Function ShiftLeft(ByVal val As Long, ByVal offset As Long) As Long
     If offset > MIN_BITSHIFT And offset < SIZEOF_INT32_BITS Then
-        ShiftLeft = (val And this.Masks(31 - offset)) * _
-                                this.Powers(offset)
+        ShiftLeft = (val And this.Masks(31 - offset)) * this.Powers(offset)
         If val And this.Powers(31 - offset) Then
             ShiftLeft = ShiftLeft Or MOST_SIGNIFICANT_BIT_MASK ' set bit 31
         End If
@@ -161,19 +163,9 @@ End Function
 '@Remarks
 '   Right shifting is equal to dividing value by 2^Shift.
 Public Function ShiftRight(ByVal val As Long, ByVal offset As Long) As Long
-    If offset = 31 Then
-        If val And &H80000000 Then
-            ShiftRight = 1
-        Else
-            ShiftRight = 0
-        End If
-        Exit Function
-    End If
-
-    '@TODO Test to check for Div by 0 errors possible that divisor is incorrect  i.e. divide then apply mask?
     If offset > MIN_BITSHIFT And offset < SIZEOF_INT32_BITS Then
-        ShiftRight = (val And this.RevMasks(offset)) \ _
-                                 this.Powers(offset) And this.Masks(MAX_BITSHIFT - offset)
+        ShiftRight = ((val And this.RevMasks(offset)) \ this.Powers(offset)) _
+                    And this.Masks(MAX_BITSHIFT - offset)
     ElseIf offset = MIN_BITSHIFT Then
         ShiftRight = val
     ElseIf offset >= MAX_BITSHIFT Then
@@ -182,6 +174,7 @@ Public Function ShiftRight(ByVal val As Long, ByVal offset As Long) As Long
 End Function
 
 ''
+'@TODO Test
 '@Static
 '@Description "Bitwise arithmetic left-shift operation, by the given number of bits."
 '@Parameters
@@ -215,6 +208,7 @@ Public Function ShiftLeftArithmetic(ByVal val As Long, ByVal offset As Long) As 
 End Function
 
 ''
+'@TODO Test
 '@Static
 '@Description "Bitwise arithmetic right-shift operation, by the given number of bits."
 '@Parameters
@@ -324,9 +318,8 @@ End Function
 '   http://graphics.stanford.edu/~seander/bithacks.html#CopyIntegerSign
 ''
 Public Function SignFlag(ByVal val As Long) As Long
-    If val And &H80000000 Then
-         SignFlag = 1
-    End If
+    SignFlag = ((val And this.RevMasks(MOST_SIGNIFICANT_BIT)) \ this.Powers(MOST_SIGNIFICANT_BIT)) _
+                And this.Masks(LEAST_SIGNIFICANT_BIT)
 End Function
 
 ''
@@ -356,7 +349,7 @@ End Function
 
 ''
 '@Static
-'@Description "Converts an Int32 to an binary string"
+'@Description "Converts an Int32 to an binary string of digits."
 '@Parameters
 '   val: Long value
 '   byteGrouping: Boolean
@@ -406,14 +399,14 @@ End Function
 '       unsigned long value to compare to ulngT1
 '
 '@Returns Long
-'   Returns If greater than returns 1, equals 0, less than -1
+'   Returns If greater than is 1, equals is 0, less than is -1
 '@Remarks
 ''
 Public Function CompareUnsigned(ByRef ulngT1 As Long, ByRef ulngT2 As Long) As Long
     'If the most significant bit are different
     If (ulngT1 Xor ulngT2) < 0 Then
         'If t1 most significant bit set it is the larger unsigned value
-        If ulngT1 And &H80000000 Then
+        If ulngT1 And MOST_SIGNIFICANT_BIT_MASK Then
              CompareUnsigned = 1
              Exit Function
         Else
@@ -421,8 +414,7 @@ Public Function CompareUnsigned(ByRef ulngT1 As Long, ByRef ulngT2 As Long) As L
             Exit Function
         End If
     End If
-
-    'If "same sign" compare raw values
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
     If ulngT1 > ulngT2 Then
         CompareUnsigned = 1
     ElseIf ulngT1 < ulngT2 Then
@@ -507,7 +499,7 @@ Private Sub InitMasks()
     this.Masks(15) = &H7FFF&    ' 00000000000000000111111111111111  32767
 
     this.Masks(16) = &HFFFF&    ' 00000000000000001111111111111111  65535
-    this.Masks(17) = &H1FFFF    ' 00000000000000011111111111111111  131071
+    this.Masks(17) = &H1FFFF     ' 00000000000000011111111111111111  131071
     this.Masks(18) = &H3FFFF    ' 00000000000000111111111111111111  262143
     this.Masks(19) = &H7FFFF    ' 00000000000001111111111111111111  524287
 
