@@ -1,4 +1,4 @@
-# Unsigned 32 bit value
+# Unsigned 32 bit data type
 
 Data Types
 UInt32Static.cls Static class for unsigned 32 bit values
