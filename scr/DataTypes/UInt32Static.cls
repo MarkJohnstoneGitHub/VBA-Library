@@ -19,9 +19,9 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 
 '@Dependancies
 ' CopyMemoryAPI.bas
+' ULongType.bas
 
 '@Remarks
-
 
 '@References
 ' https://learn.microsoft.com/en-us/dotnet/api/system.uint32?view=net-7.0
@@ -38,7 +38,6 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 ' Unit testing
 
 Option Explicit
-
 
 '------------------------------------------------------------------
 'Constants
@@ -57,11 +56,9 @@ Private Const decimalLo32Offset As Long = 8
 Private Const OverflowException As Long = &H6&
 Private Const ArgumentException As Long = &H5&  'Invalid procedure call or argument.
 
-
 Private Const MIN_BITSHIFT As Long = 0
 Private Const MAX_BITSHIFT As Long = 32
 Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
-
 
 '------------------------------------------------------------------
 'Types
@@ -870,7 +867,6 @@ Public Function Add2(ByRef left As ULong, ByRef right As ULong) As ULong
 
 End Function
 
-
 '3xslower then bitwise addition
 Public Function Add3(ByRef left As ULong, ByRef right As ULong) As ULong
     Dim lnglngLeft As LongLong
@@ -891,7 +887,6 @@ Public Function Add3(ByRef left As ULong, ByRef right As ULong) As ULong
     CopyMemory Add3, lnglngResult, SIZEOF_UINT32
 
 End Function
-
 
 
 'Remove bitwise add 3xbetter
@@ -924,123 +919,6 @@ End Function
 '
 'End Function
 
-
-'Public Function Divide2(ByRef dividend As Long, ByRef divisor As Long) As ULong
-'    Dim dtDividend As DecimalType
-'    Dim dtDivisor As DecimalType
-'
-'    'Cast t1 and t2 to decimal type i.e. variant containing a VBA decimal to avoid conversion of
-'    'negative numbers.
-'    dtDividend.vt = VBA.vbDecimal
-'    dtDividend.Lo32 = dividend
-'    dtDivisor.vt = VBA.vbDecimal
-'    dtDivisor.Lo32 = divisor
-'
-'    Dim decimalDividend As Variant
-'    Dim decimalDivisor As Variant
-'    Dim decimalQuotient As Variant
-'
-'    'Create VBA decimal type from decimal structure
-'    CopyMemory decimalDividend, dtDividend, 16
-'    CopyMemory decimalDivisor, dtDivisor, 16
-'
-'    'runtime error 11 is raised for Division by 0
-'    decimalQuotient = Round((decimalDividend / decimalDivisor), 0)
-'    Debug.Print decimalQuotient
-'
-'    CopyMemoryByPtr VarPtr(Divide2), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_INT32
-'End Function
-
-
-'Public Function Modulus2(ByRef dividend As Long, ByRef divisor As Long) As ULong
-'    DivRem2 dividend, divisor, Modulus2
-'End Function
-
-'Public Function DivRem2(ByRef dividend As Long, ByRef divisor As Long, ByRef remainder As ULong) As ULong
-'    Dim dtDividend As DecimalType
-'    Dim dtDivisor As DecimalType
-'
-'    'Cast t1 and t2 to decimal type i.e. variant containing a VBA decimal to avoid conversion of
-'    'negative numbers.
-'    dtDividend.vt = VBA.vbDecimal
-'    dtDividend.Lo32 = dividend
-'    dtDivisor.vt = VBA.vbDecimal
-'    dtDivisor.Lo32 = divisor
-'
-'    Dim decimalDividend As Variant
-'    Dim decimalDivisor As Variant
-'    Dim decimalQuotient As Variant
-'
-'    'Create VBA decimal type from decimal structure
-'    CopyMemory decimalDividend, dtDividend, 16
-'    CopyMemory decimalDivisor, dtDivisor, 16
-'
-'    'runtime error 11 is raised for Division by 0
-'    decimalQuotient = Round((decimalDividend / decimalDivisor), 0)
-'    CopyMemoryByPtr VarPtr(DivRem2), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_INT32
-'
-'    Dim decimalRemainder As Variant
-'
-'    decimalRemainder = decimalDividend - (decimalDivisor * decimalQuotient)
-'    CopyMemoryByPtr VarPtr(remainder), VarPtr(decimalRemainder) + decimalLo32Offset, SIZEOF_INT32
-'
-'End Function
-
-' Any time you use the floating-point division operator (/), you're performing floating-point division
-' If you're dividing integers, or if you don't care about the decimal portion of the result, you can use the integer division operator (\). Integer division is faster than floating-point division, and the result is always an Integer or Long value, either of which requires less memory than a Double value. For example, running this code from the Immediate window prints "Integer":
-
-'Print TypeName(9 \ 3)
-' https://bettersolutions.com/vba/numbers/fixed-point-numbers.htm
-
-
-''
-'@Static
-'@Description "Compares two unsigned longs/UInt32 which their raw values are stored in a DWORD Long/Int32."
-'@Parameters
-'   t1: ULong
-'       unsigned long value to compare against
-'   t2: ULong
-'       unsigned long value to compare to ulngT1
-'
-'@Returns Long
-'   Returns If greater than is 1, equals is 0, less than is -1
-'@Remarks
-''
-'Public Function Compare(ByRef t1 As ULong, ByRef t2 As ULong) As Long
-'    Dim dtT1 As DecimalType
-'    Dim dtT2 As DecimalType
-'
-'    'Cast t1 and t2 to decimal type i.e. variant containing a VBA decimal to avoid conversion of
-'    'negative numbers.
-'    dtT1.vt = VBA.vbDecimal
-'    dtT1.Lo32 = t1.Value
-'    dtT2.vt = VBA.vbDecimal
-'    dtT2.Lo32 = t2.Value
-'
-'    Dim decimalT1 As Variant
-'    Dim decimalT2 As Variant
-'    'Create VBA decimal type from decimal structure
-'    CopyMemory decimalT1, dtT1, 16
-'    CopyMemory decimalT2, dtT2, 16
-'
-'    If decimalT1 > decimalT2 Then
-'        Compare = 1
-'    ElseIf decimalT1 < decimalT2 Then
-'        Compare = -1
-'    End If
-'End Function
-
-'Public Function ToString2(ByRef val As Long) As String
-'    Dim dtVal As DecimalType
-'    dtVal.vt = VBA.vbDecimal
-'    dtVal.Lo32 = val
-'
-'    'Create VBA decimal type from decimal structure
-'    Dim decimalVal As Variant
-'    CopyMemory decimalVal, dtVal, 16
-'
-'    ToString2 = CStr(decimalVal)
-'End Function
 
 'Testing various multiplication methods for performance
 
