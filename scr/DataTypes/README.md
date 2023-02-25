@@ -30,6 +30,8 @@ Currently predominantly using the VBA Decimal data type for math operations as i
 
 Unit Testing
 
+Examples of use
+
 Investigate methods to improve performance for various math operations and functions
 
 Possible solutions:
