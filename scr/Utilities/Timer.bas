@@ -3,6 +3,11 @@ Attribute VB_Description = "Micro timer to measure performance."
 '@ModuleDescription "Micro timer returning number of seconds."
 '@Folder("Utilities.Performance")
 
+'Copyright(c) 2023 Mark Johnstone
+'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
+'@Version v1.0 February 26, 2023
+'@LastModified February 26, 2023
+
 '@References
 'https://docs.microsoft.com/en-us/previous-versions/office/developer/office-2010/ff700515(v=office.14)#Office2007excelPerf_MakingWorkbooksCalculateFaster
 'https://codereview.stackexchange.com/questions/67596/a-lightning-fast-stringbuilder
