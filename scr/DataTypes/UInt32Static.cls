@@ -8,6 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Attribute VB_Description = "Represents a 32-bit unsigned integer."
+'Rubberduck annotations
 '@Folder("VBACorLib.DataTypes")
 '@ModuleDescription "Represents a 32-bit unsigned integer."
 '@PredeclaredId
@@ -27,7 +28,6 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '@References
 ' https://learn.microsoft.com/en-us/dotnet/api/system.uint32?view=net-7.0
 ' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/UInt32.cs
-
 ' https://newtonexcelbach.com/2015/10/26/the-vba-decimal-data-type/
 ' https://www.vbforums.com/showthread.php?834827-The-Decimal-Data-Type
 ' https://stackoverflow.com/questions/52099277/what-is-the-largest-possible-decimal-value-in-vba
@@ -123,6 +123,11 @@ End Sub
 '@Returns ULong
 '   ULong value converted
 '
+'@Exceptions
+'   OverflowException
+'       Raised when a value exceeds the max UInt32 value of 4294967295
+'   ArgumentException
+'       Raised for an invalid value which is not numeric.
 '@Remarks
 ''
 Public Function CUInt32(ByRef val As Variant) As ULong
@@ -254,6 +259,12 @@ End Function
 '
 '@Returns ULong
 '   The quotient of the of the dividend and divisor.
+'
+'@Exceptions
+'   Runtime error 11 Division by 0
+'       Raised when a divisor is 0
+'@TODO
+'   Check initially the divisor is 0 and raise error
 ''
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
     Dim dtDividend As DecimalType
@@ -347,7 +358,11 @@ End Function
 '   right ULong
 '
 '@Returns ULong
-''
+'
+'@Exceptions
+'   OverflowException
+'       Raised when a result exceeds the max UInt32 value of 4294967295
+'
 '@Remarks
 '   Using bitwise addition to add to unsigned two 32 bit values.
 '   When two unsigned numbers are added, overflow occurs if there is a carry out of the leftmost bit.
@@ -393,8 +408,13 @@ End Function
 '
 '@Returns ULong
 '   The quotient of the of the dividend and divisor.
-''
+'
+'@Exceptions
+'   Runtime error 11 Division by 0
+'       Raised when a divisor is 0
+'
 '@Remarks
+'@TODO Check divisor = 0 and raise error
 ''
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     Dim dtDividend As DecimalType
@@ -429,6 +449,10 @@ End Function
 '   right ULong
 '
 '@Returns ULong
+'
+'@Exceptions
+'   OverflowException
+'       Raised when the result exceeds the max UInt32 value of 4294967295
 ''
 Public Function Multiply(ByRef left As ULong, ByRef right As ULong) As ULong
     Dim dtLeft As DecimalType
@@ -452,7 +476,7 @@ Public Function Multiply(ByRef left As ULong, ByRef right As ULong) As ULong
     decimalResult = decimalLeft * decimalright
     
     If decimalResult > this.decMaxUInt32 Then
-       Err.Raise OverflowException, "UInt32.Multiply1"
+       Err.Raise OverflowException, "UInt32.Multiply"
     End If
         
     CopyMemoryByPtr VarPtr(Multiply), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
@@ -460,13 +484,16 @@ End Function
 
 ''
 '@Static
-'@Description "Subtracts two unsigned UInt32/ULong numbers."
+'@Description "Subtracts two unsigned UInt32/ULong values."
 '@Parameters
 '   left ULong
 '   right ULong
 '@Returns ULong
 '
-''
+'@Exceptions
+'   OverflowException
+'       Raised when the result is less the minimum UInt32 value of 0.
+'
 '@Remarks
 ''
 Public Function Subtract(ByRef left As ULong, ByRef right As ULong) As ULong
@@ -604,7 +631,7 @@ End Function
 '@Description "Rotates the specified value right by the specified number of bits. Similar in behavior to the x86 instruction ROR."
 '@Reference
 ' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,f37eec40a05d7095
-'
+'@TODO Implement
 Public Function RotateRight(ByRef val As ULong, ByVal offset As Long)
 'public static uint RotateRight(uint value, int offset)
 '    => (value >> offset) | (value << (32 - offset));
@@ -616,6 +643,7 @@ End Function
 
 ''
 '@Static
+'@TODO Implement
 ''
 Public Function IsPow2(ByRef val As ULong) As Boolean
 'public static bool IsPow2(uint value) => (value & (value - 1)) == 0 && value != 0;
@@ -836,57 +864,55 @@ Private Sub InitRevMasks()
 End Sub
 
 
-
-
-Public Function Add2(ByRef left As ULong, ByRef right As ULong) As ULong
-    Dim dtLeft As DecimalType
-    Dim dtRight As DecimalType
-
-    'Cast left and right to decimal type i.e. variant containing a VBA decimal to avoid conversion of
-    'negative numbers.
-    dtLeft.vt = VBA.vbDecimal
-    dtLeft.Lo32 = left.Value
-    dtRight.vt = VBA.vbDecimal
-    dtRight.Lo32 = right.Value
-
-    Dim decimalLeft As Variant
-    Dim decimalright As Variant
-    Dim decimalResult As Variant
-
-    'Create VBA decimal type from decimal structure
-    CopyMemory decimalLeft, dtLeft, 16
-    CopyMemory decimalright, dtRight, 16
-
-    decimalResult = decimalLeft + decimalright
-
-    If decimalResult > this.decMaxUInt32 Then
-       Err.Raise OverflowException, "UInt32.Add2"
-    End If
-
-    CopyMemoryByPtr VarPtr(Add2), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
-
-End Function
+'Public Function Add2(ByRef left As ULong, ByRef right As ULong) As ULong
+'    Dim dtLeft As DecimalType
+'    Dim dtRight As DecimalType
+'
+'    'Cast left and right to decimal type i.e. variant containing a VBA decimal to avoid conversion of
+'    'negative numbers.
+'    dtLeft.vt = VBA.vbDecimal
+'    dtLeft.Lo32 = left.Value
+'    dtRight.vt = VBA.vbDecimal
+'    dtRight.Lo32 = right.Value
+'
+'    Dim decimalLeft As Variant
+'    Dim decimalright As Variant
+'    Dim decimalResult As Variant
+'
+'    'Create VBA decimal type from decimal structure
+'    CopyMemory decimalLeft, dtLeft, 16
+'    CopyMemory decimalright, dtRight, 16
+'
+'    decimalResult = decimalLeft + decimalright
+'
+'    If decimalResult > this.decMaxUInt32 Then
+'       Err.Raise OverflowException, "UInt32.Add2"
+'    End If
+'
+'    CopyMemoryByPtr VarPtr(Add2), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
+'
+'End Function
 
 '3xslower then bitwise addition
-Public Function Add3(ByRef left As ULong, ByRef right As ULong) As ULong
-    Dim lnglngLeft As LongLong
-    Dim lnglngRight As LongLong
-    Dim lnglngResult As LongLong
-
-    'Cast left and right to LongLong type to avoid VBA conversion of negative numbers
-    
-    CopyMemory lnglngLeft, left, SIZEOF_UINT32
-    CopyMemory lnglngRight, right, SIZEOF_UINT32
-
-    lnglngResult = lnglngLeft + lnglngRight
-
-    If lnglngResult > 4294967295# Then
-       Err.Raise OverflowException, "UInt32Static.Add3"
-    End If
-
-    CopyMemory Add3, lnglngResult, SIZEOF_UINT32
-
-End Function
+'Public Function Add3(ByRef left As ULong, ByRef right As ULong) As ULong
+'    Dim lnglngLeft As LongLong
+'    Dim lnglngRight As LongLong
+'    Dim lnglngResult As LongLong
+'
+'    'Cast left and right to LongLong type to avoid VBA conversion of negative numbers
+'
+'    CopyMemory lnglngLeft, left, SIZEOF_UINT32
+'    CopyMemory lnglngRight, right, SIZEOF_UINT32
+'
+'    lnglngResult = lnglngLeft + lnglngRight
+'
+'    If lnglngResult > 4294967295# Then
+'       Err.Raise OverflowException, "UInt32Static.Add3"
+'    End If
+'
+'    CopyMemory Add3, lnglngResult, SIZEOF_UINT32
+'
+'End Function
 
 
 'Remove bitwise add 3xbetter
@@ -936,24 +962,24 @@ End Function
 '   * For signed integers all zeros or all ones in the high-order bits and the sign bit on the
 '       loworder bit indicate no overflow.
 ''
-Public Function Multiply2(ByRef left As ULong, ByRef right As ULong) As ULong
-
-    Dim bitMask As Long
-    bitMask = &H1&
-    
-    Dim result As ULong
-    Dim shiftedRight As ULong
-    
-    shiftedRight = right
-    Do While (bitMask)
-        If (left.Value And bitMask) Then
-            result = Me.Add(result, shiftedRight)
-        End If
-        shiftedRight.Value = Int32Bitwise.ShiftLeft(shiftedRight.Value, 1)
-        bitMask = Int32Bitwise.ShiftLeft(bitMask, 1)
-    Loop
-    
-    Multiply2 = result
+'Public Function Multiply2(ByRef left As ULong, ByRef right As ULong) As ULong
+'
+'    Dim bitMask As Long
+'    bitMask = &H1&
+'
+'    Dim result As ULong
+'    Dim shiftedRight As ULong
+'
+'    shiftedRight = right
+'    Do While (bitMask)
+'        If (left.Value And bitMask) Then
+'            result = Me.Add(result, shiftedRight)
+'        End If
+'        shiftedRight.Value = Int32Bitwise.ShiftLeft(shiftedRight.Value, 1)
+'        bitMask = Int32Bitwise.ShiftLeft(bitMask, 1)
+'    Loop
+'
+'    Multiply2 = result
     
 ' https://github.com/adyradu/Algorithms-and-Data-Structures/blob/de4f5f32d7fb115f0a6927feb11a7b51f7479b3c/algorithms/bits/BitMultiplication/BitMultiplication.cpp
     
@@ -975,29 +1001,29 @@ Public Function Multiply2(ByRef left As ULong, ByRef right As ULong) As ULong
 '    return result;
 '}
 
-End Function
+'End Function
 
 
-Public Function Multiply3(ByRef left As ULong, ByRef right As ULong) As ULong
-    Dim shiftedRight As ULong
-    shiftedRight = right
-
-    Dim bitMask As Long
-    Dim bitIndex As Long
-    For bitIndex = 0 To 31
-        bitMask = this.Powers(bitIndex)
-        If (left.Value And bitMask) Then
-            Multiply3 = Me.Add(Multiply3, shiftedRight)
-        End If
-'        shiftedRight = Me.LeftShift(shiftedRight, 1)
-              
-        If shiftedRight.Value And &H40000000 Then
-            shiftedRight.Value = ((shiftedRight.Value And &H3FFFFFFF) * &H2&) Or MOST_SIGNIFICANT_BIT_MASK
-        Else
-            shiftedRight.Value = (shiftedRight.Value And &H3FFFFFFF) * &H2&
-        End If
-        
-    Next
+'Public Function Multiply3(ByRef left As ULong, ByRef right As ULong) As ULong
+'    Dim shiftedRight As ULong
+'    shiftedRight = right
+'
+'    Dim bitMask As Long
+'    Dim bitIndex As Long
+'    For bitIndex = 0 To 31
+'        bitMask = this.Powers(bitIndex)
+'        If (left.Value And bitMask) Then
+'            Multiply3 = Me.Add(Multiply3, shiftedRight)
+'        End If
+''        shiftedRight = Me.LeftShift(shiftedRight, 1)
+'
+'        If shiftedRight.Value And &H40000000 Then
+'            shiftedRight.Value = ((shiftedRight.Value And &H3FFFFFFF) * &H2&) Or MOST_SIGNIFICANT_BIT_MASK
+'        Else
+'            shiftedRight.Value = (shiftedRight.Value And &H3FFFFFFF) * &H2&
+'        End If
+'
+'    Next
     
     'Multiply3 = result
     
@@ -1021,5 +1047,5 @@ Public Function Multiply3(ByRef left As ULong, ByRef right As ULong) As ULong
 '    return result;
 '}
 
-End Function
+'End Function
 
