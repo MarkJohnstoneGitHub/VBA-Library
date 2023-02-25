@@ -18,8 +18,9 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '@LastModified February 25, 2023
 
 '@Dependancies
-' CopyMemoryAPI.bas
-' ULongType.bas
+'   ULongType.bas
+'   VBADecimalType.bas
+'   CopyMemoryAPI.bas
 
 '@Remarks
 
@@ -352,7 +353,6 @@ End Function
 '   When two unsigned numbers are added, overflow occurs if there is a carry out of the leftmost bit.
 ''
 Public Function Add(ByRef left As ULong, ByRef right As ULong) As ULong
-
     Dim carryOver  As Long
     If left.Value = 0 Then
         Add.Value = right.Value
@@ -362,19 +362,19 @@ Public Function Add(ByRef left As ULong, ByRef right As ULong) As ULong
         Exit Function
     End If
 
-    Dim cLeft As Long
-    Dim cRight As Long
+    Dim carryLeft As Long
+    Dim carryRight As Long
     Dim bitIndex  As Long
     Dim bitMask As Long
     For bitIndex = 0 To 31
         bitMask = this.Powers(bitIndex)
-        carryOver = ((cLeft And cRight) Or (cLeft And carryOver) Or (cRight And carryOver))
+        carryOver = ((carryLeft And carryRight) Or (carryLeft And carryOver) Or (carryRight And carryOver))
         If carryOver Then
             carryOver = bitMask
         End If
-        cLeft = left.Value And bitMask
-        cRight = right.Value And bitMask
-        Add.Value = Add.Value Xor cLeft Xor cRight Xor carryOver
+        carryLeft = left.Value And bitMask
+        carryRight = right.Value And bitMask
+        Add.Value = Add.Value Xor carryLeft Xor carryRight Xor carryOver
     Next
     If carryOver Then
         Add.Value = 0
