@@ -3,13 +3,13 @@
 Data Types
 UInt32Static.cls Static class for unsigned 32 bit values
 
-  Dependances:
+  **Dependencies:**
   
-    ULongType.bas
+    - [ULongType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/ULongType.bas)
     
-    VBADecimalType.bas
+    - [VBADecimalType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/VBADecimalType.bas)
     
-    CopyMemoryAPI.bas
+    - [CopyMemoryAPI.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/API/CopyMemoryAPI.bas)    
 
 ULongType.bas
 
