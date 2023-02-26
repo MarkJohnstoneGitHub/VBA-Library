@@ -513,10 +513,12 @@ End Function
 
 ''
 '@Static
-'@Description "Subtracts two unsigned UInt32/ULong values."
+'@Description "Subtracts two unsigned 32 bit values."
 '@Parameters
 '   lhs ULong
+'       Value to subtract from
 '   rhs ULong
+'       Value to subtract from lhs
 '@Returns ULong
 '
 '@Exceptions
@@ -526,33 +528,38 @@ End Function
 '@Remarks
 ''
 Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    Dim dtLhs As DecimalType
-    Dim dtRhs As DecimalType
-    
-    'Cast lhs and rhs to decimal type i.e. variant containing a VBA decimal to avoid conversion of
-    'negative numbers.
-    dtLhs.vt = VBA.vbDecimal
-    dtLhs.Lo32 = lhs.Value
-    dtRhs.vt = VBA.vbDecimal
-    dtRhs.Lo32 = rhs.Value
-    
-    Dim decimalLhs As Variant
-    Dim decimalRhs As Variant
-    Dim decimalResult As Variant
-    
-    'Create VBA decimal type from decimal structure
-    CopyMemory decimalLhs, dtLhs, 16
-    CopyMemory decimalRhs, dtRhs, 16
-    
-    decimalResult = decimalLhs - decimalRhs
-    
-    If decimalResult < MIN_ULONG Then
-       Err.Raise OverflowException, "UInt32.Subtract"
+    If rhs.Value = 0 Then
+        Subtract.Value = lhs.Value
+        Exit Function
+    ElseIf Me.Compare(lhs, rhs) = -1 Then
+        Err.Raise OverflowException, "UInt32.Subtract"
+        Exit Function
     End If
-    
-    CopyMemoryByPtr VarPtr(Subtract), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
 
+    Dim dwLhs As DWORD
+    LSet dwLhs = lhs
+    Dim dwRhs As DWORD
+    LSet dwRhs = rhs
+    
+    Dim dwResult As DWORD
+    Dim carry As Byte
+    
+    If SubtractByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte) Then
+        dwResult.LowWord.HighByte = 1
+    End If
+    If SubtractByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, dwResult.LowWord.HighByte) Then
+        dwResult.HighWord.LowByte = 1
+    End If
+    If SubtractByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, dwResult.HighWord.LowByte) Then
+        dwResult.HighWord.HighByte = 1
+    End If
+    If SubtractByte(dwLhs.HighWord.HighByte, dwRhs.HighWord.HighByte, dwResult.HighWord.HighByte) Then
+        LSet dwResult = this.dwZero
+        Err.Raise OverflowException
+    End If
+    LSet Subtract = dwResult
 End Function
+
 
 ''
 '@Static
@@ -923,20 +930,20 @@ End Sub
 ''
 '@Description"Adds two bytes without raising overflow and returns if a carry or overflow occcured."
 '@Parameters
-'   left Byte
+'   lhs Byte
 '       value to be added
-'   right Byte
+'   rhs Byte
 '       value to be added
 '   outResult Byte
 '       result of adding the two byte values
 '@Returns Byte
 '   Returns 1 if there is a carry or overflow, otherwise 0
 ''
-Private Function AddByte(ByVal left As Byte, ByVal right As Byte, ByRef outResult As Byte) As Byte
+Private Function AddByte(ByVal lhs As Byte, ByVal rhs As Byte, ByRef outResult As Byte) As Byte
     Const MAXVALUE_BYTE As Integer = 255
     Dim result As Integer
     'Cast to an integer otherwise overflow occurs with byte addition
-    result = outResult + CInt(left) + right
+    result = outResult + CInt(lhs) + rhs
     If result > MAXVALUE_BYTE Then
         outResult = result - 256
         AddByte = 1 'carry or overflow occured
@@ -944,6 +951,33 @@ Private Function AddByte(ByVal left As Byte, ByVal right As Byte, ByRef outResul
         outResult = result
     End If
 End Function
+
+
+''
+'@Description"Subtracts two bytes without raising overflow and returns if a carry or overflow occcured."
+'@Parameters
+'   left Byte
+'       value to be subtracted from
+'   right Byte
+'       value to subtract from lhs
+'   outResult Byte
+'       result of adding the two byte values
+'@Returns Byte
+'   Returns 1 if there is a carry or overflow, otherwise 0
+''
+Private Function SubtractByte(ByVal lhs As Byte, ByVal rhs As Byte, ByRef outResult As Byte) As Byte
+    Const MINVALUE_BYTE As Integer = 0
+    Dim result As Integer
+    'Cast to an integer otherwise overflow occurs with byte addition
+    result = CInt(lhs) - rhs - outResult
+    If result < MINVALUE_BYTE Then
+        outResult = result + 256
+        SubtractByte = 1 'carry or overflow occured
+    Else
+        outResult = result
+    End If
+End Function
+
 
 '------------------------------------------------------------------
 'Old code to be removed.
@@ -1181,4 +1215,50 @@ End Function
 '        Add.Value = 0
 '        Err.Raise OverflowException, "UInt32Static.Add"
 '    End If
+'End Function
+
+
+''
+'@Static
+'@Description "Subtracts two unsigned 32 bit values."
+'@Parameters
+'   lhs ULong
+'       Value to subtract from
+'   rhs ULong
+'       Value to subtract from lhs
+'@Returns ULong
+'
+'@Exceptions
+'   OverflowException
+'       Raised when the result is less the minimum UInt32 value of 0.
+'
+'@Remarks
+''
+'Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+'    Dim dtLhs As DecimalType
+'    Dim dtRhs As DecimalType
+'
+'    'Cast lhs and rhs to decimal type i.e. variant containing a VBA decimal to avoid conversion of
+'    'negative numbers.
+'    dtLhs.vt = VBA.vbDecimal
+'    dtLhs.Lo32 = lhs.Value
+'    dtRhs.vt = VBA.vbDecimal
+'    dtRhs.Lo32 = rhs.Value
+'
+'    Dim decimalLhs As Variant
+'    Dim decimalRhs As Variant
+'    Dim decimalResult As Variant
+'
+'    'Create VBA decimal type from decimal structure
+'    CopyMemory decimalLhs, dtLhs, 16
+'    CopyMemory decimalRhs, dtRhs, 16
+'
+'    decimalResult = decimalLhs - decimalRhs
+'
+'    If decimalResult < MIN_ULONG Then
+'       Err.Raise OverflowException, "UInt32.Subtract"
+'    End If
+'
+'    CopyMemoryByPtr VarPtr(Subtract), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
+'
 'End Function
