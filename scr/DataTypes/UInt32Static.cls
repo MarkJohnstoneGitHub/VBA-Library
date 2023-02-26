@@ -69,6 +69,7 @@ Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
 Private Type TUInt32Static
     decMaxUInt32 As Variant 'contains a decimal type
     dwZero  As DWORD
+    ulngOne As ULong
     Powers() As Long    'Used for bitwise operations
     Masks() As Long     'Used for bitwise operations
     RevMasks() As Long  'Used for bitwise operations
@@ -84,6 +85,8 @@ Private this As TUInt32Static
 '------------------------------------------------------------------
 Private Sub Class_Initialize()
     this.decMaxUInt32 = CDec(MAX_ULONG)
+    
+    this.ulngOne.Value = 1 'constant for caculation in IsPow2
     
     'Initialise bitwise arrays
     InitPowers
@@ -701,10 +704,20 @@ End Function
 
 ''
 '@Static
-'@TODO Implement
+'@Description"Determines if a value is a power of two."
+'@Parameters
+'    val ULong
+'       The value to be checked.
+'
+'@Returns Boolean
+'   true if value is a power of two; otherwise, false.
 ''
 Public Function IsPow2(ByRef val As ULong) As Boolean
-'public static bool IsPow2(uint value) => (value & (value - 1)) == 0 && value != 0;
+    If val.Value <> 0 Then 'to avoid overflow with subtraction of 0
+        If (val.Value And (Me.Subtract(val, this.ulngOne).Value)) = 0 And val.Value <> 0 Then
+            IsPow2 = True
+        End If
+    End If
 End Function
 
 ''
@@ -773,9 +786,6 @@ End Function
 Public Function Clone(ByRef val As ULong) As ULong
     Clone.Value = val.Value
 End Function
-
-
-    
 
 '------------------------------------------------------------------
 'Private Methods
