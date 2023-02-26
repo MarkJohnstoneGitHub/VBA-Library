@@ -15,8 +15,8 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 26, 2023
-'@LastModified February 26, 2023
+'@Version v1.0 February 27, 2023
+'@LastModified February 27, 2023
 
 '@Dependancies
 '   ULongType.bas
@@ -58,6 +58,9 @@ Private Const decimalLo32Offset As Long = 8
 
 Private Const OverflowException As Long = &H6&
 Private Const ArgumentException As Long = &H5&  'Invalid procedure call or argument.
+Private Const DivideByZeroException As Long = &H11&
+Private Const NotImplementedException As Long = 9999
+
 
 Private Const MIN_BITSHIFT As Long = 0
 Private Const MAX_BITSHIFT As Long = 32
@@ -69,7 +72,7 @@ Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
 Private Type TUInt32Static
     decMaxUInt32 As Variant 'contains a decimal type
     dwZero  As DWORD
-    ulngOne As ULong
+    ulngOne As ULong    'For caculation in IsPow2
     Powers() As Long    'Used for bitwise operations
     Masks() As Long     'Used for bitwise operations
     RevMasks() As Long  'Used for bitwise operations
@@ -115,6 +118,12 @@ End Property
 
 ''
 '@Static
+'@Description "Copies the source unsigned 32 bit value to the destination."
+'@Parameters
+'   destination ULong
+'       The destination which the source value is copied to.
+'   source  ULong
+'       The value to be copied to the destination.
 ''
 Public Sub Assign(ByRef destination As ULong, ByRef source As ULong)
     destination.Value = source.Value
@@ -122,10 +131,10 @@ End Sub
 
 ''
 '@Static
-'@Description "Converts a value to unsigned 32 bit value i.e ULong/UInt32."
+'@Description "Converts a value to unsigned 32-bit value."
 '@Parameters
 '   val: Variant
-'       value to be convert to a Ulong type
+'       value to be converted to a n unsigned 32-bit value
 '@Returns ULong
 '   value converted to an unsigned 32 bit value
 '
@@ -175,7 +184,7 @@ Public Function CUInt32(ByRef val As Variant) As ULong
         #If VBA7 Then
         Case VarType(val) = vbLongLong
             If val >= 0 And val <= 4294967295# Then
-                'Copy the low 4 bytes to a ULong
+                'Copy the low 4 bytes to ULong value
                 CopyMemory CUInt32.Value, val, SIZEOF_UINT32
             Else
                 Err.Raise OverflowException
@@ -199,7 +208,6 @@ Public Function CUInt32(ByRef val As Variant) As ULong
             Else
                 Err.Raise OverflowException
             End If
-
         Case Else
             Err.Raise ArgumentException, "UInt32Static.CUInt32", "Invalid argument"
     End Select
@@ -219,23 +227,23 @@ End Function
 '   Returns If greater than is 1, equals is 0, less than is -1
 '@Remarks
 ''
-Public Function Compare(ByRef lhs As ULong, ByRef rhs As ULong) As Long
+Public Function CompareTo(ByRef lhs As ULong, ByRef rhs As ULong) As Long
     'If the most significant bit is different
     If (lhs.Value Xor rhs.Value) < 0 Then
         'If left most significant bit set it is the larger unsigned value
         If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
-             Compare = 1
+             CompareTo = 1
              Exit Function
         Else
-            Compare = -1
+            CompareTo = -1
             Exit Function
         End If
     End If
     'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
     If lhs.Value > rhs.Value Then
-        Compare = 1
+        CompareTo = 1
     ElseIf lhs.Value < rhs.Value Then
-        Compare = -1
+        CompareTo = -1
     End If
 End Function
 
@@ -263,23 +271,47 @@ End Function
 
 ''
 '@Static
+'@Description "Clamps a value to an inclusive minimum and maximum value."
+'@Parameters
+'   value ULong
+'       The value to clamp.
+'   min ULong
+'       The inclusive minimum to which value should clamp.
+'   max ULong
+'       The inclusive maximum to which value should clamp.
+'@Returns ULong
+'   The result of clamping value to the inclusive range of min and max.
+'@Remarks
+'
+'@TODO Implement
+''
+Public Function Clamp(ByRef val As ULong, ByRef valMin As ULong, ByRef valMax As ULong) As ULong
+'public static uint Clamp (uint value, uint min, uint max)
+    Err.Raise NotImplementedException, "UInt32.Clamp"
+End Function
+
+''
+'@Static
 '@Description "Returns the quotient and the remainder of two signed 64-bit numbers."
 '@Parameters
 '   dividend ULong
+'       The value to be divided.
 '   divisor ULong
+'       The value to divide by.
 '   outRemainder ULong
 '       returns the remainder of the dividend and divisor
-'
 '@Returns ULong
 '   The quotient of the of the dividend and divisor.
 '
 '@Exceptions
-'   Runtime error 11 Division by 0
-'       Raised when a divisor is 0
-'@TODO
-'   Check initially the divisor is 0 and raise error
+'   DivideByZeroException
+'       Raised when a divisor is 0, runtime error 11
 ''
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
+    If divisor.Value = 0 Then
+        Err.Raise DivideByZeroException, "UInt32.DivRem"
+    End If
+
     Dim dtDividend As DecimalType
     Dim dtDivisor As DecimalType
     
@@ -311,16 +343,26 @@ End Function
 
 ''
 '@Static
-'@Description ""
+'@Description "Calculates the remainder of two 32-bit unsigned integers"
 '@Parameters
 '   dividend ULong
+'       The value to be divided.
 '   divisor ULong
-'
+'       The value to divide by.
 '@Returns ULong
+'   Returns the remainder portion of the division operation.
+'
+'@Exceptions
+'   DivideByZeroException
+'       Raised when a divisor is 0, runtime error 11
 '
 '@Remarks
+'   A modulus operation is used to calculate the remainder of a division operation.
 ''
 Public Function Modulus(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
+    If divisor.Value = 0 Then
+        Err.Raise DivideByZeroException, "UInt32.Modulus"
+    End If
     DivRem dividend, divisor, Modulus
 End Function
 
@@ -339,7 +381,7 @@ End Function
 '@Remarks
 ''
 Public Function Max(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    If Compare(lhs, rhs) > 0 Then
+    If CompareTo(lhs, rhs) > 0 Then
         Max = lhs
     Else
         Max = rhs
@@ -359,7 +401,7 @@ End Function
 '   lhs if it is less than rhs; otherwise, rhs.
 ''
 Public Function Min(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    If Compare(lhs, rhs) < 0 Then
+    If CompareTo(lhs, rhs) < 0 Then
         Min = lhs
     Else
         Min = rhs
@@ -400,7 +442,6 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwLhs = lhs
     Dim dwRhs As DWORD
     LSet dwRhs = rhs
-    
     Dim dwResult As DWORD
     
     If AddByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte) Then
@@ -432,13 +473,14 @@ End Function
 '   The quotient of the of the dividend and divisor.
 '
 '@Exceptions
-'   Runtime error 11 Division by 0
-'       Raised when a divisor is 0
-'
-'@Remarks
-'@TODO Check divisor = 0 and raise error
+'   DivideByZeroException
+'       Raised when a divisor is 0, runtime error 11
 ''
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
+    If divisor.Value = 0 Then
+        Err.Raise DivideByZeroException, "UInt32.Divide"
+    End If
+
     Dim dtDividend As DecimalType
     Dim dtDivisor As DecimalType
     
@@ -524,7 +566,7 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     If rhs.Value = 0 Then
         Subtract.Value = lhs.Value
         Exit Function
-    ElseIf Me.Compare(lhs, rhs) = -1 Then
+    ElseIf Me.CompareTo(lhs, rhs) = -1 Then
         Err.Raise OverflowException, "UInt32.Subtract"
         Exit Function
     End If
@@ -684,22 +726,44 @@ Public Function RightShift(ByRef val As ULong, ByVal offset As Long) As ULong
     End If
 End Function
 
-
-'@Description "Rotates the specified value right by the specified number of bits. Similar in behavior to the x86 instruction ROR."
-'@Reference
-' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,f37eec40a05d7095
-'@TODO Implement
-Public Function RotateRight(ByRef val As ULong, ByVal offset As Long)
-'public static uint RotateRight(uint value, int offset)
-'    => (value >> offset) | (value << (32 - offset));
+''
+'@Static
+'@Description "Rotates the specified value left by the specified number of bits."
+'"
+'@Parameters
+'   val ULong value
+'   offset The number of bits to rotate-left by.
+'@Returns Long
+'   Returns a ULong of the bitwise rotate-left, by the given number of bits.
+'
+'@Remarks
+'   Bitwise operatation shifts each bit to the left, with the highest bit copied in the Carry flag
+'   and into the lowest bit.
+'
+'@References
+'   https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs
+''
+Public Function RotateLeft(ByRef val As ULong, ByVal offset As Long) As Long
+    RotateLeft = LeftShift(val, offset).Value Or RightShift(val, (SIZEOF_UINT32_BITS - offset)).Value
 End Function
 
 ''
 '@Static
-'@TODO Implement
+'@Description "Rotates the specified value right by the specified number of bits."
+'@Parameters
+'   val: ULong value
+'   offset: The number of bits to rotate-right by.
+'@Returns ULong
+'   Returns a UInt32 of the bitwise rotate-right, by the given number of bits.
+'@Remarks
+'   Bitwise operatation shifts each bit to the right, with the lowest bit copied in the Carry flag
+'   and into the highest bit.
+'
+'@Reference
+' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,f37eec40a05d7095
 ''
-Public Function RotateLeft(ByRef val As ULong, ByVal offset As Long)
-'public static uint RotateLeft(uint value, int rotateAmount) => BitOperations.RotateLeft(value, rotateAmount);
+Public Function RotateRight(ByRef val As ULong, ByVal offset As Long) As Long
+    RotateRight = RightShift(val, offset).Value Or LeftShift(val, (SIZEOF_UINT32_BITS - offset)).Value
 End Function
 
 ''

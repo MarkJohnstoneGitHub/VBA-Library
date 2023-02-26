@@ -3,14 +3,13 @@ Attribute VB_Name = "Testing_UInt32Static_Subtract"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 26, 2023
-'@LastModified February 26, 2023
+'@Version v1.0 February 27, 2023
+'@LastModified February 27, 2023
 
 Option Explicit
 
 Private Sub TestingUInt32Subtract()
     Dim result As ULong
-
     Dim lhs  As ULong
     Dim rhs As ULong
 
@@ -36,6 +35,11 @@ Private Sub TestingUInt32Subtract()
     
     lhs.Value = &HFFFFFFFF
     rhs.Value = &H1&
+    result = UInt32Static.Subtract(lhs, rhs)
+    DisplaySubtract lhs, rhs, result
+    
+    lhs.Value = &HFFFFFFFF
+    rhs.Value = &HF5FFEFF2
     result = UInt32Static.Subtract(lhs, rhs)
     DisplaySubtract lhs, rhs, result
 End Sub
