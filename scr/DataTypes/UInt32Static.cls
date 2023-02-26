@@ -348,15 +348,6 @@ End Function
 '@Description "Compares two values to compute which is lesser."
 '@Parameters
 '   lhs ULong
-'   lhs ULong
-'
-'@Returns ULong
-'   ULong
-'
-'@Remarks
-
-'@Parameters
-'   lhs ULong
 '       The value to compare with rhs.
 '   rhs ULong
 '       The value to compare with lhs.
