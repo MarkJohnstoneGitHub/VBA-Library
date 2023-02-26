@@ -15,11 +15,13 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 25, 2023
-'@LastModified February 25, 2023
+'@Version v1.0 February 26, 2023
+'@LastModified February 26, 2023
 
 '@Dependancies
 '   ULongType.bas
+'   DWordType.bas
+'   WordType.bas
 '   VBADecimalType.bas
 '   CopyMemoryAPI.bas
 
@@ -66,6 +68,7 @@ Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
 '------------------------------------------------------------------
 Private Type TUInt32Static
     decMaxUInt32 As Variant 'contains a decimal type
+    dwZero  As DWORD
     Powers() As Long    'Used for bitwise operations
     Masks() As Long     'Used for bitwise operations
     RevMasks() As Long  'Used for bitwise operations
@@ -204,20 +207,20 @@ End Function
 '@Static
 '@Description "Compares two unsigned longs/UInt32 which their raw values are stored in a Long/Int32."
 '@Parameters
-'   left: ULong
+'   lhs: ULong
 '       unsigned long value to compare against
-'   right: ULong
-'       unsigned long value to compare to left
+'   rhs: ULong
+'       unsigned long value to compare to lhs
 '
 '@Returns Long
 '   Returns If greater than is 1, equals is 0, less than is -1
 '@Remarks
 ''
-Public Function Compare(ByRef left As ULong, ByRef right As ULong) As Long
+Public Function Compare(ByRef lhs As ULong, ByRef rhs As ULong) As Long
     'If the most significant bit is different
-    If (left.Value Xor right.Value) < 0 Then
+    If (lhs.Value Xor rhs.Value) < 0 Then
         'If left most significant bit set it is the larger unsigned value
-        If left.Value And MOST_SIGNIFICANT_BIT_MASK Then
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
              Compare = 1
              Exit Function
         Else
@@ -226,10 +229,17 @@ Public Function Compare(ByRef left As ULong, ByRef right As ULong) As Long
         End If
     End If
     'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
-    If left.Value > right.Value Then
+    If lhs.Value > rhs.Value Then
         Compare = 1
-    ElseIf left.Value < right.Value Then
+    ElseIf lhs.Value < rhs.Value Then
         Compare = -1
+    End If
+End Function
+
+'@Description"Returns a value indicating whether two unsigned 32 bit values are equal."
+Public Function Equals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+    If (lhs.Value = rhs.Value) Then
+        Equals = True
     End If
 End Function
 
@@ -313,18 +323,21 @@ End Function
 
 ''
 '@Static
-'@Description ""
+'@Description "Compares two values to compute which is greater."
 '@Parameters
 '   left ULong
+'       The value to compare with right.
 '   right ULong
+'       The value to compare with left.
 '
 '@Returns ULong
+'   left if it is greater than right; otherwise, right.
 '
 '@Remarks
 ''
-Public Function Max(ByRef left As ULong, ByRef right As ULong) As ULong
-    If Compare(left, right) > 0 Then
-        Max = left
+Public Function Max(ByRef lhs As ULong, ByRef right As ULong) As ULong
+    If Compare(lhs, right) > 0 Then
+        Max = lhs
     Else
         Max = right
     End If
@@ -332,21 +345,30 @@ End Function
 
 ''
 '@Static
-'@Description "Returns the minimum of two unsigned 32 bit values. i.e ULong/UInt32"
+'@Description "Compares two values to compute which is lesser."
 '@Parameters
-'   left ULong
-'   left ULong
+'   lhs ULong
+'   lhs ULong
 '
 '@Returns ULong
 '   ULong
 '
 '@Remarks
+
+'@Parameters
+'   lhs ULong
+'       The value to compare with rhs.
+'   rhs ULong
+'       The value to compare with lhs.
+'
+'@Returns ULong
+'   lhs if it is less than rhs; otherwise, rhs.
 ''
-Public Function Min(ByRef left As ULong, ByRef right As ULong) As ULong
-    If Compare(left, right) < 0 Then
-        Min = left
+Public Function Min(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    If Compare(lhs, rhs) < 0 Then
+        Min = lhs
     Else
-        Min = right
+        Min = rhs
     End If
 End Function
 
@@ -354,10 +376,10 @@ End Function
 '@Static
 '@Description "Adds two unsigned 32 bit values."
 '@Parameters
-'   left ULong
-'       value to be added
-'   right ULong
-'       value to be addded
+'   lhs ULong
+'       value to be added to rhs
+'   rhs ULong
+'       value to be addded  to lhs
 '
 '@Returns ULong
 '   The result of the addition of two unsigned 32 bit values
@@ -367,76 +389,42 @@ End Function
 '       Raised when a result exceeds the max UInt32 value of 4294967295
 '
 '@Remarks
-'   Using bitwise addition to add to unsigned two 32 bit values.
-'   When two unsigned numbers are added, overflow occurs if there is a carry out of the leftmost bit.
+'   Adding unsigned 32 bit values using addition of bytes with carry/overflow. See function AddByte.
+'   Performance 3 times better than using bitwise addition method.
+'   Using LSet to copy from one UDT to another of equal byte length.
 ''
-Public Function Add(ByRef left As ULong, ByRef right As ULong) As ULong
-    Dim carryOver  As Long
-    If left.Value = 0 Then
-        Add.Value = right.Value
+Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    If lhs.Value = 0 Then
+        Add.Value = rhs.Value
         Exit Function
-    ElseIf right.Value = 0 Then
-        Add.Value = left.Value
-        Exit Function
-    End If
-
-    Dim carryLeft As Long
-    Dim carryRight As Long
-    Dim bitIndex  As Long
-    Dim bitMask As Long
-    For bitIndex = 0 To 31
-        bitMask = this.Powers(bitIndex)
-        carryOver = ((carryLeft And carryRight) Or (carryLeft And carryOver) Or (carryRight And carryOver))
-        If carryOver Then
-            carryOver = bitMask
-        End If
-        carryLeft = left.Value And bitMask
-        carryRight = right.Value And bitMask
-        Add.Value = Add.Value Xor carryLeft Xor carryRight Xor carryOver
-    Next
-    If carryOver Then
-        Add.Value = 0
-        Err.Raise OverflowException, "UInt32Static.Add"
-    End If
-End Function
-
-'Testing Add Peformance using DWORD verses Bitwise
-Public Function Add2(ByRef left As ULong, ByRef right As ULong) As ULong
-    If left.Value = 0 Then
-        Add2.Value = right.Value
-        Exit Function
-    ElseIf right.Value = 0 Then
-        Add2.Value = left.Value
+    ElseIf rhs.Value = 0 Then
+        Add.Value = lhs.Value
         Exit Function
     End If
 
-    Dim dwleft As DWORD
-    LSet dwleft = left
-    Dim dwRight As DWORD
-    LSet dwleft = right
+    Dim dwLhs As DWORD
+    LSet dwLhs = lhs
+    Dim dwRhs As DWORD
+    LSet dwRhs = rhs
     
     Dim result As DWORD
     Dim carry As Byte
-    Dim dwZero  As DWORD
     
-    If AddByte(dwleft.LowWord.LowByte, dwRight.LowWord.LowByte, result.LowWord.LowByte) Then
+    If AddByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, result.LowWord.LowByte) Then
         result.LowWord.HighByte = 1
     End If
-    If AddByte(dwleft.LowWord.HighByte, dwRight.LowWord.HighByte, result.LowWord.HighByte) Then
+    If AddByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, result.LowWord.HighByte) Then
         result.HighWord.LowByte = 1
     End If
-    
-    If AddByte(dwleft.HighWord.LowByte, dwRight.HighWord.LowByte, result.HighWord.LowByte) Then
+    If AddByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, result.HighWord.LowByte) Then
         result.HighWord.HighByte = 1
     End If
-    If AddByte(dwleft.HighWord.HighByte, dwRight.HighWord.HighByte, result.HighWord.HighByte) Then
+    If AddByte(dwLhs.HighWord.HighByte, dwRhs.HighWord.HighByte, result.HighWord.HighByte) Then
+        LSet result = this.dwZero
         Err.Raise OverflowException
-        LSet result = dwZero
     End If
-    LSet Add2 = result
+    LSet Add = result
 End Function
-
-
 
 ''
 '@Static
@@ -486,8 +474,8 @@ End Function
 '@Static
 '@Description "Multiplies two unsigned UInt32/ULong numbers."
 '@Parameters
-'   left ULong
-'   right ULong
+'   lhs ULong
+'   rhs ULong
 '
 '@Returns ULong
 '
@@ -495,26 +483,26 @@ End Function
 '   OverflowException
 '       Raised when the result exceeds the max UInt32 value of 4294967295
 ''
-Public Function Multiply(ByRef left As ULong, ByRef right As ULong) As ULong
-    Dim dtLeft As DecimalType
-    Dim dtRight As DecimalType
+Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    Dim dtLhs As DecimalType
+    Dim dtRhs As DecimalType
     
-    'Cast left and right to decimal type i.e. variant containing a VBA decimal to avoid conversion of
+    'Cast lhs and rhs to decimal type i.e. variant containing a VBA decimal to avoid conversion of
     'negative numbers.
-    dtLeft.vt = VBA.vbDecimal
-    dtLeft.Lo32 = left.Value
-    dtRight.vt = VBA.vbDecimal
-    dtRight.Lo32 = right.Value
+    dtLhs.vt = VBA.vbDecimal
+    dtLhs.Lo32 = lhs.Value
+    dtRhs.vt = VBA.vbDecimal
+    dtRhs.Lo32 = rhs.Value
     
-    Dim decimalLeft As Variant
-    Dim decimalright As Variant
+    Dim decimalLhs As Variant
+    Dim decimalRhs As Variant
     Dim decimalResult As Variant
     
     'Create VBA decimal type from decimal structure
-    CopyMemory decimalLeft, dtLeft, 16
-    CopyMemory decimalright, dtRight, 16
+    CopyMemory decimalLhs, dtLhs, 16
+    CopyMemory decimalRhs, dtRhs, 16
     
-    decimalResult = decimalLeft * decimalright
+    decimalResult = decimalLhs * decimalRhs
     
     If decimalResult > this.decMaxUInt32 Then
        Err.Raise OverflowException, "UInt32.Multiply"
@@ -527,8 +515,8 @@ End Function
 '@Static
 '@Description "Subtracts two unsigned UInt32/ULong values."
 '@Parameters
-'   left ULong
-'   right ULong
+'   lhs ULong
+'   rhs ULong
 '@Returns ULong
 '
 '@Exceptions
@@ -537,26 +525,26 @@ End Function
 '
 '@Remarks
 ''
-Public Function Subtract(ByRef left As ULong, ByRef right As ULong) As ULong
-    Dim dtLeft As DecimalType
-    Dim dtRight As DecimalType
+Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    Dim dtLhs As DecimalType
+    Dim dtRhs As DecimalType
     
-    'Cast left and right to decimal type i.e. variant containing a VBA decimal to avoid conversion of
+    'Cast lhs and rhs to decimal type i.e. variant containing a VBA decimal to avoid conversion of
     'negative numbers.
-    dtLeft.vt = VBA.vbDecimal
-    dtLeft.Lo32 = left.Value
-    dtRight.vt = VBA.vbDecimal
-    dtRight.Lo32 = right.Value
+    dtLhs.vt = VBA.vbDecimal
+    dtLhs.Lo32 = lhs.Value
+    dtRhs.vt = VBA.vbDecimal
+    dtRhs.Lo32 = rhs.Value
     
-    Dim decimalLeft As Variant
-    Dim decimalright As Variant
+    Dim decimalLhs As Variant
+    Dim decimalRhs As Variant
     Dim decimalResult As Variant
     
     'Create VBA decimal type from decimal structure
-    CopyMemory decimalLeft, dtLeft, 16
-    CopyMemory decimalright, dtRight, 16
+    CopyMemory decimalLhs, dtLhs, 16
+    CopyMemory decimalRhs, dtRhs, 16
     
-    decimalResult = decimalLeft - decimalright
+    decimalResult = decimalLhs - decimalRhs
     
     If decimalResult < MIN_ULONG Then
        Err.Raise OverflowException, "UInt32.Subtract"
@@ -596,13 +584,13 @@ End Function
 '@Static
 '@Description "Bitwise AND of two unsigned UInt32/ULong values."
 '@Parameters
-'   left ULong
-'   right ULong
+'   lhs ULong
+'   rhs ULong
 '
 '@Returns ULong
 ''
-Public Function BitwiseAnd(ByRef left As ULong, ByRef right As ULong) As ULong
-    BitwiseAnd.Value = left.Value And right.Value
+Public Function BitwiseAnd(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    BitwiseAnd.Value = lhs.Value And rhs.Value
 End Function
 
 ''
@@ -621,30 +609,30 @@ End Function
 '@Static
 '@Description "Bitwise OR for two unsigned UInt32/ULong values."
 '@Parameters
-'   left ULong
-'   right ULong
+'   lhs ULong
+'   rhs ULong
 '
 '@Returns ULong
 '
 '@Remarks
 ''
-Public Function BitwiseOr(ByRef left As ULong, ByRef right As ULong) As ULong
-    BitwiseOr.Value = left.Value Or right.Value
+Public Function BitwiseOr(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    BitwiseOr.Value = lhs.Value Or rhs.Value
 End Function
 
 ''
 '@Static
 '@Description "Bitwise XOR for two unsigned UInt32/ULong values."
 '@Parameters
-'   left ULong
-'   right ULong
+'   lhs ULong
+'   rhs ULong
 '
 '@Returns ULong
 '
 '@Remarks
 ''
-Public Function BitwiseXor(ByRef left As ULong, ByRef right As ULong) As ULong
-    BitwiseXor.Value = left.Value Xor right.Value
+Public Function BitwiseXor(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    BitwiseXor.Value = lhs.Value Xor rhs.Value
 End Function
 
 ''
@@ -933,20 +921,32 @@ Private Sub InitRevMasks()
 End Sub
 
 ''
-'
+'@Description"Adds two bytes without raising overflow and returns if a carry or overflow occcured."
+'@Parameters
+'   left Byte
+'       value to be added
+'   right Byte
+'       value to be added
+'   outResult Byte
+'       result of adding the two byte values
 '@Returns Byte
-'   Returns 1 if there is a carry overflow, otherwise 0
+'   Returns 1 if there is a carry or overflow, otherwise 0
 ''
 Private Function AddByte(ByVal left As Byte, ByVal right As Byte, ByRef outResult As Byte) As Byte
-On Error GoTo ErrorHandler
-    outResult = outResult + left + right
-CleanExit:
-    Exit Function
-ErrorHandler:
-    AddByte = 1
-    outResult = outResult + &HFE
-    Resume CleanExit
+    Const MAXVALUE_BYTE As Integer = 255
+    Dim result As Integer
+    'Cast to an integer otherwise overflow occurs with byte addition
+    result = outResult + CInt(left) + right
+    If result > MAXVALUE_BYTE Then
+        outResult = result - 256
+        AddByte = 1 'carry or overflow occured
+    Else
+        outResult = result
+    End If
 End Function
+
+'------------------------------------------------------------------
+'Old code to be removed.
 
 'Public Function Add2(ByRef left As ULong, ByRef right As ULong) As ULong
 '    Dim dtLeft As DecimalType
@@ -1133,3 +1133,52 @@ End Function
 
 'End Function
 
+''
+'@Static
+'@Description "Adds two unsigned 32 bit values."
+'@Parameters
+'   left ULong
+'       value to be added
+'   right ULong
+'       value to be addded
+'
+'@Returns ULong
+'   The result of the addition of two unsigned 32 bit values
+'
+'@Exceptions
+'   OverflowException
+'       Raised when a result exceeds the max UInt32 value of 4294967295
+'
+'@Remarks
+'   Using bitwise addition to add to unsigned two 32 bit values.
+'   When two unsigned numbers are added, overflow occurs if there is a carry out of the leftmost bit.
+''
+'Public Function Add(ByRef left As ULong, ByRef right As ULong) As ULong
+'    Dim carryOver  As Long
+'    If left.Value = 0 Then
+'        Add.Value = right.Value
+'        Exit Function
+'    ElseIf right.Value = 0 Then
+'        Add.Value = left.Value
+'        Exit Function
+'    End If
+'
+'    Dim carryLeft As Long
+'    Dim carryRight As Long
+'    Dim bitIndex  As Long
+'    Dim bitMask As Long
+'    For bitIndex = 0 To 31
+'        bitMask = this.Powers(bitIndex)
+'        carryOver = ((carryLeft And carryRight) Or (carryLeft And carryOver) Or (carryRight And carryOver))
+'        If carryOver Then
+'            carryOver = bitMask
+'        End If
+'        carryLeft = left.Value And bitMask
+'        carryRight = right.Value And bitMask
+'        Add.Value = Add.Value Xor carryLeft Xor carryRight Xor carryOver
+'    Next
+'    If carryOver Then
+'        Add.Value = 0
+'        Err.Raise OverflowException, "UInt32Static.Add"
+'    End If
+'End Function
