@@ -407,23 +407,23 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     Dim dwRhs As DWORD
     LSet dwRhs = rhs
     
-    Dim result As DWORD
+    Dim dwResult As DWORD
     Dim carry As Byte
     
-    If AddByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, result.LowWord.LowByte) Then
-        result.LowWord.HighByte = 1
+    If AddByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte) Then
+        dwResult.LowWord.HighByte = 1
     End If
-    If AddByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, result.LowWord.HighByte) Then
-        result.HighWord.LowByte = 1
+    If AddByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, dwResult.LowWord.HighByte) Then
+        dwResult.HighWord.LowByte = 1
     End If
-    If AddByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, result.HighWord.LowByte) Then
-        result.HighWord.HighByte = 1
+    If AddByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, dwResult.HighWord.LowByte) Then
+        dwResult.HighWord.HighByte = 1
     End If
-    If AddByte(dwLhs.HighWord.HighByte, dwRhs.HighWord.HighByte, result.HighWord.HighByte) Then
-        LSet result = this.dwZero
+    If AddByte(dwLhs.HighWord.HighByte, dwRhs.HighWord.HighByte, dwResult.HighWord.HighByte) Then
+        LSet dwResult = this.dwZero
         Err.Raise OverflowException
     End If
-    LSet Add = result
+    LSet Add = dwResult
 End Function
 
 ''
