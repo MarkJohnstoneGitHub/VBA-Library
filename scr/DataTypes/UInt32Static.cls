@@ -558,7 +558,6 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet Subtract = dwResult
 End Function
 
-
 ''
 '@Static
 '@Description("Determines if a value represents an even integral number.")
@@ -569,7 +568,9 @@ End Function
 '   true if value is an even integer; otherwise, false.
 ''
 Public Function IsEvenInteger(ByRef val As ULong) As Boolean
-    IsEvenInteger = val.Value & 1 = 0
+    If (val.Value And 1) = 0 Then
+        IsEvenInteger = True
+    End If
 End Function
 
 ''
@@ -582,7 +583,9 @@ End Function
 '   true if value is an odd integer; otherwise, false.
 ''
 Public Function IsOddInteger(ByRef val As ULong) As Boolean
-    IsOddInteger = val.Value & 1 <> 0
+    If (val.Value And 1) <> 0 Then
+        IsOddInteger = True
+    End If
 End Function
 
 ''
