@@ -7,6 +7,10 @@ UInt32Static.cls Static class for unsigned 32 bit values
   
     - [ULongType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/ULongType.bas)
     
+    - [DWordType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/DWordType.bas)
+    
+    - [WordType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/WordType.bas)    
+    
     - [VBADecimalType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/VBADecimalType.bas)
     
     - [CopyMemoryAPI.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/API/CopyMemoryAPI.bas)    
