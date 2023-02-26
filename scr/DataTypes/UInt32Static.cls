@@ -124,7 +124,7 @@ End Sub
 '   val: Variant
 '       value to be convert to a Ulong type
 '@Returns ULong
-'   ULong value converted
+'   value converted to an unsigned 32 bit value
 '
 '@Exceptions
 '   OverflowException
@@ -325,21 +325,21 @@ End Function
 '@Static
 '@Description "Compares two values to compute which is greater."
 '@Parameters
-'   left ULong
-'       The value to compare with right.
-'   right ULong
-'       The value to compare with left.
+'   lhs ULong
+'       The value to compare with rhs.
+'   rhs ULong
+'       The value to compare with lhs.
 '
 '@Returns ULong
 '   left if it is greater than right; otherwise, right.
 '
 '@Remarks
 ''
-Public Function Max(ByRef lhs As ULong, ByRef right As ULong) As ULong
-    If Compare(lhs, right) > 0 Then
+Public Function Max(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    If Compare(lhs, rhs) > 0 Then
         Max = lhs
     Else
-        Max = right
+        Max = rhs
     End If
 End Function
 
@@ -408,7 +408,6 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwRhs = rhs
     
     Dim dwResult As DWORD
-    Dim carry As Byte
     
     If AddByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte) Then
         dwResult.LowWord.HighByte = 1
@@ -542,7 +541,6 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwRhs = rhs
     
     Dim dwResult As DWORD
-    Dim carry As Byte
     
     If SubtractByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte) Then
         dwResult.LowWord.HighByte = 1
@@ -699,6 +697,10 @@ Public Function RotateRight(ByRef val As ULong, ByVal offset As Long)
 '    => (value >> offset) | (value << (32 - offset));
 End Function
 
+''
+'@Static
+'@TODO Implement
+''
 Public Function RotateLeft(ByRef val As ULong, ByVal offset As Long)
 'public static uint RotateLeft(uint value, int rotateAmount) => BitOperations.RotateLeft(value, rotateAmount);
 End Function
