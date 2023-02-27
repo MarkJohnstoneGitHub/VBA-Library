@@ -47,3 +47,31 @@ End Sub
 Private Sub DisplayMultiply(ByRef lhs As ULong, ByRef rhs As ULong, ByRef result As ULong)
     Debug.Print UInt32Static.ToString(lhs) & " * " & UInt32Static.ToString(rhs) & " = " & UInt32Static.ToString(result)
 End Sub
+
+Private Sub TestingUInt32PerformanceMultiply()
+    Dim result As ULong
+    Dim dTime As Double
+
+    Dim lhs  As ULong
+    Dim rhs As ULong
+    lhs.Value = &HF62
+    rhs.Value = &HF6
+
+    'Perform initial subtraction so overhead of initiliasing UInt32Static isn't included in timer calculations
+    result = UInt32Static.Multiply(lhs, rhs)
+    DisplayMultiply lhs, rhs, result
+    
+    Dim i As Long
+    ' Initialize
+    dTime = MicroTimer
+
+    For i = 1 To 1000000
+        result = UInt32Static.Multiply(lhs, rhs)
+    Next i
+
+    ' Calculate duration.
+    dTime = MicroTimer - dTime
+    Debug.Print VBA.vbNewLine & "Multiply duration for 1,000,000 calculations : " & dTime
+End Sub
+
+
