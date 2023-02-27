@@ -3,8 +3,8 @@ Attribute VB_Name = "Testing_UInt32Static_Addition"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 27, 2023
-'@LastModified February 27, 2023
+'@Version v1.0 February 28, 2023
+'@LastModified February 28, 2023
 
 Option Explicit
 

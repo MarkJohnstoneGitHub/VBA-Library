@@ -15,8 +15,8 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 27, 2023
-'@LastModified February 27, 2023
+'@Version v1.0 February 28, 2023
+'@LastModified February 28, 2023
 
 '@Dependancies
 '   ULongType.bas
@@ -35,6 +35,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 ' https://www.vbforums.com/showthread.php?834827-The-Decimal-Data-Type
 ' https://stackoverflow.com/questions/52099277/what-is-the-largest-possible-decimal-value-in-vba
 ' https://wiki.sei.cmu.edu/confluence/display/c/INT30-C.+Ensure+that+unsigned+integer+operations+do+not+wrap
+' https://en.wikipedia.org/wiki/Division_algorithm
 
 '@TODO
 ' Investigate more efficient bitwise multiplication, division, subtraction algorthims or use a COM addin.
@@ -89,7 +90,6 @@ Private this As TUInt32Static
 '------------------------------------------------------------------
 Private Sub Class_Initialize()
     this.decMaxUInt32 = CDec(MAX_ULONG)
-    
     this.ulngOne.Value = 1 'constant for caculation in IsPow2
     
     'Initialise bitwise arrays
@@ -332,7 +332,7 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     CopyMemory decimalDivisor, dtDivisor, 16
     
     'runtime error 11 is raised for Division by 0
-    decimalQuotient = Round((decimalDividend / decimalDivisor), 0)
+    decimalQuotient = decimalDividend / decimalDivisor
     CopyMemoryByPtr VarPtr(DivRem), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
 
     Dim decimalRemainder As Variant
@@ -466,24 +466,16 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwRhs = rhs
     Dim dwResult As DWORD
     
-    If AddByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte) Then
-        dwResult.LowWord.HighByte = 1
-    End If
-    If AddByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, dwResult.LowWord.HighByte) Then
-        dwResult.HighWord.LowByte = 1
-    End If
-    If AddByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, dwResult.HighWord.LowByte) Then
-        dwResult.HighWord.HighByte = 1
-    End If
+    dwResult.LowWord.HighByte = AddByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte)
+    dwResult.HighWord.LowByte = AddByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, dwResult.LowWord.HighByte)
+    dwResult.HighWord.HighByte = AddByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, dwResult.HighWord.LowByte)
     If AddByte(dwLhs.HighWord.HighByte, dwRhs.HighWord.HighByte, dwResult.HighWord.HighByte) Then
         LSet dwResult = this.dwZero
         Err.Raise OverflowException
     End If
     LSet Add = dwResult
 End Function
-
 #End If
-
 
 ''
 '@Static
@@ -501,14 +493,30 @@ End Function
 '   DivideByZeroException
 '       Raised when a divisor is 0, runtime error 11
 '
-'@References
-' https://en.wikipedia.org/wiki/Division_algorithm
-'
-'@TODO Improve performance
+'@Remarks
+'   Win64 version using QWORD approximately 40 times better performance.
 ''
+#If Win64 Then
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     If divisor.Value = 0 Then
-        Err.Raise DivideByZeroException, "UInt32.Divide"
+        Err.Raise DivideByZeroException, "UInt32Static.Divide"
+    End If
+    
+    Dim qwDividend As QWORD
+    Dim qwDivisor As QWORD
+    
+    LSet qwDividend = dividend
+    LSet qwDivisor = divisor
+    
+    Dim qwResult As QWORD
+    qwResult.Value = qwDividend.Value / qwDivisor.Value
+    
+    LSet Divide = qwResult
+End Function
+#Else
+Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
+    If divisor.Value = 0 Then
+        Err.Raise DivideByZeroException, "UInt32Static.Divide"
     End If
 
     Dim dtDividend As DecimalType
@@ -530,10 +538,11 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     CopyMemory decimalDivisor, dtDivisor, 16
     
     'runtime error 11 is raised for Division by 0
-    decimalQuotient = Round((decimalDividend / decimalDivisor), 0)
+    decimalQuotient = decimalDividend / decimalDivisor
         
     CopyMemoryByPtr VarPtr(Divide), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
 End Function
+#End If
 
 ''
 '@Static
@@ -590,14 +599,12 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     decimalResult = decimalLhs * decimalRhs
     
     If decimalResult > this.decMaxUInt32 Then
-       Err.Raise OverflowException, "UInt32.Multiply"
+       Err.Raise OverflowException, "UInt32Static.Multiply"
     End If
         
     CopyMemoryByPtr VarPtr(Multiply), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
 End Function
-
 #End If
-
 
 ''
 '@Static
@@ -614,13 +621,32 @@ End Function
 '       Raised when the result is less the minimum UInt32 value of 0.
 '
 '@Remarks
+'  For Win64 approximately 4 times better performance using QWORD i.e. LongLong for subtraction.
 ''
+#If Win64 Then
+Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    Dim qwLhs As QWORD
+    Dim qwRhs As QWORD
+    
+    LSet qwLhs = lhs
+    LSet qwRhs = rhs
+    
+    Dim qwResult As QWORD
+    qwResult.Value = qwLhs.Value - qwRhs.Value
+    
+    If qwResult.Value < MIN_UINT32 Then
+       Err.Raise OverflowException, "UInt32Static.Subtract"
+    End If
+    LSet Subtract = qwResult
+End Function
+
+#Else
 Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     If rhs.Value = 0 Then
         Subtract.Value = lhs.Value
         Exit Function
     ElseIf Me.CompareTo(lhs, rhs) = -1 Then
-        Err.Raise OverflowException, "UInt32.Subtract"
+        Err.Raise OverflowException, "UInt32Static.Subtract"
         Exit Function
     End If
 
@@ -628,24 +654,18 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwLhs = lhs
     Dim dwRhs As DWORD
     LSet dwRhs = rhs
-    
+
     Dim dwResult As DWORD
-    
-    If SubtractByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte) Then
-        dwResult.LowWord.HighByte = 1
-    End If
-    If SubtractByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, dwResult.LowWord.HighByte) Then
-        dwResult.HighWord.LowByte = 1
-    End If
-    If SubtractByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, dwResult.HighWord.LowByte) Then
-        dwResult.HighWord.HighByte = 1
-    End If
+    dwResult.LowWord.HighByte = SubtractByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte)
+    dwResult.HighWord.LowByte = SubtractByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, dwResult.LowWord.HighByte)
+    dwResult.HighWord.HighByte = SubtractByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, dwResult.HighWord.LowByte)
     If SubtractByte(dwLhs.HighWord.HighByte, dwRhs.HighWord.HighByte, dwResult.HighWord.HighByte) Then
         LSet dwResult = this.dwZero
-        Err.Raise OverflowException
+        Err.Raise OverflowException, "UInt32Static.Subtract"
     End If
     LSet Subtract = dwResult
 End Function
+#End If
 
 ''
 '@Static
