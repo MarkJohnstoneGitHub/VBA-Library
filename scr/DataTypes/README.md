@@ -9,7 +9,9 @@ UInt32Static.cls Static class for unsigned 32 bit values
     
     - [DWordType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/DWordType.bas)
     
-    - [WordType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/WordType.bas)    
+    - [QWordType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/QWordType.bas) 
+    
+    - [WordType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/WordType.bas)      
     
     - [VBADecimalType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/VBADecimalType.bas)
     
@@ -28,7 +30,7 @@ CopyMemoryAPI.bas
 -API declarations for copy memory by pointer for Windows and Mac, with VBA6 and VBA7 compatibility.
 
 
-Currently predominantly using the VBA Decimal data type for math operations as internally it is treated unsigned value making for reliable method for converting to unsigned 32 bit value.
+Currently predominantly using the VBA Decimal data type for math operations as internally it is treated unsigned value making for reliable method for converting to unsigned 32 bit value. Updated performance for multipy and add so far Win64 to use QWORD  and LongLong type. 
 
 @TODO
 
