@@ -22,6 +22,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '   ULongType.bas
 '   DWordType.bas
 '   WordType.bas
+'   QWordType.bas
 '   VBADecimalType.bas
 '   CopyMemoryAPI.bas
 
@@ -475,6 +476,11 @@ End Function
 '@Exceptions
 '   DivideByZeroException
 '       Raised when a divisor is 0, runtime error 11
+'
+'@References
+' https://en.wikipedia.org/wiki/Division_algorithm
+'
+'@TODO Improve performance
 ''
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     If divisor.Value = 0 Then
@@ -517,7 +523,27 @@ End Function
 '@Exceptions
 '   OverflowException
 '       Raised when the result exceeds the max UInt32 value of 4294967295
+'@Remarks
+'   For Win64 using QWORD with LongLong value and LSet is approximately 44 times quicker.
 ''
+#If Win64 Then
+Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    Dim qwLhs As QWORD
+    Dim qwRhs As QWORD
+    
+    LSet qwLhs = lhs
+    LSet qwRhs = rhs
+    
+    Dim qwResult As QWORD
+    qwResult.Value = qwLhs.Value * qwRhs.Value
+    
+    If qwResult.Value > 4294967295# Then
+       Err.Raise OverflowException, "UInt32.Multiply"
+    End If
+    LSet Multiply = qwResult
+End Function
+
+#Else
 Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     Dim dtLhs As DecimalType
     Dim dtRhs As DecimalType
@@ -545,6 +571,9 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
         
     CopyMemoryByPtr VarPtr(Multiply), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
 End Function
+
+#End If
+
 
 ''
 '@Static
@@ -681,6 +710,36 @@ End Function
 
 ''
 '@Static
+'@Description "Computes the number of leading zeros in a value."
+'@Parameters
+'   val ULong
+'       The value whose leading zero bits are to be counted.
+'
+'@Returns ULong
+'   The number of leading zeros in value.
+'
+'@TODO Implement
+''
+Public Function LeadingZeroCount(ByRef val As ULong) As ULong
+    Err.Raise NotImplementedException, "UInt32.LeadingZeroCount"
+End Function
+
+''
+'@Description "Computes the number of bits that are set in a value."
+'@Parameters
+'   val ULong
+'       The value whose set bits are to be counted.
+'@Returns ULong
+'   The number of set bits in value.
+'
+'@TODO Implement
+''
+Public Function PopCount(ByRef val As ULong) As ULong
+    Err.Raise NotImplementedException, "UInt32.PopCount"
+End Function
+
+''
+'@Static
 '@Description "Bitwise logical left-shift operation, by the given number of bits."
 '@Parameters
 '   val: ULong value
@@ -751,8 +810,10 @@ End Function
 '@Static
 '@Description "Rotates the specified value right by the specified number of bits."
 '@Parameters
-'   val: ULong value
-'   offset: The number of bits to rotate-right by.
+'   val ULong
+'       value
+'   offset
+'       The number of bits to rotate-right by.
 '@Returns ULong
 '   Returns a UInt32 of the bitwise rotate-right, by the given number of bits.
 '@Remarks
