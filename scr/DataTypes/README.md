@@ -30,9 +30,11 @@ CopyMemoryAPI.bas
 -API declarations for copy memory by pointer for Windows and Mac, with VBA6 and VBA7 compatibility.
 
 
-Currently predominantly using the VBA Decimal data type for math operations as internally it is treated unsigned value making for reliable method for converting to unsigned 32 bit value. Updated performance for multipy and add so far Win64 to use QWORD  and LongLong type. 
+Currently predominantly using the VBA Decimal data type for math operations as internally it is treated unsigned value making for reliable method for converting to unsigned 32 bit value. Updated performance for add, subtract, divide and multipy so far Win64 to use QWORD and LongLong calculations. 
 
 @TODO
+
+CUInt32 and DivRem Improve performance
 
 Unit Testing
 
