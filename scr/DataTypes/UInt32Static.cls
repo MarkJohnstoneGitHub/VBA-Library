@@ -426,10 +426,31 @@ End Function
 '       Raised when a result exceeds the max UInt32 value of 4294967295
 '
 '@Remarks
+'   For Win64 using QWORD with LongLong value and LSet is approximately 3 times quicker then
+'   addition of DWORDs.
+'
 '   Adding unsigned 32 bit values using addition of bytes with carry/overflow. See function AddByte.
 '   Performance 3 times better than using bitwise addition method.
 '   Using LSet to copy from one UDT to another of equal byte length.
 ''
+#If Win64 Then
+Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    Dim qwLhs As QWORD
+    Dim qwRhs As QWORD
+    
+    LSet qwLhs = lhs
+    LSet qwRhs = rhs
+    
+    Dim qwResult As QWORD
+    qwResult.Value = qwLhs.Value + qwRhs.Value
+    
+    If qwResult.Value > 4294967295# Then
+       Err.Raise OverflowException, "UInt32.Multiply"
+    End If
+    LSet Add = qwResult
+End Function
+
+#Else
 Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     If lhs.Value = 0 Then
         Add.Value = rhs.Value
@@ -460,6 +481,9 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     End If
     LSet Add = dwResult
 End Function
+
+#End If
+
 
 ''
 '@Static
