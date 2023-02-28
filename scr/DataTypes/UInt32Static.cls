@@ -308,9 +308,31 @@ End Function
 '   DivideByZeroException
 '       Raised when a divisor is 0, runtime error 11
 ''
+#If Win64 Then
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
     If divisor.Value = 0 Then
-        Err.Raise DivideByZeroException, "UInt32.DivRem"
+        Err.Raise DivideByZeroException, "UInt32Static.DivRem"
+    End If
+
+    Dim qwDividend As QWORD
+    Dim qwDivisor As QWORD
+    Dim qwQuotient As QWORD
+    Dim qwRemainder As QWORD
+
+    LSet qwDividend = dividend
+    LSet qwDivisor = divisor
+
+    qwQuotient.Value = Fix(qwDividend.Value / qwDivisor.Value)
+    qwRemainder.Value = qwDividend.Value - (qwDivisor.Value * qwQuotient.Value)
+    LSet DivRem = qwQuotient
+    LSet outRemainder = qwRemainder
+
+End Function
+
+#Else
+Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
+    If divisor.Value = 0 Then
+        Err.Raise DivideByZeroException, "UInt32Static.DivRem"
     End If
 
     Dim dtDividend As DecimalType
@@ -332,7 +354,7 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     CopyMemory decimalDivisor, dtDivisor, 16
     
     'runtime error 11 is raised for Division by 0
-    decimalQuotient = decimalDividend / decimalDivisor
+    decimalQuotient = Fix(decimalDividend / decimalDivisor)
     CopyMemoryByPtr VarPtr(DivRem), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
 
     Dim decimalRemainder As Variant
@@ -341,6 +363,7 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     CopyMemoryByPtr VarPtr(outRemainder), VarPtr(decimalRemainder) + decimalLo32Offset, SIZEOF_UINT32
 
 End Function
+#End If
 
 ''
 '@Static
@@ -900,6 +923,13 @@ End Function
 '
 '@Remarks
 ''
+#If Win64 Then
+Public Function ToString(ByRef val As ULong) As String
+    Dim qwVal As QWORD
+    LSet qwVal = val
+    ToString = CStr(qwVal.Value)
+End Function
+#Else
 Public Function ToString(ByRef val As ULong) As String
     Dim dtVal As DecimalType
     dtVal.vt = VBA.vbDecimal
@@ -911,6 +941,7 @@ Public Function ToString(ByRef val As ULong) As String
     
     ToString = CStr(decimalVal)
 End Function
+#End If
 
 ''
 '@Static
