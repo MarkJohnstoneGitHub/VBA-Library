@@ -136,7 +136,7 @@ End Sub
 '@Description "Converts a value to unsigned 32-bit value."
 '@Parameters
 '   val: Variant
-'       value to be converted to a n unsigned 32-bit value
+'       value to be converted to an unsigned 32-bit value
 '@Returns ULong
 '   value converted to an unsigned 32 bit value
 '
@@ -965,12 +965,11 @@ End Function
 ''
 #If Win64 Then
 Public Function Parse(ByRef s As String) As ULong
-    On Error GoTo ErrorHandler
-    
     If (Trim(s) = VBA.vbNullString) Then
         Err.Raise ArgumentNullException, "UInt32Static.Parse", "Argument Null Exception"
     End If
 
+    On Error GoTo ErrorHandler
     Dim qwVal As QWORD
     qwVal.Value = s
     If qwVal.Value < 0 Or qwVal.Value > 4294967295# Then
@@ -987,10 +986,10 @@ End Function
 
 #Else
 Public Function Parse(ByRef s As String) As ULong
-    On Error GoTo ErrorHandler
     If (Trim(s) = VBA.vbNullString) Then
         Err.Raise ArgumentNullException, "UInt32Static.Parse"
     End If
+    On Error GoTo ErrorHandler
     Dim decVal As Variant
     'To cast string to UInt32 convert to rounded decimal as internal values internally are as unsigned with a sign flag and Base 10 exponent
     decVal = Round(CDec(s))

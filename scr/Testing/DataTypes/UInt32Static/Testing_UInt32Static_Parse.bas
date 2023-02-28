@@ -79,3 +79,13 @@ On Error Resume Next
     Debug.Print UInt32Static.ToString(ulngResult)
     
 End Sub
+
+Private Sub TestingUInt32StaticParseArgumentNullException()
+    Dim ulngResult As ULong
+    Dim strVal As String
+    
+    strVal = VBA.vbNullString
+    ulngResult = UInt32Static.Parse(strVal)
+    Debug.Print UInt32Static.ToString(ulngResult)
+End Sub
+
