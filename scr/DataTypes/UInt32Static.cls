@@ -61,6 +61,7 @@ Private Const decimalLo32Offset As Long = 8
 Private Const OverflowException As Long = &H6&
 Private Const ArgumentException As Long = &H5&  'Invalid procedure call or argument.
 Private Const DivideByZeroException As Long = &H11&
+Private Const ArgumentNullException As Long = &H80004003
 Private Const NotImplementedException As Long = 9999
 
 
@@ -152,62 +153,56 @@ Public Function CUInt32(ByRef val As Variant) As ULong
         Case VarType(val) = vbLong
             CUInt32.Value = val
         Case VarType(val) = vbString
-            'To cast string to UInt32 convert to decimal as internal values internally are as unsigned with a sign separate
-            decVal = CDec(val)
-            If decVal >= 0 And decVal <= this.decMaxUInt32 Then
-                'To cast copy the Decimal Lo32 four bytes to the four byte ULong
-                CopyMemoryByPtr VarPtr(CUInt32.Value), VarPtr(decVal) + decimalLo32Offset, SIZEOF_UINT32
-            Else
-                Err.Raise OverflowException
-            End If
+            CUInt32 = Me.Parse(CStr(val))
         Case VarType(val) = vbByte
             CUInt32.Value = val
         Case VarType(val) = vbInteger
             CUInt32.Value = val
         Case VarType(val) = vbCurrency
-            If val >= 0 And val <= 4294967295# Then
+            If val < 0 Or val > 4294967295# Then
+                Err.Raise OverflowException
+            Else
                 'To cast currency to UInt32 convert to decimal as internal values internally are as unsigned with a sign separate
                 decVal = CDec(val)
                 'To cast copy the Decimal Lo32 four bytes to the four byte ULong
                 CopyMemoryByPtr VarPtr(CUInt32.Value), VarPtr(decVal) + decimalLo32Offset, SIZEOF_UINT32
-            Else
-                Err.Raise OverflowException
             End If
-        
         Case VarType(val) = vbDecimal
-            If val >= 0 And val <= this.decMaxUInt32 Then
+            If val < 0 Or val > this.decMaxUInt32 Then
+                Err.Raise OverflowException
+            Else
+                Dim decRoundVal As Variant
+                decRoundVal = Round(val)
                 'To cast copy the Decimal Lo32 four bytes to the four byte ULong
-                CopyMemoryByPtr VarPtr(CUInt32.Value), VarPtr(val) + decimalLo32Offset, SIZEOF_UINT32
-            Else
-                Err.Raise OverflowException
+                CopyMemoryByPtr VarPtr(CUInt32.Value), VarPtr(decRoundVal) + decimalLo32Offset, SIZEOF_UINT32
             End If
-            
-        #If VBA7 Then
+        #If Win64 Then
         Case VarType(val) = vbLongLong
-            If val >= 0 And val <= 4294967295# Then
-                'Copy the low 4 bytes to ULong value
-                CopyMemory CUInt32.Value, val, SIZEOF_UINT32
-            Else
+            If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException
+            Else
+                Dim qwVal As QWORD
+                qwVal.Value = val
+                LSet CUInt32 = qwVal
             End If
         #End If
         
         Case VarType(val) = vbDouble
-            If val >= 0 And val <= 4294967295# Then
-                decVal = CDec(val)
+            If val < 0 Or val > 4294967295# Then
+                Err.Raise OverflowException
+            Else
+                decVal = CDec(Round(val))
                 'To cast copy the Decimal Lo32 four bytes to the four byte ULong
                 CopyMemoryByPtr VarPtr(CUInt32.Value), VarPtr(val) + decimalLo32Offset, SIZEOF_UINT32
-            Else
-                Err.Raise OverflowException
             End If
             
         Case VarType(val) = vbSingle
-            If val >= 0 And val <= 4294967295# Then
-                decVal = CDec(val)
+            If val < 0 And val > 4294967295# Then
+                Err.Raise OverflowException
+            Else
+                decVal = CDec(Round(val))
                 'To cast copy the Decimal Lo32 four bytes to the four byte ULong
                 CopyMemoryByPtr VarPtr(CUInt32.Value), VarPtr(val) + decimalLo32Offset, SIZEOF_UINT32
-            Else
-                Err.Raise OverflowException
             End If
         Case Else
             Err.Raise ArgumentException, "UInt32Static.CUInt32", "Invalid argument"
@@ -518,6 +513,8 @@ End Function
 '
 '@Remarks
 '   Win64 version using QWORD approximately 40 times better performance.
+'
+'@TODO Check if rounding occurs and if desirable
 ''
 #If Win64 Then
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
@@ -914,12 +911,14 @@ End Function
 
 ''
 '@Static
-'@Description "Converts a ULong/UInt32 to a string of digits."
+'@Description "Converts the numeric value of this instance to its equivalent string representation."
 '@Parameters
 '   val ULong
+'       value to be converted into a string representation of its value.
 '
 '@Returns String
-'   String of digits representing a ULong value.
+'   The string representation of the value of this instance, consisting of a sequence of digits
+'   ranging from 0 to 9, without a sign or leading zeroes.
 '
 '@Remarks
 ''
@@ -940,6 +939,72 @@ Public Function ToString(ByRef val As ULong) As String
     CopyMemory decimalVal, dtVal, 16
     
     ToString = CStr(decimalVal)
+End Function
+#End If
+
+''
+'@Static
+'@Description "Converts the string representation of a number to its 32-bit unsigned integer equivalent."
+'@Parameters
+'   s String
+'       A string representing the number to convert.
+'
+'@Returns ULong
+'   A 32-bit unsigned integer equivalent to the number contained in s.
+'
+'@Exceptions
+'   ArgumentNullException
+'       The s parameter is null.
+'
+'   ArgumentException
+'       The s parameter is not of the correct format.
+'
+'   OverflowException
+'       The s parameter represents a number that is less than UInt32.MinValue or greater than UInt32.MaxValue.
+'@Remarks
+''
+#If Win64 Then
+Public Function Parse(ByRef s As String) As ULong
+    On Error GoTo ErrorHandler
+    
+    If (Trim(s) = VBA.vbNullString) Then
+        Err.Raise ArgumentNullException, "UInt32Static.Parse", "Argument Null Exception"
+    End If
+
+    Dim qwVal As QWORD
+    qwVal.Value = s
+    If qwVal.Value < 0 Or qwVal.Value > 4294967295# Then
+        Err.Raise OverflowException
+    Else
+        LSet Parse = qwVal
+    End If
+CleanExit:
+    Exit Function
+ErrorHandler:
+    Err.Raise ArgumentException, "UInt32Static.Parse", "Invalid argument"
+    Resume CleanExit
+End Function
+
+#Else
+Public Function Parse(ByRef s As String) As ULong
+    On Error GoTo ErrorHandler
+    If (Trim(s) = VBA.vbNullString) Then
+        Err.Raise ArgumentNullException, "UInt32Static.Parse"
+    End If
+    Dim decVal As Variant
+    'To cast string to UInt32 convert to rounded decimal as internal values internally are as unsigned with a sign flag and Base 10 exponent
+    decVal = Round(CDec(s))
+    If decVal < 0 Or decVal > this.decMaxUInt32 Then
+        Err.Raise OverflowException
+    Else
+        'To cast copy the Decimal Lo32 four bytes to the four byte ULong
+        CopyMemoryByPtr VarPtr(Parse.Value), VarPtr(decVal) + decimalLo32Offset, SIZEOF_UINT32
+    End If
+CleanExit:
+    Exit Function
+ErrorHandler:
+    Err.Raise ArgumentException, "UInt32Static.Parse", "Invalid argument"
+    Resume CleanExit
 End Function
 #End If
 
@@ -971,7 +1036,9 @@ End Function
 ''
 #If VBA7 Then
 Public Function ToLongLong(ByRef val As ULong) As LongLong
-    CopyMemory ToLongLong, val, SIZEOF_UINT32
+    Dim qwVal As QWORD
+    LSet qwVal = val
+    ToLongLong = qwVal.Value
 End Function
 #End If
 
