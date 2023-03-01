@@ -4,11 +4,11 @@ Attribute VB_Name = "WordType"
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
 '@Version v1.0 February 26, 2023
-'@LastModified February 26, 2023
+'@LastModified March 2, 2023
 
 Option Explicit
 
 Public Type WORD
-    LowByte     As Byte     ' the ordering is important to remain consistant with memory layout of a 64-bit integer.
-    HighByte    As Byte
+    bLow    As Byte     ' the ordering is important to remain consistant with memory layout.
+    bHigh   As Byte
 End Type

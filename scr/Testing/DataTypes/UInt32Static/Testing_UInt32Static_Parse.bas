@@ -4,7 +4,7 @@ Attribute VB_Name = "Testing_UInt32Static_Parse"
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
 '@Version v1.0 February 28, 2023
-'@LastModified February 28, 2023
+'@LastModified March 2, 2023
 
 Option Explicit
 
@@ -45,6 +45,10 @@ Private Sub TestingUInt32StaticParse()
     Debug.Print UInt32Static.ToString(ulngResult)
     
     strVal = "    4294967294.95  "
+    ulngResult = UInt32Static.Parse(strVal)
+    Debug.Print UInt32Static.ToString(ulngResult)
+    
+    strVal = "&HFFFFFFFE"
     ulngResult = UInt32Static.Parse(strVal)
     Debug.Print UInt32Static.ToString(ulngResult)
 End Sub

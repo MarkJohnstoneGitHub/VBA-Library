@@ -16,7 +16,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
 '@Version v1.0 February 28, 2023
-'@LastModified February 28, 2023
+'@LastModified March 2, 2023
 
 '@Dependancies
 '   ULongType.bas
@@ -74,7 +74,7 @@ Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
 '------------------------------------------------------------------
 Private Type TUInt32Static
     decMaxUInt32 As Variant 'contains a decimal type
-    dwZero  As DWORD
+
     ulngOne As ULong    'For caculation in IsPow2
     Powers() As Long    'Used for bitwise operations
     Masks() As Long     'Used for bitwise operations
@@ -303,7 +303,7 @@ End Function
 '   DivideByZeroException
 '       Raised when a divisor is 0, runtime error 11
 ''
-#If Win64 Then
+'#If Win64 Then
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
     If divisor.Value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.DivRem"
@@ -323,22 +323,22 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     LSet outRemainder = qwRemainder
 
 End Function
-
-#Else
-Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
+'
+'#Else
+Public Function DivRem2(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
     If divisor.Value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.DivRem"
     End If
-
+    
     Dim dtDividend As DecimalType
     Dim dtDivisor As DecimalType
     
     'Cast t1 and t2 to decimal type i.e. variant containing a VBA decimal to avoid conversion of
     'negative numbers.
     dtDividend.vt = VBA.vbDecimal
-    dtDividend.Lo32 = dividend.Value
+    LSet dtDividend.Lo32 = dividend
     dtDivisor.vt = VBA.vbDecimal
-    dtDivisor.Lo32 = divisor.Value
+    LSet dtDivisor.Lo32 = divisor
     
     Dim decimalDividend As Variant
     Dim decimalDivisor As Variant
@@ -350,7 +350,7 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     
     'runtime error 11 is raised for Division by 0
     decimalQuotient = Fix(decimalDividend / decimalDivisor)
-    CopyMemoryByPtr VarPtr(DivRem), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
+    CopyMemoryByPtr VarPtr(DivRem2), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
 
     Dim decimalRemainder As Variant
     
@@ -358,7 +358,7 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     CopyMemoryByPtr VarPtr(outRemainder), VarPtr(decimalRemainder) + decimalLo32Offset, SIZEOF_UINT32
 
 End Function
-#End If
+'#End If
 
 ''
 '@Static
@@ -453,6 +453,14 @@ End Function
 ''
 #If Win64 Then
 Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
+    If lhs.Value = 0 Then
+        Add.Value = rhs.Value
+        Exit Function
+    ElseIf rhs.Value = 0 Then
+        Add.Value = lhs.Value
+        Exit Function
+    End If
+
     Dim qwLhs As QWORD
     Dim qwRhs As QWORD
     
@@ -484,11 +492,10 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwRhs = rhs
     Dim dwResult As DWORD
     
-    dwResult.LowWord.HighByte = AddByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte)
-    dwResult.HighWord.LowByte = AddByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, dwResult.LowWord.HighByte)
-    dwResult.HighWord.HighByte = AddByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, dwResult.HighWord.LowByte)
-    If AddByte(dwLhs.HighWord.HighByte, dwRhs.HighWord.HighByte, dwResult.HighWord.HighByte) Then
-        LSet dwResult = this.dwZero
+    dwResult.wLow.bHigh = AddByte(dwLhs.wLow.bLow, dwRhs.wLow.bLow, dwResult.wLow.bLow)
+    dwResult.wHigh.bLow = AddByte(dwLhs.wLow.bHigh, dwRhs.wLow.bHigh, dwResult.wLow.bHigh)
+    dwResult.wHigh.bHigh = AddByte(dwLhs.wHigh.bLow, dwRhs.wHigh.bLow, dwResult.wHigh.bLow)
+    If AddByte(dwLhs.wHigh.bHigh, dwRhs.wHigh.bHigh, dwResult.wHigh.bHigh) Then
         Err.Raise OverflowException
     End If
     LSet Add = dwResult
@@ -514,7 +521,7 @@ End Function
 '@Remarks
 '   Win64 version using QWORD approximately 40 times better performance.
 '
-'@TODO Check if rounding occurs and if desirable
+'@TODO Check if rounding occurs and if desirable integer division \ or floating point division / ??
 ''
 #If Win64 Then
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
@@ -529,7 +536,7 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     LSet qwDivisor = divisor
     
     Dim qwResult As QWORD
-    qwResult.Value = qwDividend.Value / qwDivisor.Value
+    qwResult.Value = qwDividend.Value \ qwDivisor.Value
     
     LSet Divide = qwResult
 End Function
@@ -558,7 +565,7 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     CopyMemory decimalDivisor, dtDivisor, 16
     
     'runtime error 11 is raised for Division by 0
-    decimalQuotient = decimalDividend / decimalDivisor
+    decimalQuotient = Fix(decimalDividend / decimalDivisor)
         
     CopyMemoryByPtr VarPtr(Divide), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
 End Function
@@ -604,9 +611,9 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     'Cast lhs and rhs to decimal type i.e. variant containing a VBA decimal to avoid conversion of
     'negative numbers.
     dtLhs.vt = VBA.vbDecimal
-    dtLhs.Lo32 = lhs.Value
+    LSet dtLhs.Lo32 = lhs
     dtRhs.vt = VBA.vbDecimal
-    dtRhs.Lo32 = rhs.Value
+    LSet dtRhs.Lo32 = rhs
     
     Dim decimalLhs As Variant
     Dim decimalRhs As Variant
@@ -676,11 +683,10 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwRhs = rhs
 
     Dim dwResult As DWORD
-    dwResult.LowWord.HighByte = SubtractByte(dwLhs.LowWord.LowByte, dwRhs.LowWord.LowByte, dwResult.LowWord.LowByte)
-    dwResult.HighWord.LowByte = SubtractByte(dwLhs.LowWord.HighByte, dwRhs.LowWord.HighByte, dwResult.LowWord.HighByte)
-    dwResult.HighWord.HighByte = SubtractByte(dwLhs.HighWord.LowByte, dwRhs.HighWord.LowByte, dwResult.HighWord.LowByte)
-    If SubtractByte(dwLhs.HighWord.HighByte, dwRhs.HighWord.HighByte, dwResult.HighWord.HighByte) Then
-        LSet dwResult = this.dwZero
+    dwResult.wLow.bHigh = SubtractByte(dwLhs.wLow.bLow, dwRhs.wLow.bLow, dwResult.wLow.bLow)
+    dwResult.wHigh.bLow = SubtractByte(dwLhs.wLow.bHigh, dwRhs.wLow.bHigh, dwResult.wLow.bHigh)
+    dwResult.wHigh.bHigh = SubtractByte(dwLhs.wHigh.bLow, dwRhs.wHigh.bLow, dwResult.wHigh.bLow)
+    If SubtractByte(dwLhs.wHigh.bHigh, dwRhs.wHigh.bHigh, dwResult.wHigh.bHigh) Then
         Err.Raise OverflowException, "UInt32Static.Subtract"
     End If
     LSet Subtract = dwResult
@@ -923,23 +929,26 @@ End Function
 '@Remarks
 ''
 #If Win64 Then
+
 Public Function ToString(ByRef val As ULong) As String
     Dim qwVal As QWORD
     LSet qwVal = val
     ToString = CStr(qwVal.Value)
 End Function
+
 #Else
+
 Public Function ToString(ByRef val As ULong) As String
     Dim dtVal As DecimalType
     dtVal.vt = VBA.vbDecimal
-    dtVal.Lo32 = val.Value
+    LSet dtVal.Lo32 = val
     
     'Create VBA decimal type from decimal structure
     Dim decimalVal As Variant
     CopyMemory decimalVal, dtVal, 16
-    
     ToString = CStr(decimalVal)
 End Function
+
 #End If
 
 ''
@@ -1020,38 +1029,26 @@ End Function
 Public Function ToDecimal(ByRef val As ULong) As Variant
     Dim dtVal As DecimalType
     dtVal.vt = VBA.vbDecimal
-    dtVal.Lo32 = val.Value
+    LSet dtVal.Lo32 = val
     CopyMemory ToDecimal, dtVal, 16
 End Function
 
 ''
 '@Static
-'@Description "Converts a ULong to LongLong value."
+'@Description "Converts an unsigned 32-bit value to LongLong value."
 '@Parameters
 '   val ULong
 '@Returns LongLong
 '
 '@Remarks
 ''
-#If VBA7 Then
+#If Win64 Then
 Public Function ToLongLong(ByRef val As ULong) As LongLong
     Dim qwVal As QWORD
     LSet qwVal = val
     ToLongLong = qwVal.Value
 End Function
 #End If
-
-''
-'@Static
-'@Description "Clones a ULong/UInt"
-'@Parameters
-'   val ULong
-'@Returns ULong
-'
-''
-Public Function Clone(ByRef val As ULong) As ULong
-    Clone.Value = val.Value
-End Function
 
 '------------------------------------------------------------------
 'Private Methods
@@ -1224,7 +1221,6 @@ Private Function AddByte(ByVal lhs As Byte, ByVal rhs As Byte, ByRef outResult A
     End If
 End Function
 
-
 ''
 '@Description"Subtracts two bytes without raising overflow and returns if a carry or overflow occcured."
 '@Parameters
@@ -1251,286 +1247,3 @@ Private Function SubtractByte(ByVal lhs As Byte, ByVal rhs As Byte, ByRef outRes
 End Function
 
 
-'------------------------------------------------------------------
-'Old code to be removed.
-
-'Public Function Add2(ByRef left As ULong, ByRef right As ULong) As ULong
-'    Dim dtLeft As DecimalType
-'    Dim dtRight As DecimalType
-'
-'    'Cast left and right to decimal type i.e. variant containing a VBA decimal to avoid conversion of
-'    'negative numbers.
-'    dtLeft.vt = VBA.vbDecimal
-'    dtLeft.Lo32 = left.Value
-'    dtRight.vt = VBA.vbDecimal
-'    dtRight.Lo32 = right.Value
-'
-'    Dim decimalLeft As Variant
-'    Dim decimalright As Variant
-'    Dim decimalResult As Variant
-'
-'    'Create VBA decimal type from decimal structure
-'    CopyMemory decimalLeft, dtLeft, 16
-'    CopyMemory decimalright, dtRight, 16
-'
-'    decimalResult = decimalLeft + decimalright
-'
-'    If decimalResult > this.decMaxUInt32 Then
-'       Err.Raise OverflowException, "UInt32.Add2"
-'    End If
-'
-'    CopyMemoryByPtr VarPtr(Add2), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
-'
-'End Function
-
-'3xslower then bitwise addition
-'Public Function Add3(ByRef left As ULong, ByRef right As ULong) As ULong
-'    Dim lnglngLeft As LongLong
-'    Dim lnglngRight As LongLong
-'    Dim lnglngResult As LongLong
-'
-'    'Cast left and right to LongLong type to avoid VBA conversion of negative numbers
-'
-'    CopyMemory lnglngLeft, left, SIZEOF_UINT32
-'    CopyMemory lnglngRight, right, SIZEOF_UINT32
-'
-'    lnglngResult = lnglngLeft + lnglngRight
-'
-'    If lnglngResult > 4294967295# Then
-'       Err.Raise OverflowException, "UInt32Static.Add3"
-'    End If
-'
-'    CopyMemory Add3, lnglngResult, SIZEOF_UINT32
-'
-'End Function
-
-
-'Remove bitwise add 3xbetter
-'Public Function Add2(ByRef left As ULong, ByRef right As ULong) As ULong
-'    Dim dtLeft As DecimalType
-'    Dim dtRight As DecimalType
-'
-'    'Cast left and right to decimal type i.e. variant containing a VBA decimal to avoid conversion of
-'    'negative numbers.
-'    dtLeft.vt = VBA.vbDecimal
-'    dtLeft.Lo32 = left.Value
-'    dtRight.vt = VBA.vbDecimal
-'    dtRight.Lo32 = right.Value
-'
-'    Dim decimalleft As Variant
-'    Dim decimalright As Variant
-'    Dim decimalResult As Variant
-'
-'    'Create VBA decimal type from decimal structure
-'    CopyMemory decimalleft, dtLeft, 16
-'    CopyMemory decimalright, dtRight, 16
-'
-'    decimalResult = decimalleft + decimalright
-'
-'    If decimalResult > this.decMaxUInt32 Then
-'       Err.Raise OverflowException, "UInt32.Add2"
-'    End If
-'
-'    CopyMemoryByPtr VarPtr(Add2), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_INT32
-'
-'End Function
-
-
-'Testing various multiplication methods for performance
-
-''
-'Integer Multiplication
-'   * Multiplication is prone to overflow errors because relatively small operands can overflow
-'   * One solution is to allocate storage for the product that is twice the size of the larger of
-'       the two operands.
-'
-'Upcasting
-'   * Cast both operands to the next larger size and then multiply.
-'   * For unsigned integers
-'       * check high-order bits in the next larger integer
-'       * if any are set, throw an error.
-'   * For signed integers all zeros or all ones in the high-order bits and the sign bit on the
-'       loworder bit indicate no overflow.
-''
-'Public Function Multiply2(ByRef left As ULong, ByRef right As ULong) As ULong
-'
-'    Dim bitMask As Long
-'    bitMask = &H1&
-'
-'    Dim result As ULong
-'    Dim shiftedRight As ULong
-'
-'    shiftedRight = right
-'    Do While (bitMask)
-'        If (left.Value And bitMask) Then
-'            result = Me.Add(result, shiftedRight)
-'        End If
-'        shiftedRight.Value = Int32Bitwise.ShiftLeft(shiftedRight.Value, 1)
-'        bitMask = Int32Bitwise.ShiftLeft(bitMask, 1)
-'    Loop
-'
-'    Multiply2 = result
-    
-' https://github.com/adyradu/Algorithms-and-Data-Structures/blob/de4f5f32d7fb115f0a6927feb11a7b51f7479b3c/algorithms/bits/BitMultiplication/BitMultiplication.cpp
-    
-'unsigned long long Multiply(unsigned long long x, unsigned long long y) {
-'    unsigned long long bitMask = 0x1;
-'    unsigned long result = 0;
-'    unsigned long long shiftedY = y;
-'
-'    While (bitMask)
-'    {
-'        if (x & bitMask) {
-'            result = Addition(result, shiftedY);
-'        }
-'
-'        shiftedY = shiftedY << 1;
-'        bitMask = bitMask << 1;
-'    }
-'
-'    return result;
-'}
-
-'End Function
-
-
-'Public Function Multiply3(ByRef left As ULong, ByRef right As ULong) As ULong
-'    Dim shiftedRight As ULong
-'    shiftedRight = right
-'
-'    Dim bitMask As Long
-'    Dim bitIndex As Long
-'    For bitIndex = 0 To 31
-'        bitMask = this.Powers(bitIndex)
-'        If (left.Value And bitMask) Then
-'            Multiply3 = Me.Add(Multiply3, shiftedRight)
-'        End If
-''        shiftedRight = Me.LeftShift(shiftedRight, 1)
-'
-'        If shiftedRight.Value And &H40000000 Then
-'            shiftedRight.Value = ((shiftedRight.Value And &H3FFFFFFF) * &H2&) Or MOST_SIGNIFICANT_BIT_MASK
-'        Else
-'            shiftedRight.Value = (shiftedRight.Value And &H3FFFFFFF) * &H2&
-'        End If
-'
-'    Next
-    
-    'Multiply3 = result
-    
-' https://github.com/adyradu/Algorithms-and-Data-Structures/blob/de4f5f32d7fb115f0a6927feb11a7b51f7479b3c/algorithms/bits/BitMultiplication/BitMultiplication.cpp
-    
-'unsigned long long Multiply(unsigned long long x, unsigned long long y) {
-'    unsigned long long bitMask = 0x1;
-'    unsigned long result = 0;
-'    unsigned long long shiftedY = y;
-'
-'    While (bitMask)
-'    {
-'        if (x & bitMask) {
-'            result = Addition(result, shiftedY);
-'        }
-'
-'        shiftedY = shiftedY << 1;
-'        bitMask = bitMask << 1;
-'    }
-'
-'    return result;
-'}
-
-'End Function
-
-''
-'@Static
-'@Description "Adds two unsigned 32 bit values."
-'@Parameters
-'   left ULong
-'       value to be added
-'   right ULong
-'       value to be addded
-'
-'@Returns ULong
-'   The result of the addition of two unsigned 32 bit values
-'
-'@Exceptions
-'   OverflowException
-'       Raised when a result exceeds the max UInt32 value of 4294967295
-'
-'@Remarks
-'   Using bitwise addition to add to unsigned two 32 bit values.
-'   When two unsigned numbers are added, overflow occurs if there is a carry out of the leftmost bit.
-''
-'Public Function Add(ByRef left As ULong, ByRef right As ULong) As ULong
-'    Dim carryOver  As Long
-'    If left.Value = 0 Then
-'        Add.Value = right.Value
-'        Exit Function
-'    ElseIf right.Value = 0 Then
-'        Add.Value = left.Value
-'        Exit Function
-'    End If
-'
-'    Dim carryLeft As Long
-'    Dim carryRight As Long
-'    Dim bitIndex  As Long
-'    Dim bitMask As Long
-'    For bitIndex = 0 To 31
-'        bitMask = this.Powers(bitIndex)
-'        carryOver = ((carryLeft And carryRight) Or (carryLeft And carryOver) Or (carryRight And carryOver))
-'        If carryOver Then
-'            carryOver = bitMask
-'        End If
-'        carryLeft = left.Value And bitMask
-'        carryRight = right.Value And bitMask
-'        Add.Value = Add.Value Xor carryLeft Xor carryRight Xor carryOver
-'    Next
-'    If carryOver Then
-'        Add.Value = 0
-'        Err.Raise OverflowException, "UInt32Static.Add"
-'    End If
-'End Function
-
-
-''
-'@Static
-'@Description "Subtracts two unsigned 32 bit values."
-'@Parameters
-'   lhs ULong
-'       Value to subtract from
-'   rhs ULong
-'       Value to subtract from lhs
-'@Returns ULong
-'
-'@Exceptions
-'   OverflowException
-'       Raised when the result is less the minimum UInt32 value of 0.
-'
-'@Remarks
-''
-'Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-'    Dim dtLhs As DecimalType
-'    Dim dtRhs As DecimalType
-'
-'    'Cast lhs and rhs to decimal type i.e. variant containing a VBA decimal to avoid conversion of
-'    'negative numbers.
-'    dtLhs.vt = VBA.vbDecimal
-'    dtLhs.Lo32 = lhs.Value
-'    dtRhs.vt = VBA.vbDecimal
-'    dtRhs.Lo32 = rhs.Value
-'
-'    Dim decimalLhs As Variant
-'    Dim decimalRhs As Variant
-'    Dim decimalResult As Variant
-'
-'    'Create VBA decimal type from decimal structure
-'    CopyMemory decimalLhs, dtLhs, 16
-'    CopyMemory decimalRhs, dtRhs, 16
-'
-'    decimalResult = decimalLhs - decimalRhs
-'
-'    If decimalResult < MIN_ULONG Then
-'       Err.Raise OverflowException, "UInt32.Subtract"
-'    End If
-'
-'    CopyMemoryByPtr VarPtr(Subtract), VarPtr(decimalResult) + decimalLo32Offset, SIZEOF_UINT32
-'
-'End Function
