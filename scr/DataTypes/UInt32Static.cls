@@ -102,10 +102,25 @@ End Sub
 '------------------------------------------------------------------
 'Properties Methods
 '------------------------------------------------------------------
+
+''
+'@Description"Represents the largest possible value of UInt32. This field is constant."
+'@Field Value ULong
+'   Value = 4294967295#
+'@Remarks
+'   The value of this constant is 4,294,967,295; that is, hexadecimal 0xFFFFFFFF.
+''
 Public Property Get MaxValue() As ULong
     MaxValue.Value = MAX_UINT32
 End Property
 
+''
+'@Description"Represents the smallest possible value of UInt32. This field is constant."
+'@Field Value UInt32
+'   Value = 0
+'@Remarks
+'   The value of this constant is 0.
+''
 Public Property Get MinValue() As ULong
     MinValue.Value = MIN_UINT32
 End Property
