@@ -23,6 +23,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '   DWordType.bas
 '   WordType.bas
 '   QWordType.bas
+'   ULongLongType.bas
 '   VBADecimalType.bas
 '   CopyMemoryAPI.bas
 
