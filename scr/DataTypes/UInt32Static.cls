@@ -196,7 +196,7 @@ Public Function CUInt32(ByRef val As Variant) As ULong
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException
             Else
-                Dim qwVal As QWORD
+                Dim qwVal As QWORD_VALUE
                 qwVal.Value = val
                 LSet CUInt32 = qwVal
             End If
@@ -324,15 +324,15 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
         Err.Raise DivideByZeroException, "UInt32Static.DivRem"
     End If
 
-    Dim qwDividend As QWORD
-    Dim qwDivisor As QWORD
-    Dim qwQuotient As QWORD
-    Dim qwRemainder As QWORD
+    Dim qwDividend As QWORD_VALUE
+    Dim qwDivisor As QWORD_VALUE
+    Dim qwQuotient As QWORD_VALUE
+    Dim qwRemainder As QWORD_VALUE
 
     LSet qwDividend = dividend
     LSet qwDivisor = divisor
 
-    qwQuotient.Value = Fix(qwDividend.Value / qwDivisor.Value)
+    qwQuotient.Value = qwDividend.Value \ qwDivisor.Value 'Using integer division which truncates decimal places
     qwRemainder.Value = qwDividend.Value - (qwDivisor.Value * qwQuotient.Value)
     LSet DivRem = qwQuotient
     LSet outRemainder = qwRemainder
@@ -364,7 +364,7 @@ Public Function DivRem2(ByRef dividend As ULong, ByRef divisor As ULong, ByRef o
     CopyMemory decimalDivisor, dtDivisor, 16
     
     'runtime error 11 is raised for Division by 0
-    decimalQuotient = Fix(decimalDividend / decimalDivisor)
+    decimalQuotient = Fix(decimalDividend / decimalDivisor)     'Decimal places are truncated
     CopyMemoryByPtr VarPtr(DivRem2), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
 
     Dim decimalRemainder As Variant
@@ -476,13 +476,13 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
         Exit Function
     End If
 
-    Dim qwLhs As QWORD
-    Dim qwRhs As QWORD
+    Dim qwLhs As QWORD_VALUE
+    Dim qwRhs As QWORD_VALUE
     
     LSet qwLhs = lhs
     LSet qwRhs = rhs
     
-    Dim qwResult As QWORD
+    Dim qwResult As QWORD_VALUE
     qwResult.Value = qwLhs.Value + qwRhs.Value
     
     If qwResult.Value > 4294967295# Then
@@ -535,8 +535,7 @@ End Function
 '
 '@Remarks
 '   Win64 version using QWORD approximately 40 times better performance.
-'
-'@TODO Check if rounding occurs and if desirable integer division \ or floating point division / ??
+'   Decimal places are truncated.
 ''
 #If Win64 Then
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
@@ -544,13 +543,14 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
         Err.Raise DivideByZeroException, "UInt32Static.Divide"
     End If
     
-    Dim qwDividend As QWORD
-    Dim qwDivisor As QWORD
+    Dim qwDividend As QWORD_VALUE
+    Dim qwDivisor As QWORD_VALUE
     
     LSet qwDividend = dividend
     LSet qwDivisor = divisor
     
-    Dim qwResult As QWORD
+    Dim qwResult As QWORD_VALUE
+    'performing integer division decimal places truncated
     qwResult.Value = qwDividend.Value \ qwDivisor.Value
     
     LSet Divide = qwResult
@@ -603,13 +603,13 @@ End Function
 ''
 #If Win64 Then
 Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    Dim qwLhs As QWORD
-    Dim qwRhs As QWORD
+    Dim qwLhs As QWORD_VALUE
+    Dim qwRhs As QWORD_VALUE
     
     LSet qwLhs = lhs
     LSet qwRhs = rhs
     
-    Dim qwResult As QWORD
+    Dim qwResult As QWORD_VALUE
     qwResult.Value = qwLhs.Value * qwRhs.Value
     
     If qwResult.Value > 4294967295# Then
@@ -667,13 +667,13 @@ End Function
 ''
 #If Win64 Then
 Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    Dim qwLhs As QWORD
-    Dim qwRhs As QWORD
+    Dim qwLhs As QWORD_VALUE
+    Dim qwRhs As QWORD_VALUE
     
     LSet qwLhs = lhs
     LSet qwRhs = rhs
     
-    Dim qwResult As QWORD
+    Dim qwResult As QWORD_VALUE
     qwResult.Value = qwLhs.Value - qwRhs.Value
     
     If qwResult.Value < MIN_UINT32 Then
@@ -946,7 +946,7 @@ End Function
 #If Win64 Then
 
 Public Function ToString(ByRef val As ULong) As String
-    Dim qwVal As QWORD
+    Dim qwVal As QWORD_VALUE
     LSet qwVal = val
     ToString = CStr(qwVal.Value)
 End Function
@@ -994,7 +994,7 @@ Public Function Parse(ByRef s As String) As ULong
     End If
 
     On Error GoTo ErrorHandler
-    Dim qwVal As QWORD
+    Dim qwVal As QWORD_VALUE
     qwVal.Value = s
     If qwVal.Value < 0 Or qwVal.Value > 4294967295# Then
         Err.Raise OverflowException
@@ -1059,7 +1059,7 @@ End Function
 ''
 #If Win64 Then
 Public Function ToLongLong(ByRef val As ULong) As LongLong
-    Dim qwVal As QWORD
+    Dim qwVal As QWORD_VALUE
     LSet qwVal = val
     ToLongLong = qwVal.Value
 End Function
