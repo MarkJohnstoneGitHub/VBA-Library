@@ -9,6 +9,6 @@ Attribute VB_Name = "WordType"
 Option Explicit
 
 Public Type WORD
-    bLow    As Byte     ' the ordering is important to remain consistant with memory layout.
-    bHigh   As Byte
+    LowPart    As Byte     ' the ordering is important to remain consistant with memory layout.
+    HighPart   As Byte
 End Type

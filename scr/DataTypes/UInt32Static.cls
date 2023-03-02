@@ -507,10 +507,10 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwRhs = rhs
     Dim dwResult As DWORD
     
-    dwResult.wLow.bHigh = AddByte(dwLhs.wLow.bLow, dwRhs.wLow.bLow, dwResult.wLow.bLow)
-    dwResult.wHigh.bLow = AddByte(dwLhs.wLow.bHigh, dwRhs.wLow.bHigh, dwResult.wLow.bHigh)
-    dwResult.wHigh.bHigh = AddByte(dwLhs.wHigh.bLow, dwRhs.wHigh.bLow, dwResult.wHigh.bLow)
-    If AddByte(dwLhs.wHigh.bHigh, dwRhs.wHigh.bHigh, dwResult.wHigh.bHigh) Then
+    dwResult.wLow.HighPart = AddByte(dwLhs.wLow.LowPart, dwRhs.wLow.LowPart, dwResult.wLow.LowPart)
+    dwResult.wHigh.LowPart = AddByte(dwLhs.wLow.HighPart, dwRhs.wLow.HighPart, dwResult.wLow.HighPart)
+    dwResult.wHigh.HighPart = AddByte(dwLhs.wHigh.LowPart, dwRhs.wHigh.LowPart, dwResult.wHigh.LowPart)
+    If AddByte(dwLhs.wHigh.HighPart, dwRhs.wHigh.HighPart, dwResult.wHigh.HighPart) Then
         Err.Raise OverflowException
     End If
     LSet Add = dwResult
@@ -698,10 +698,10 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet dwRhs = rhs
 
     Dim dwResult As DWORD
-    dwResult.wLow.bHigh = SubtractByte(dwLhs.wLow.bLow, dwRhs.wLow.bLow, dwResult.wLow.bLow)
-    dwResult.wHigh.bLow = SubtractByte(dwLhs.wLow.bHigh, dwRhs.wLow.bHigh, dwResult.wLow.bHigh)
-    dwResult.wHigh.bHigh = SubtractByte(dwLhs.wHigh.bLow, dwRhs.wHigh.bLow, dwResult.wHigh.bLow)
-    If SubtractByte(dwLhs.wHigh.bHigh, dwRhs.wHigh.bHigh, dwResult.wHigh.bHigh) Then
+    dwResult.wLow.HighPart = SubtractByte(dwLhs.wLow.LowPart, dwRhs.wLow.LowPart, dwResult.wLow.LowPart)
+    dwResult.wHigh.LowPart = SubtractByte(dwLhs.wLow.HighPart, dwRhs.wLow.HighPart, dwResult.wLow.HighPart)
+    dwResult.wHigh.HighPart = SubtractByte(dwLhs.wHigh.LowPart, dwRhs.wHigh.LowPart, dwResult.wHigh.LowPart)
+    If SubtractByte(dwLhs.wHigh.HighPart, dwRhs.wHigh.HighPart, dwResult.wHigh.HighPart) Then
         Err.Raise OverflowException, "UInt32Static.Subtract"
     End If
     LSet Subtract = dwResult
