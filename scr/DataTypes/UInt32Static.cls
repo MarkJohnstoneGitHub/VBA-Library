@@ -318,7 +318,7 @@ End Function
 '   DivideByZeroException
 '       Raised when a divisor is 0, runtime error 11
 ''
-'#If Win64 Then
+#If Win64 Then
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
     If divisor.Value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.DivRem"
@@ -338,22 +338,22 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     LSet outRemainder = qwRemainder
 
 End Function
-'
-'#Else
-Public Function DivRem2(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
+
+#Else
+Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
     If divisor.Value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.DivRem"
     End If
     
-    Dim dtDividend As DecimalType
-    Dim dtDivisor As DecimalType
+    Dim dtDividend As tagDEC
+    Dim dtDivisor As tagDEC
     
     'Cast t1 and t2 to decimal type i.e. variant containing a VBA decimal to avoid conversion of
     'negative numbers.
     dtDividend.vt = VBA.vbDecimal
-    LSet dtDividend.Lo32 = dividend
+    LSet dtDividend.Lo64 = dividend
     dtDivisor.vt = VBA.vbDecimal
-    LSet dtDivisor.Lo32 = divisor
+    LSet dtDivisor.Lo64 = divisor
     
     Dim decimalDividend As Variant
     Dim decimalDivisor As Variant
@@ -365,7 +365,7 @@ Public Function DivRem2(ByRef dividend As ULong, ByRef divisor As ULong, ByRef o
     
     'runtime error 11 is raised for Division by 0
     decimalQuotient = Fix(decimalDividend / decimalDivisor)     'Decimal places are truncated
-    CopyMemoryByPtr VarPtr(DivRem2), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
+    CopyMemoryByPtr VarPtr(DivRem), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
 
     Dim decimalRemainder As Variant
     
@@ -373,7 +373,7 @@ Public Function DivRem2(ByRef dividend As ULong, ByRef divisor As ULong, ByRef o
     CopyMemoryByPtr VarPtr(outRemainder), VarPtr(decimalRemainder) + decimalLo32Offset, SIZEOF_UINT32
 
 End Function
-'#End If
+#End If
 
 ''
 '@Static
@@ -560,17 +560,17 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     If divisor.Value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.Divide"
     End If
-
-    Dim dtDividend As DecimalType
-    Dim dtDivisor As DecimalType
+    
+    Dim dtDividend As tagDEC
+    Dim dtDivisor As tagDEC
     
     'Cast t1 and t2 to decimal type i.e. variant containing a VBA decimal to avoid conversion of
     'negative numbers.
     dtDividend.vt = VBA.vbDecimal
-    dtDividend.Lo32 = dividend.Value
+    LSet dtDividend.Lo64 = dividend
     dtDivisor.vt = VBA.vbDecimal
-    dtDivisor.Lo32 = divisor.Value
-    
+    LSet dtDivisor.Lo64 = divisor
+
     Dim decimalDividend As Variant
     Dim decimalDivisor As Variant
     Dim decimalQuotient As Variant
@@ -585,6 +585,7 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     CopyMemoryByPtr VarPtr(Divide), VarPtr(decimalQuotient) + decimalLo32Offset, SIZEOF_UINT32
 End Function
 #End If
+
 
 ''
 '@Static
@@ -620,15 +621,15 @@ End Function
 
 #Else
 Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    Dim dtLhs As DecimalType
-    Dim dtRhs As DecimalType
+    Dim dtLhs As tagDEC
+    Dim dtRhs As tagDEC
     
     'Cast lhs and rhs to decimal type i.e. variant containing a VBA decimal to avoid conversion of
     'negative numbers.
     dtLhs.vt = VBA.vbDecimal
-    LSet dtLhs.Lo32 = lhs
+    LSet dtLhs.Lo64 = lhs
     dtRhs.vt = VBA.vbDecimal
-    LSet dtRhs.Lo32 = rhs
+    LSet dtRhs.Lo64 = rhs
     
     Dim decimalLhs As Variant
     Dim decimalRhs As Variant
@@ -950,13 +951,11 @@ Public Function ToString(ByRef val As ULong) As String
     LSet qwVal = val
     ToString = CStr(qwVal.Value)
 End Function
-
 #Else
-
 Public Function ToString(ByRef val As ULong) As String
-    Dim dtVal As DecimalType
+    Dim dtVal As tagDEC
     dtVal.vt = VBA.vbDecimal
-    LSet dtVal.Lo32 = val
+    LSet dtVal.Lo64 = val
     
     'Create VBA decimal type from decimal structure
     Dim decimalVal As Variant
@@ -986,6 +985,7 @@ End Function
 '   OverflowException
 '       The s parameter represents a number that is less than UInt32.MinValue or greater than UInt32.MaxValue.
 '@Remarks
+'@TODO Check the behaviour of conversion of values with decimals are treated. Round or truncate?
 ''
 #If Win64 Then
 Public Function Parse(ByRef s As String) As ULong
@@ -1042,9 +1042,9 @@ End Function
 '@Remarks
 ''
 Public Function ToDecimal(ByRef val As ULong) As Variant
-    Dim dtVal As DecimalType
+    Dim dtVal As tagDEC
     dtVal.vt = VBA.vbDecimal
-    LSet dtVal.Lo32 = val
+    LSet dtVal.Lo64 = val
     CopyMemory ToDecimal, dtVal, 16
 End Function
 
