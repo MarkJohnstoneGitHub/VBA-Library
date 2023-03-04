@@ -1,10 +1,10 @@
 Attribute VB_Name = "Testing_UInt32Static_Addition"
-'@Folder("Testing.VBACorLib.DataTypes.UInt32Static")
+'@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 28, 2023
-'@LastModified March 2, 2023
+'@Version v1.1 March 4, 2023
+'@LastModified March 4, 2023
 
 Option Explicit
 
@@ -38,6 +38,22 @@ Private Sub TestingUInt32Add()
     t2.Value = &HFF2F1F
     result = UInt32Static.Add(t1, t2)
     DisplayAddition t1, t2, result
+    
+    t1.Value = &HFFFFFFFE
+    t2.Value = &H1
+    result = UInt32Static.Add(t1, t2)
+    DisplayAddition t1, t2, result
+End Sub
+
+Private Sub TestUInt32AddOverflow()
+    Dim result As ULong
+    Dim t1  As ULong
+    Dim t2 As ULong
+    
+    t1.Value = &HFFFFFFFF
+    t2.Value = &H1
+    result = UInt32Static.Add(t1, t2)
+    DisplayAddition t1, t2, result
 End Sub
 
 Private Sub DisplayAddition(ByRef lhs As ULong, ByRef rhs As ULong, ByRef result As ULong)
@@ -67,6 +83,6 @@ Private Sub TestingUInt32PerformanceAddition()
 
     ' Calculate duration.
     dTime = MicroTimer - dTime
-    Debug.Print VBA.vbNewLine & "Addition duration for 1,000,000 calculations : " & dTime
+    Debug.Print VBA.vbNewLine & "Addition duration for ADD 1,000,000 calculations : " & dTime
 End Sub
 

@@ -1,10 +1,10 @@
 Attribute VB_Name = "Testing_UInt32Static_CUInt32"
-'@Folder("Testing.VBACorLib.DataTypes.UInt32Static")
+'@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 26, 2023
-'@LastModified February 26, 2023
+'@Version v1.1 March 4, 2023
+'@LastModified March 4, 2023
 
 Option Explicit
 
@@ -35,6 +35,10 @@ Private Sub TestingUInt32StaticCUInt32()
     
     Dim strVal As String
     strVal = "4294967295"
+    ulngResult = UInt32Static.CUInt32(strVal)
+    Debug.Print UInt32Static.ToString(ulngResult)
+    
+    strVal = "&HFFFFFFFF"
     ulngResult = UInt32Static.CUInt32(strVal)
     Debug.Print UInt32Static.ToString(ulngResult)
     

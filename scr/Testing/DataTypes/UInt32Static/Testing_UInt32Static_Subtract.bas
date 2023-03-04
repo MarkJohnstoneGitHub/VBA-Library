@@ -1,10 +1,10 @@
 Attribute VB_Name = "Testing_UInt32Static_Subtract"
-'@Folder("Testing.VBACorLib.DataTypes.UInt32Static")
+'@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 27, 2023
-'@LastModified February 27, 2023
+'@Version v1.1 March 4, 2023
+'@LastModified March 4, 2023
 
 Option Explicit
 
@@ -44,11 +44,9 @@ Private Sub TestingUInt32Subtract()
     DisplaySubtract lhs, rhs, result
 End Sub
 
-
 Private Sub DisplaySubtract(ByRef lhs As ULong, ByRef rhs As ULong, ByRef result As ULong)
     Debug.Print UInt32Static.ToString(lhs) & " - " & UInt32Static.ToString(rhs) & " = " & UInt32Static.ToString(result)
 End Sub
-
 
 Private Sub TestingUInt32PerformanceSubtract()
     Dim result As ULong

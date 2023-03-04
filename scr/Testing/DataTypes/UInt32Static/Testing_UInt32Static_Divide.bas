@@ -1,10 +1,10 @@
 Attribute VB_Name = "Testing_UInt32Static_Divide"
-'@Folder("Testing.VBACorLib.DataTypes.UInt32Static")
+'@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 28, 2023
-'@LastModified February 28, 2023
+'@Version v1.1 March 4, 2023
+'@LastModified March 4, 2023
 
 Option Explicit
 
@@ -27,12 +27,7 @@ Private Sub TestingUInt32StaticDivide()
     divisor.Value = &H7&
     result = UInt32Static.Divide(dividend, divisor)
     DisplayDivide dividend, divisor, result
-    
-'    dividend.Value = &H0&
-'    divisor.Value = &H0&
-'    result = UInt32Static.Divide(dividend, divisor)
-'    DisplayDivide dividend, divisor, result
-    
+        
     dividend.Value = &HFFFFFFFF
     divisor.Value = &H2&
     result = UInt32Static.Divide(dividend, divisor)

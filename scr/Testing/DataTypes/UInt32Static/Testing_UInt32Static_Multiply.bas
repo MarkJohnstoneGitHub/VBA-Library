@@ -1,10 +1,10 @@
 Attribute VB_Name = "Testing_UInt32Static_Multiply"
-'@Folder("Testing.VBACorLib.DataTypes.UInt32Static")
+'@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.0 February 27, 2023
-'@LastModified February 27, 2023
+'@Version v1.1 March 4, 2023
+'@LastModified March 4, 2023
 
 Option Explicit
 
@@ -73,5 +73,4 @@ Private Sub TestingUInt32PerformanceMultiply()
     dTime = MicroTimer - dTime
     Debug.Print VBA.vbNewLine & "Multiply duration for 1,000,000 calculations : " & dTime
 End Sub
-
 
