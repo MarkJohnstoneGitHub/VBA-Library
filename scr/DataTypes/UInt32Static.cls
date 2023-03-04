@@ -160,31 +160,31 @@ End Sub
 '   Decimal values are truncated
 ''
 Public Function CUInt32(ByRef val As Variant) As ULong
-    Select Case True
-        Case VarType(val) = vbLong
+    Select Case VarType(val)
+        Case VBA.vbLong
             CUInt32.Value = val
-        Case VarType(val) = vbString
+        Case VBA.vbString
             CUInt32 = Me.Parse(CStr(val))
-        Case VarType(val) = vbByte
+        Case VBA.vbByte
             CUInt32.Value = val
-        Case VarType(val) = vbInteger
+        Case VBA.vbInteger
             Dim wVal As WORD
             wVal.Value = val
             LSet CUInt32 = wVal
-        Case VarType(val) = vbCurrency
+        Case VBA.vbCurrency
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
                 CUInt32 = DecimalToUlong(val)
             End If
-        Case VarType(val) = vbDecimal
+        Case VBA.vbDecimal
             If val < 0 Or val > this.decMaxUInt32 Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
                 CUInt32 = DecimalToUlong(val)
             End If
         #If Win64 Then
-        Case VarType(val) = vbLongLong
+        Case VBA.vbLongLong
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
@@ -193,13 +193,13 @@ Public Function CUInt32(ByRef val As Variant) As ULong
                 LSet CUInt32 = qwVal
             End If
         #End If
-        Case VarType(val) = vbDouble
+        Case VBA.vbDouble
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
                 CUInt32 = DecimalToUlong(val)
             End If
-        Case VarType(val) = vbSingle
+        Case VBA.vbSingle
             If val < 0 And val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
@@ -253,14 +253,13 @@ End Function
 
 ''
 '@Static
-'@Description ""
+'@Description "Returns a new unsigned32-bit value whose value is the absolute value"
 '@Parameters
 '   val: ULong
-'
+'        The value to return the absolute value of.
 '@Returns ULong
 '   ULong
-'
-'@Remarks
+'       The absolute value of the required value.
 ''
 Public Function Absolute(ByRef val As ULong) As ULong
     Absolute = val
