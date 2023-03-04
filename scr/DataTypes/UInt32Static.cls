@@ -213,10 +213,10 @@ End Function
 
 ''
 '@Static
-'@Description "Compares two unsigned longs/UInt32 which their raw values are stored in a Long/Int32."
+'@Description "Compares two 32-bit unsigned integers and returns an indication of their relative values."
 '@Parameters
 '   lhs: ULong
-'       unsigned long value to compare against
+'       unsigned long value to compare to rhs
 '   rhs: ULong
 '       unsigned long value to compare to lhs
 '
