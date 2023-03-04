@@ -472,7 +472,7 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     Dim qwResult As QWORD
     qwResult.Value = qwLhs.Value + qwRhs.Value
     If qwResult.Value > 4294967295# Then
-       Err.Raise OverflowException, "UInt32.Multiply"
+       Err.Raise OverflowException, "UInt32.Add"
     End If
     LSet Add = qwResult 'copy LongLong to Long without VBA numeric conversion which may cause overflow.
 End Function
@@ -517,7 +517,7 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet wrhs = dwrhs.wHigh
     result.Value = wlhs.Value + wrhs.Value + dwResult.wHigh.Value
     If result.Value > 65535 Then
-        Err.Raise OverflowException
+        Err.Raise OverflowException, "UInt32.Add"
     End If
     LSet dwResult.wHigh = result 'copy low word of result without VBA conversion
     
