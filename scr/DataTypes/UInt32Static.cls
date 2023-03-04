@@ -160,7 +160,6 @@ End Sub
 '   Decimal values are truncated
 ''
 Public Function CUInt32(ByRef val As Variant) As ULong
-    Dim decVal As Variant
     Select Case True
         Case VarType(val) = vbLong
             CUInt32.Value = val
@@ -176,14 +175,12 @@ Public Function CUInt32(ByRef val As Variant) As ULong
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
-                decVal = Fix(CDec(val)) 'truncate decimal
                 CUInt32 = DecimalToUlong(val)
             End If
         Case VarType(val) = vbDecimal
             If val < 0 Or val > this.decMaxUInt32 Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
-                decVal = Fix(val)
                 CUInt32 = DecimalToUlong(val)
             End If
         #If Win64 Then
@@ -200,14 +197,12 @@ Public Function CUInt32(ByRef val As Variant) As ULong
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
-                decVal = CDec(Fix(val))
                 CUInt32 = DecimalToUlong(val)
             End If
         Case VarType(val) = vbSingle
             If val < 0 And val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
-                decVal = Fix(CDec(val))
                 CUInt32 = DecimalToUlong(val)
             End If
         Case Else
@@ -1263,9 +1258,12 @@ Private Sub InitRevMasks()
 End Sub
 
 Private Function DecimalToUlong(ByVal val As Variant) As ULong
-    If val > MAXVALUE_Int32 Then
-        DecimalToUlong.Value = val - 4294967296#
+    Dim decVal As Variant
+    decVal = Fix(val)
+
+    If decVal > MAXVALUE_Int32 Then
+        DecimalToUlong.Value = decVal - 4294967296#
     Else
-        DecimalToUlong.Value = val
+        DecimalToUlong.Value = decVal
     End If
 End Function
