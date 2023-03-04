@@ -244,7 +244,17 @@ Public Function CompareTo(ByRef lhs As ULong, ByRef rhs As ULong) As Long
     End If
 End Function
 
-'@Description"Returns a value indicating whether two unsigned 32 bit values are equal."
+''
+'@Description"Returns a value indicating whether two unsigned 32-bit values are equal."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if values are equal.
+''
 Public Function Equals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
     If (lhs.Value = rhs.Value) Then
         Equals = True
@@ -527,7 +537,7 @@ End Function
 
 ''
 '@Static
-'@Description "Divides two unsigned UInt32/ULong numbers."
+'@Description "Divides two unsigned 32-bit values."
 '@Parameters
 '   dividend ULong
 '       The dividend
@@ -597,7 +607,7 @@ End Function
 
 ''
 '@Static
-'@Description "Multiplies two unsigned UInt32/ULong numbers."
+'@Description "Multiplies two unsigned 32-bit values."
 '@Parameters
 '   lhs ULong
 '   rhs ULong
