@@ -3,8 +3,8 @@ Attribute VB_Name = "ULongLongType"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-dotnet-CorLib is licensed under the MIT License
-'@Version v1.0 March 2, 2023
-'@LastModified March 2, 2023
+'@Version v1.1 March 4, 2023
+'@LastModified March 4, 2023
 
 Option Explicit
 
@@ -19,7 +19,7 @@ Option Explicit
     End Type
 #End If
 
-Public Type ULongLongLowHigh
+Public Type ULongLongLoHi
     LowPart   As Long
     HighPart  As Long
 End Type
