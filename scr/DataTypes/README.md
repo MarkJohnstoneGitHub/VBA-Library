@@ -12,40 +12,16 @@ UInt32Static.cls Static class for unsigned 32 bit values
     - [QWordType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/QWordType.bas) 
     
     - [WordType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/WordType.bas)      
-    
-    - [VBADecimalType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/VBADecimalType.bas)
-    
-    - [CopyMemoryAPI.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/API/CopyMemoryAPI.bas)    
-
+   
+      
 ULongType.bas
 
 -ULong data structure for unsigned 32 bit values	
 
-VBADecimalType.bas
-
--VBA Decimal type structure within a variant.
-
-CopyMemoryAPI.bas
-
--API declarations for copy memory by pointer for Windows and Mac, with VBA6 and VBA7 compatibility.
-
-
-Currently predominantly using the VBA Decimal data type for math operations as internally it is treated unsigned value making for reliable method for converting to unsigned 32 bit value. Updated performance for add, subtract, divide and multipy so far Win64 to use QWORD and LongLong calculations. 
+Currently for Win32 using the VBA Decimal data type for math operations as internally it is treated as an unsigned value making for reliable method for converting to unsigned 32 bit value.
 
 @TODO
-
-CUInt32 and DivRem Improve performance
 
 Unit Testing
 
 Examples of use
-
-Investigate methods to improve performance for various math operations and functions
-
-Possible solutions:
-
--Efficient bitwise methods
-
--COM addin
-
--Using other existing data types and bitshifting
