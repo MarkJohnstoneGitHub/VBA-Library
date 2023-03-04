@@ -927,7 +927,7 @@ End Function
 '@Parameters
 '   val ULong value
 '   offset The number of bits to rotate-left by.
-'@Returns Long
+'@Returns ULong
 '   Returns a ULong of the bitwise rotate-left, by the given number of bits.
 '
 '@Remarks
@@ -937,8 +937,8 @@ End Function
 '@References
 '   https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs
 ''
-Public Function RotateLeft(ByRef val As ULong, ByVal offset As Long) As Long
-    RotateLeft = LeftShift(val, offset).value Or RightShift(val, (SIZEOF_UINT32_BITS - offset)).value
+Public Function RotateLeft(ByRef val As ULong, ByVal offset As Long) As ULong
+    RotateLeft.value = LeftShift(val, offset).value Or RightShift(val, (SIZEOF_UINT32_BITS - offset)).value
 End Function
 
 ''
@@ -958,8 +958,8 @@ End Function
 '@Reference
 ' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,f37eec40a05d7095
 ''
-Public Function RotateRight(ByRef val As ULong, ByVal offset As Long) As Long
-    RotateRight = RightShift(val, offset).value Or LeftShift(val, (SIZEOF_UINT32_BITS - offset)).value
+Public Function RotateRight(ByRef val As ULong, ByVal offset As Long) As ULong
+    RotateRight.value = RightShift(val, offset).value Or LeftShift(val, (SIZEOF_UINT32_BITS - offset)).value
 End Function
 
 ''
