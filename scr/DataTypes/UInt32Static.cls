@@ -175,13 +175,13 @@ Public Function CUInt32(ByRef val As Variant) As ULong
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
-                CUInt32 = DecimalToUlong(val)
+                CUInt32 = DecimalToULong(val)
             End If
         Case VBA.vbDecimal
             If val < 0 Or val > this.decMaxUInt32 Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
-                CUInt32 = DecimalToUlong(val)
+                CUInt32 = DecimalToULong(val)
             End If
         #If Win64 Then
         Case VBA.vbLongLong
@@ -197,13 +197,13 @@ Public Function CUInt32(ByRef val As Variant) As ULong
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
-                CUInt32 = DecimalToUlong(val)
+                CUInt32 = DecimalToULong(val)
             End If
         Case VBA.vbSingle
             If val < 0 And val > 4294967295# Then
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
-                CUInt32 = DecimalToUlong(val)
+                CUInt32 = DecimalToULong(val)
             End If
         Case Else
             Err.Raise ArgumentException, "UInt32Static.CUInt32", "Invalid argument"
@@ -1057,7 +1057,7 @@ Public Function Parse(ByRef s As String) As ULong
     If decVal < 0 Or decVal > this.decMaxUInt32 Then
         Err.Raise OverflowException
     Else
-        Parse = DecimalToUlong(decVal)
+        Parse = DecimalToULong(decVal)
     End If
 CleanExit:
     Exit Function
@@ -1085,7 +1085,7 @@ Public Function ToDecimal(ByRef val As ULong) As Variant
 End Function
 #Else
 Public Function ToDecimal(ByRef val As ULong) As Variant
-    ToDecimal3 = CDec(val.Value)
+    ToDecimal = CDec(val.Value)
     If ToDecimal < 0 Then
         ToDecimal = ToDecimal + 4294967296#
     End If
@@ -1256,13 +1256,13 @@ Private Sub InitRevMasks()
     this.RevMasks(32) = &H0&        ' 00000000000000000000000000000000      0
 End Sub
 
-Private Function DecimalToUlong(ByVal val As Variant) As ULong
+Private Function DecimalToULong(ByVal val As Variant) As ULong
     Dim decVal As Variant
     decVal = Fix(val)
 
     If decVal > MAXVALUE_Int32 Then
-        DecimalToUlong.Value = decVal - 4294967296#
+        DecimalToULong.Value = decVal - 4294967296#
     Else
-        DecimalToUlong.Value = decVal
+        DecimalToULong.Value = decVal
     End If
 End Function
