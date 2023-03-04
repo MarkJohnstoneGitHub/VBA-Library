@@ -87,7 +87,7 @@ Private this As TUInt32Static
 '------------------------------------------------------------------
 Private Sub Class_Initialize()
     this.decMaxUInt32 = CDec(MAX_ULONG)
-    this.ulngOne.Value = 1 'constant for caculation in IsPow2
+    this.ulngOne.value = 1 'constant for caculation in IsPow2
     
     'Initialise bitwise arrays
     InitPowers
@@ -107,7 +107,7 @@ End Sub
 '   The value of this constant is 4,294,967,295; that is, hexadecimal 0xFFFFFFFF.
 ''
 Public Property Get MaxValue() As ULong
-    MaxValue.Value = MAX_UINT32
+    MaxValue.value = MAX_UINT32
 End Property
 
 ''
@@ -118,7 +118,7 @@ End Property
 '   The value of this constant is 0.
 ''
 Public Property Get MinValue() As ULong
-    MinValue.Value = MIN_UINT32
+    MinValue.value = MIN_UINT32
 End Property
 
 Friend Property Get MaxValueDecimal() As Variant
@@ -139,7 +139,7 @@ End Property
 '       The value to be copied to the destination.
 ''
 Public Sub Assign(ByRef destination As ULong, ByRef source As ULong)
-    destination.Value = source.Value
+    destination.value = source.value
 End Sub
 
 ''
@@ -162,14 +162,14 @@ End Sub
 Public Function CUInt32(ByRef val As Variant) As ULong
     Select Case VarType(val)
         Case VBA.vbLong
-            CUInt32.Value = val
+            CUInt32.value = val
         Case VBA.vbString
             CUInt32 = Me.Parse(CStr(val))
         Case VBA.vbByte
-            CUInt32.Value = val
+            CUInt32.value = val
         Case VBA.vbInteger
             Dim wVal As WORD
-            wVal.Value = val
+            wVal.value = val
             LSet CUInt32 = wVal
         Case VBA.vbCurrency
             If val < 0 Or val > 4294967295# Then
@@ -189,7 +189,7 @@ Public Function CUInt32(ByRef val As Variant) As ULong
                 Err.Raise OverflowException, "UInt32Static.CUInt32"
             Else
                 Dim qwVal As QWORD
-                qwVal.Value = val
+                qwVal.value = val
                 LSet CUInt32 = qwVal
             End If
         #End If
@@ -226,9 +226,9 @@ End Function
 ''
 Public Function CompareTo(ByRef lhs As ULong, ByRef rhs As ULong) As Long
     'If the most significant bit is different
-    If (lhs.Value Xor rhs.Value) < 0 Then
+    If (lhs.value Xor rhs.value) < 0 Then
         'If left most significant bit set it is the larger unsigned value
-        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+        If lhs.value And MOST_SIGNIFICANT_BIT_MASK Then
              CompareTo = 1
              Exit Function
         Else
@@ -237,9 +237,9 @@ Public Function CompareTo(ByRef lhs As ULong, ByRef rhs As ULong) As Long
         End If
     End If
     'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
-    If lhs.Value > rhs.Value Then
+    If lhs.value > rhs.value Then
         CompareTo = 1
-    ElseIf lhs.Value < rhs.Value Then
+    ElseIf lhs.value < rhs.value Then
         CompareTo = -1
     End If
 End Function
@@ -256,7 +256,7 @@ End Function
 '   Returns true if values are equal.
 ''
 Public Function Equals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
-    If (lhs.Value = rhs.Value) Then
+    If (lhs.value = rhs.value) Then
         Equals = True
     End If
 End Function
@@ -317,7 +317,7 @@ End Function
 ''
 #If Win64 Then
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
-    If divisor.Value = 0 Then
+    If divisor.value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.DivRem"
     End If
 
@@ -329,28 +329,28 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     LSet qwDividend = dividend
     LSet qwDivisor = divisor
 
-    qwQuotient.Value = qwDividend.Value \ qwDivisor.Value 'Using integer division which truncates decimal places
-    qwRemainder.Value = qwDividend.Value - (qwDivisor.Value * qwQuotient.Value)
+    qwQuotient.value = qwDividend.value \ qwDivisor.value 'Using integer division which truncates decimal places
+    qwRemainder.value = qwDividend.value - (qwDivisor.value * qwQuotient.value)
     LSet DivRem = qwQuotient
     LSet outRemainder = qwRemainder
 End Function
 
 #Else
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
-    If divisor.Value = 0 Then
+    If divisor.value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.DivRem"
     End If
 
     'convert dividend ULong to decimal
     Dim decimalDividend As Variant
-    decimalDividend = CDec(dividend.Value)
+    decimalDividend = CDec(dividend.value)
     If decimalDividend < 0 Then
         decimalDividend = decimalDividend + 4294967296#
     End If
 
     'convert divisor ULong to decimal
     Dim decimalDivisor As Variant
-    decimalDivisor = CDec(divisor.Value)
+    decimalDivisor = CDec(divisor.value)
     If decimalDivisor < 0 Then
         decimalDivisor = decimalDivisor + 4294967296#
     End If
@@ -363,16 +363,16 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
 
     'Convert decimal remainder to ULong
     If decimalRemainder > MAXVALUE_Int32 Then
-        outRemainder.Value = decimalRemainder - 4294967296#
+        outRemainder.value = decimalRemainder - 4294967296#
     Else
-        outRemainder.Value = decimalRemainder
+        outRemainder.value = decimalRemainder
     End If
     
     'Convert decimal quotient to ULong
     If decimalQuotient > MAXVALUE_Int32 Then
-        DivRem.Value = decimalQuotient - 4294967296#
+        DivRem.value = decimalQuotient - 4294967296#
     Else
-        DivRem.Value = decimalQuotient
+        DivRem.value = decimalQuotient
     End If
 End Function
 #End If
@@ -396,8 +396,8 @@ End Function
 '   A modulus operation is used to calculate the remainder of a division operation.
 ''
 Public Function Modulus(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
-    If divisor.Value = 0 Then
-        Err.Raise DivideByZeroException, "UInt32.Modulus"
+    If divisor.value = 0 Then
+        Err.Raise DivideByZeroException, "UInt32Static.Modulus"
     End If
     DivRem dividend, divisor, Modulus
 End Function
@@ -466,11 +466,11 @@ End Function
 ''
 #If Win64 Then
 Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    If lhs.Value = 0 Then
-        Add.Value = rhs.Value
+    If lhs.value = 0 Then
+        Add.value = rhs.value
         Exit Function
-    ElseIf rhs.Value = 0 Then
-        Add.Value = lhs.Value
+    ElseIf rhs.value = 0 Then
+        Add.value = lhs.value
         Exit Function
     End If
 
@@ -480,8 +480,8 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet qwRhs = rhs
     
     Dim qwResult As QWORD
-    qwResult.Value = qwLhs.Value + qwRhs.Value
-    If qwResult.Value > 4294967295# Then
+    qwResult.value = qwLhs.value + qwRhs.value
+    If qwResult.value > 4294967295# Then
        Err.Raise OverflowException, "UInt32.Add"
     End If
     LSet Add = qwResult 'copy LongLong to Long without VBA numeric conversion which may cause overflow.
@@ -494,11 +494,11 @@ End Function
 '   Performance improvement of approximately 65% from previous byte addition method.
 ''
 Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    If lhs.Value = 0 Then
-        Add.Value = rhs.Value
+    If lhs.value = 0 Then
+        Add.value = rhs.value
         Exit Function
-    ElseIf rhs.Value = 0 Then
-        Add.Value = lhs.Value
+    ElseIf rhs.value = 0 Then
+        Add.value = lhs.value
         Exit Function
     End If
       
@@ -516,17 +516,17 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     'Copy low word binary values without conversion to long type.
     LSet wlhs = dwlhs.wLow
     LSet wrhs = dwrhs.wLow
-    result.Value = wlhs.Value + wrhs.Value
-    If result.Value > 65535 Then
-        dwResult.wHigh.Value = 1    'carry occured
+    result.value = wlhs.value + wrhs.value
+    If result.value > 65535 Then
+        dwResult.wHigh.value = 1    'carry occured
     End If
     LSet dwResult.wLow = result 'copy low word of result without VBA conversion
     
     'Copy high word binary values without conversion to long type.
     LSet wlhs = dwlhs.wHigh
     LSet wrhs = dwrhs.wHigh
-    result.Value = wlhs.Value + wrhs.Value + dwResult.wHigh.Value
-    If result.Value > 65535 Then
+    result.value = wlhs.value + wrhs.value + dwResult.wHigh.value
+    If result.value > 65535 Then
         Err.Raise OverflowException, "UInt32.Add"
     End If
     LSet dwResult.wHigh = result 'copy low word of result without VBA conversion
@@ -557,7 +557,7 @@ End Function
 ''
 #If Win64 Then
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
-    If divisor.Value = 0 Then
+    If divisor.value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.Divide"
     End If
     
@@ -569,26 +569,26 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     
     Dim qwResult As QWORD
     'performing integer division decimal places truncated
-    qwResult.Value = qwDividend.Value \ qwDivisor.Value
+    qwResult.value = qwDividend.value \ qwDivisor.value
     
     LSet Divide = qwResult
 End Function
 #Else
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
-    If divisor.Value = 0 Then
+    If divisor.value = 0 Then
         Err.Raise DivideByZeroException, "UInt32Static.Divide"
     End If
     
     'convert dividend ULong to decimal
     Dim decimalDividend As Variant
-    decimalDividend = CDec(dividend.Value)
+    decimalDividend = CDec(dividend.value)
     If decimalDividend < 0 Then
         decimalDividend = decimalDividend + 4294967296#
     End If
     
     'convert divisor ULong to decimal
     Dim decimalDivisor As Variant
-    decimalDivisor = CDec(divisor.Value)
+    decimalDivisor = CDec(divisor.value)
     If decimalDivisor < 0 Then
         decimalDivisor = decimalDivisor + 4294967296#
     End If
@@ -598,9 +598,9 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     
     'Convert decimal result to ULong
     If decimalQuotient > MAXVALUE_Int32 Then
-        Divide.Value = decimalQuotient - 4294967296#
+        Divide.value = decimalQuotient - 4294967296#
     Else
-        Divide.Value = decimalQuotient
+        Divide.value = decimalQuotient
     End If
 End Function
 #End If
@@ -629,9 +629,9 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet qwRhs = rhs
     
     Dim qwResult As QWORD
-    qwResult.Value = qwLhs.Value * qwRhs.Value
+    qwResult.value = qwLhs.value * qwRhs.value
     
-    If qwResult.Value > 4294967295# Then
+    If qwResult.value > 4294967295# Then
        Err.Raise OverflowException, "UInt32.Multiply"
     End If
     LSet Multiply = qwResult
@@ -644,14 +644,14 @@ End Function
 Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     'convert lhs ULong to decimal
     Dim decimalLhs As Variant
-    decimalLhs = CDec(lhs.Value)
+    decimalLhs = CDec(lhs.value)
     If decimalLhs < 0 Then
         decimalLhs = decimalLhs + 4294967296#
     End If
     
     'convert rhs ULong to decimal
     Dim decimalRhs As Variant
-    decimalRhs = CDec(rhs.Value)
+    decimalRhs = CDec(rhs.value)
     If decimalRhs < 0 Then
         decimalRhs = decimalRhs + 4294967296#
     End If
@@ -664,9 +664,9 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     
     'Convert decimal result to ULong
     If decimalResult > MAXVALUE_Int32 Then
-        Multiply.Value = decimalResult - 4294967296#
+        Multiply.value = decimalResult - 4294967296#
     Else
-        Multiply.Value = decimalResult
+        Multiply.value = decimalResult
     End If
 End Function
 #End If
@@ -699,8 +699,8 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     
     'Subtract using LongLong type within QWORD
     Dim qwResult As QWORD
-    qwResult.Value = qwLhs.Value - qwRhs.Value
-    If qwResult.Value < MIN_UINT32 Then
+    qwResult.value = qwLhs.value - qwRhs.value
+    If qwResult.value < MIN_UINT32 Then
        Err.Raise OverflowException, "UInt32Static.Subtract"
     End If
     LSet Subtract = qwResult
@@ -714,11 +714,11 @@ End Function
 ''
 Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     Const MINVALUE_WORD As Long = 0
-    If lhs.Value = 0 Then
-        Subtract.Value = rhs.Value
+    If lhs.value = 0 Then
+        Subtract.value = rhs.value
         Exit Function
-    ElseIf rhs.Value = 0 Then
-        Subtract.Value = lhs.Value
+    ElseIf rhs.value = 0 Then
+        Subtract.value = lhs.value
         Exit Function
     ElseIf Me.CompareTo(lhs, rhs) = -1 Then
         Err.Raise OverflowException, "UInt32Static.Subtract"
@@ -739,17 +739,17 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     'Copy low word binary values without conversion to long type.
     LSet wlhs = dwlhs.wLow
     LSet wrhs = dwrhs.wLow
-    result.Value = wlhs.Value - wrhs.Value
-    If result.Value < MINVALUE_WORD Then
-        dwResult.wHigh.Value = 1   'carry occured
+    result.value = wlhs.value - wrhs.value
+    If result.value < MINVALUE_WORD Then
+        dwResult.wHigh.value = 1   'carry occured
     End If
     LSet dwResult.wLow = result 'copy low word of result without VBA conversion
     
     'Copy high word binary values without conversion to long type.
     LSet wlhs = dwlhs.wHigh
     LSet wrhs = dwrhs.wHigh
-    result.Value = wlhs.Value - wrhs.Value - dwResult.wHigh.Value
-    If result.Value < MINVALUE_WORD Then
+    result.value = wlhs.value - wrhs.value - dwResult.wHigh.value
+    If result.value < MINVALUE_WORD Then
         Err.Raise OverflowException, "UInt32Static.Subtract"
     End If
     LSet dwResult.wHigh = result 'copy low word of result without VBA conversion
@@ -768,7 +768,7 @@ End Function
 '   true if value is an even integer; otherwise, false.
 ''
 Public Function IsEvenInteger(ByRef val As ULong) As Boolean
-    If (val.Value And 1) = 0 Then
+    If (val.value And 1) = 0 Then
         IsEvenInteger = True
     End If
 End Function
@@ -783,7 +783,7 @@ End Function
 '   true if value is an odd integer; otherwise, false.
 ''
 Public Function IsOddInteger(ByRef val As ULong) As Boolean
-    If (val.Value And 1) <> 0 Then
+    If (val.value And 1) <> 0 Then
         IsOddInteger = True
     End If
 End Function
@@ -798,7 +798,7 @@ End Function
 '@Returns ULong
 ''
 Public Function BitwiseAnd(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    BitwiseAnd.Value = lhs.Value And rhs.Value
+    BitwiseAnd.value = lhs.value And rhs.value
 End Function
 
 ''
@@ -810,7 +810,7 @@ End Function
 '@Returns ULong
 ''
 Public Function BitwiseNot(ByRef val As ULong) As ULong
-    BitwiseNot.Value = Not val.Value
+    BitwiseNot.value = Not val.value
 End Function
 
 ''
@@ -825,7 +825,7 @@ End Function
 '@Remarks
 ''
 Public Function BitwiseOr(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    BitwiseOr.Value = lhs.Value Or rhs.Value
+    BitwiseOr.value = lhs.value Or rhs.value
 End Function
 
 ''
@@ -840,7 +840,7 @@ End Function
 '@Remarks
 ''
 Public Function BitwiseXor(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    BitwiseXor.Value = lhs.Value Xor rhs.Value
+    BitwiseXor.value = lhs.value Xor rhs.value
 End Function
 
 ''
@@ -888,14 +888,14 @@ End Function
 ''
 Public Function LeftShift(ByRef val As ULong, ByVal offset As Long) As ULong
     If offset > MIN_BITSHIFT And offset < SIZEOF_UINT32_BITS Then
-        LeftShift.Value = (val.Value And this.Masks(31 - offset)) * this.Powers(offset)
-        If val.Value And this.Powers(31 - offset) Then
-            LeftShift.Value = LeftShift.Value Or MOST_SIGNIFICANT_BIT_MASK  ' set bit 31
+        LeftShift.value = (val.value And this.Masks(31 - offset)) * this.Powers(offset)
+        If val.value And this.Powers(31 - offset) Then
+            LeftShift.value = LeftShift.value Or MOST_SIGNIFICANT_BIT_MASK  ' set bit 31
         End If
     ElseIf offset <= 0 Then
         LeftShift = val
     ElseIf offset >= MAX_BITSHIFT Then
-        LeftShift.Value = &H0
+        LeftShift.value = &H0
     End If
 End Function
 
@@ -911,12 +911,12 @@ End Function
 '   Right shifting is equal to dividing value by 2^Shift.
 Public Function RightShift(ByRef val As ULong, ByVal offset As Long) As ULong
     If offset > MIN_BITSHIFT And offset < SIZEOF_UINT32_BITS Then
-        RightShift.Value = ((val.Value And this.RevMasks(offset)) \ this.Powers(offset)) _
+        RightShift.value = ((val.value And this.RevMasks(offset)) \ this.Powers(offset)) _
                     And this.Masks(MAX_BITSHIFT - offset)
     ElseIf offset = MIN_BITSHIFT Then
         RightShift = val
     ElseIf offset >= MAX_BITSHIFT Then
-        RightShift.Value = &H0
+        RightShift.value = &H0
     End If
 End Function
 
@@ -938,7 +938,7 @@ End Function
 '   https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs
 ''
 Public Function RotateLeft(ByRef val As ULong, ByVal offset As Long) As Long
-    RotateLeft = LeftShift(val, offset).Value Or RightShift(val, (SIZEOF_UINT32_BITS - offset)).Value
+    RotateLeft = LeftShift(val, offset).value Or RightShift(val, (SIZEOF_UINT32_BITS - offset)).value
 End Function
 
 ''
@@ -959,7 +959,7 @@ End Function
 ' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,f37eec40a05d7095
 ''
 Public Function RotateRight(ByRef val As ULong, ByVal offset As Long) As Long
-    RotateRight = RightShift(val, offset).Value Or LeftShift(val, (SIZEOF_UINT32_BITS - offset)).Value
+    RotateRight = RightShift(val, offset).value Or LeftShift(val, (SIZEOF_UINT32_BITS - offset)).value
 End Function
 
 ''
@@ -973,8 +973,8 @@ End Function
 '   true if value is a power of two; otherwise, false.
 ''
 Public Function IsPow2(ByRef val As ULong) As Boolean
-    If val.Value <> 0 Then 'to avoid overflow with subtraction of 0
-        If (val.Value And (Me.Subtract(val, this.ulngOne).Value)) = 0 And val.Value <> 0 Then
+    If val.value <> 0 Then 'to avoid overflow with subtraction of 0
+        If (val.value And (Me.Subtract(val, this.ulngOne).value)) = 0 And val.value <> 0 Then
             IsPow2 = True
         End If
     End If
@@ -999,12 +999,12 @@ End Function
 Public Function ToString(ByRef val As ULong) As String
     Dim qwVal As QWORD
     LSet qwVal = val    'copy binary Long value to longlong without VBA numeric conversion
-    ToString = CStr(qwVal.Value)
+    ToString = CStr(qwVal.value)
 End Function
 #Else
 Public Function ToString(ByRef val As ULong) As String
     Dim decimalVal As Variant
-    decimalVal = CDec(val.Value)
+    decimalVal = CDec(val.value)
     If decimalVal < 0 Then
         decimalVal = decimalVal + 4294967296#
     End If
@@ -1042,8 +1042,8 @@ Public Function Parse(ByRef s As String) As ULong
 
     On Error GoTo ErrorHandler
     Dim qwVal As QWORD
-    qwVal.Value = s
-    If qwVal.Value < 0 Or qwVal.Value > 4294967295# Then
+    qwVal.value = s
+    If qwVal.value < 0 Or qwVal.value > 4294967295# Then
         Err.Raise OverflowException
     Else
         LSet Parse = qwVal
@@ -1091,11 +1091,11 @@ End Function
 Public Function ToDecimal(ByRef val As ULong) As Variant
     Dim qwVal As QWORD
     LSet qwVal = val
-    ToDecimal = CDec(qwVal.Value)
+    ToDecimal = CDec(qwVal.value)
 End Function
 #Else
 Public Function ToDecimal(ByRef val As ULong) As Variant
-    ToDecimal = CDec(val.Value)
+    ToDecimal = CDec(val.value)
     If ToDecimal < 0 Then
         ToDecimal = ToDecimal + 4294967296#
     End If
@@ -1116,7 +1116,7 @@ End Function
 Public Function ToLongLong(ByRef val As ULong) As LongLong
     Dim qwVal As QWORD
     LSet qwVal = val
-    ToLongLong = qwVal.Value
+    ToLongLong = qwVal.value
 End Function
 #End If
 
@@ -1271,8 +1271,8 @@ Private Function DecimalToULong(ByVal val As Variant) As ULong
     decVal = Fix(val)
 
     If decVal > MAXVALUE_Int32 Then
-        DecimalToULong.Value = decVal - 4294967296#
+        DecimalToULong.value = decVal - 4294967296#
     Else
-        DecimalToULong.Value = decVal
+        DecimalToULong.value = decVal
     End If
 End Function
