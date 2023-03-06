@@ -156,7 +156,7 @@ End Sub
 '@Parameters
 '   val Variant
 '       The value to be converted to an unsigned 32-bit integer.
-'       The byte value is copied to an unsigned 32-bit integer, where negative values are converted
+'       The byte value is copied to an unsigned 32-bit integer where negative values are converted
 '       into large unsigned values.
 '@Returns ULong
 '   The unsigned 32-bit integer created from the value byte values.
@@ -186,7 +186,7 @@ Public Function CBytesUInt32(ByVal val As Variant) As ULong
         #If Win64 Then
         Case VBA.vbLongLong
             If val < 0 Or val > 4294967295# Then
-                Err.Raise OverflowException, "UInt32Static.AssignByteValue"
+                Err.Raise OverflowException, "UInt32Static.CBytesUInt32"
             Else
                 Dim qwVal As QWORD
                 qwVal.Value = val
@@ -198,16 +198,16 @@ Public Function CBytesUInt32(ByVal val As Variant) As ULong
                 On Error GoTo HexStringExceptionHandler
                 CBytesUInt32 = Parse(CStr(val))
             Else
-                Err.Raise ArgumentException, "UInt32Static.AssignByteValue", "Invalid argument"
+                Err.Raise ArgumentException, "UInt32Static.CBytesUInt32", "Invalid argument"
             End If
         Case Else
-            Err.Raise ArgumentException, "UInt32Static.AssignByteValue", "Invalid argument"
+            Err.Raise ArgumentException, "UInt32Static.CBytesUInt32", "Invalid argument"
     End Select
     
 CleanExit:
     Exit Function
 HexStringExceptionHandler:
-    Err.Raise Err.Number, "UInt32Static.AssignByteValue", Err.Description
+    Err.Raise Err.Number, "UInt32Static.CBytesUInt32", Err.Description
     Resume CleanExit
 End Function
 
