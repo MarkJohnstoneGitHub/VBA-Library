@@ -665,7 +665,7 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     qwResult.Value = qwLhs.Value * qwRhs.Value
     
     If qwResult.Value > 4294967295# Then
-       Err.Raise OverflowException, "UInt32.Multiply"
+       Err.Raise OverflowException, "UInt32Static.Multiply"
     End If
     LSet Multiply = qwResult
 End Function
