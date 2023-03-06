@@ -27,3 +27,5 @@ Are currency, single, double data types appropriate to typecasted to ULong?  Req
 Unit Testing
 
 Examples of use
+
+Also working on unsigned 64-bit integers which will be posted soon.
