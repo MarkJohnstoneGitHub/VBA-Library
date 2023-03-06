@@ -22,6 +22,8 @@ Currently for Win32 using the VBA Decimal data type for math operations as inter
 
 @TODO
 
+Are currency, single, double appropriate to typecasted to ULong?  Require investigating how other languages handle these types and unsigned integers.
+
 Unit Testing
 
 Examples of use
