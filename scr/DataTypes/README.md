@@ -18,10 +18,14 @@ ULongType.bas
 
 -ULong data structure for unsigned 32 bit values	
 
-Currently for Win32 using the VBA Decimal data type for math operations as internally it is treated as an unsigned value making for reliable method for converting to unsigned 32 bit value.
+For Win32 the VBA Decimal data type is used for the Multiply, Divide and DivRem math operations and results converted to an unsigned 32-bit integer.  Win64 uses the LongLong type for math operations and results converted to an unsigned 32-bit integer.
 
 @TODO
+
+Are currency, single, double data types appropriate to typecasted to ULong?  Require investigating how other languages handle these types and unsigned integers.
 
 Unit Testing
 
 Examples of use
+
+Also working on unsigned 64-bit integers which will be posted soon.
