@@ -14,8 +14,10 @@ Option Explicit
 '@Static
 '@Description "Converts the byte value into an unsigned 32-bit integer."
 '@Parameters
-'   destination ULong
-'       The destination which the source value is copied to.
+'   val Variant
+'       The value to be converted to an unsigned 32-bit integer.
+'       The byte value is copied to an unsigned 32-bit integer, where negative values are converted
+'       into large unsigned values.
 '@Returns ULong
 '   The unsigned 32-bit integer created from the value byte values.
 '
