@@ -2,45 +2,43 @@ Attribute VB_Name = "Testing_UInt32Static_CompareTo"
 '@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
-'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.1 March 4, 2023
-'@LastModified March 4, 2023
+'MarkJohnstoneGitHub/VBA-Library
+'@Version v1.2 March 6, 2023
+'@LastModified March 6, 2023
 
 Option Explicit
 
 Private Sub TestingUInt32CompareTo()
- Dim compareResult As Long
-
     Dim lhs  As ULong
     Dim rhs As ULong
 
-    lhs.Value = &HF6F2F1F0
-    rhs.Value = &H1F3&
+    lhs = CBytesUInt32(&HF6F2F1F0)
+    rhs = CBytesUInt32(&H1F3&)
     DisplayCompareTo lhs, rhs, UInt32Static.CompareTo(lhs, rhs)
     
-    lhs.Value = &H1F3&
-    rhs.Value = &HF6F2F1F0
+    lhs = CBytesUInt32(&H1F3&)
+    rhs = CBytesUInt32(&HF6F2F1F0)
     DisplayCompareTo lhs, rhs, UInt32Static.CompareTo(lhs, rhs)
     
     
-    lhs.Value = &HF6F2F1F0
-    rhs.Value = &HF6F2F1F0
+    lhs = CBytesUInt32(&HF6F2F1F0)
+    rhs = CBytesUInt32(&HF6F2F1F0)
     DisplayCompareTo lhs, rhs, UInt32Static.CompareTo(lhs, rhs)
     
-    lhs.Value = &H0
-    rhs.Value = &HF6F2F1F0
+    lhs = CBytesUInt32(&H0)
+    rhs = CBytesUInt32(&HF6F2F1F0)
     DisplayCompareTo lhs, rhs, UInt32Static.CompareTo(lhs, rhs)
     
-    lhs.Value = &H0
-    rhs.Value = &H0
+    lhs = CBytesUInt32(&H0)
+    rhs = CBytesUInt32(&H0)
     DisplayCompareTo lhs, rhs, UInt32Static.CompareTo(lhs, rhs)
     
-    lhs.Value = &HFFFFFFFF
-    rhs.Value = &HFFFFFFFF
+    lhs = CBytesUInt32(&HFFFFFFFF)
+    rhs = CBytesUInt32(&HFFFFFFFF)
     DisplayCompareTo lhs, rhs, UInt32Static.CompareTo(lhs, rhs)
     
-    lhs.Value = &H0&
-    rhs.Value = &HFFFFFFFF
+    lhs = CBytesUInt32(&H0&)
+    rhs = CBytesUInt32(&HFFFFFFFF)
     DisplayCompareTo lhs, rhs, UInt32Static.CompareTo(lhs, rhs)
 End Sub
 

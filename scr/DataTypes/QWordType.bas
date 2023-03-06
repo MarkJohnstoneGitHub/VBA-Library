@@ -2,9 +2,9 @@ Attribute VB_Name = "QWordType"
 '@Folder("VBACorLib.DataTypes")
 
 'Copyright(c) 2023 Mark Johnstone
-'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.1 March 4, 2023
-'@LastModified March 4, 2023
+'MarkJohnstoneGitHub/VBA-Library
+'@Version v1.2 March 6, 2023
+'@LastModified March 6, 2023
 
 Option Explicit
 
@@ -23,4 +23,11 @@ Public Type QWORDLoHi
     dwLow   As DWORDwLoHi    ' the ordering is important to remain consistant with memory layout of a 64-bit integer.
     dwHigh  As DWORDwLoHi
 End Type
+
+'@TODO rename WIP for UInt64
+Public Type QWORDV2
+    LowPart     As Long     ' the ordering is important to remain consistant with memory layout of a 64-bit integer.
+    HighPart    As Long
+End Type
+
 

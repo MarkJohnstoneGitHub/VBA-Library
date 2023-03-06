@@ -2,9 +2,9 @@ Attribute VB_Name = "Testing_UInt32Static_Subtract"
 '@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
-'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.1 March 4, 2023
-'@LastModified March 4, 2023
+'MarkJohnstoneGitHub/VBA-Library
+'@Version v1.2 March 6, 2023
+'@LastModified March 6, 2023
 
 Option Explicit
 
@@ -13,33 +13,33 @@ Private Sub TestingUInt32Subtract()
     Dim lhs  As ULong
     Dim rhs As ULong
 
-    lhs.Value = &HF6F2F1F0
-    rhs.Value = &H1F3&
+    lhs = CBytesUInt32(&HF6F2F1F0)
+    rhs = CBytesUInt32(&H1F3&)
     result = UInt32Static.Subtract(lhs, rhs)
     DisplaySubtract lhs, rhs, result
     
-    lhs.Value = &HF6F2F1F0
-    rhs.Value = &HF6FFF0
+    lhs = CBytesUInt32(&HF6F2F1F0)
+    rhs = CBytesUInt32(&HF6FFF0)
     result = UInt32Static.Subtract(lhs, rhs)
     DisplaySubtract lhs, rhs, result
 
-    lhs.Value = &HF6F2F1F0
-    rhs.Value = &H0&
+    lhs = CBytesUInt32(&HF6F2F1F0)
+    rhs = CBytesUInt32(&H0&)
     result = UInt32Static.Subtract(lhs, rhs)
     DisplaySubtract lhs, rhs, result
     
-    lhs.Value = &H0&
-    rhs.Value = &H0&
+    lhs = CBytesUInt32(&H0&)
+    rhs = CBytesUInt32(&H0&)
     result = UInt32Static.Subtract(lhs, rhs)
     DisplaySubtract lhs, rhs, result
     
-    lhs.Value = &HFFFFFFFF
-    rhs.Value = &H1&
+    lhs = CBytesUInt32(&HFFFFFFFF)
+    rhs = CBytesUInt32(&H1&)
     result = UInt32Static.Subtract(lhs, rhs)
     DisplaySubtract lhs, rhs, result
     
-    lhs.Value = &HFFFFFFFF
-    rhs.Value = &HF5FFEFF2
+    lhs = CBytesUInt32(&HFFFFFFFF)
+    rhs = CBytesUInt32(&HF5FFEFF2)
     result = UInt32Static.Subtract(lhs, rhs)
     DisplaySubtract lhs, rhs, result
 End Sub
@@ -54,8 +54,8 @@ Private Sub TestingUInt32PerformanceSubtract()
 
     Dim lhs  As ULong
     Dim rhs As ULong
-    lhs.Value = &HF6F2F1F0
-    rhs.Value = &H1F3
+    lhs = CBytesUInt32(&HF6F2F1F0)
+    rhs = CBytesUInt32(&H1F3)
 
     'Perform initial subtraction so overhead of initiliasing UInt32Static isn't included in timer calculations
     result = UInt32Static.Subtract(lhs, rhs)

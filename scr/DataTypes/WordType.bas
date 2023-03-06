@@ -2,9 +2,9 @@ Attribute VB_Name = "WordType"
 '@Folder("VBACorLib.DataTypes")
 
 'Copyright(c) 2023 Mark Johnstone
-'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.1 March 4, 2023
-'@LastModified March 4, 2023
+'MarkJohnstoneGitHub/VBA-Library
+'@Version v1.2 March 6, 2023
+'@LastModified March 6, 2023
 
 Option Explicit
 

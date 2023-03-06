@@ -2,9 +2,9 @@ Attribute VB_Name = "Testing_UInt32Static_Addition"
 '@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
-'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.1 March 4, 2023
-'@LastModified March 4, 2023
+'MarkJohnstoneGitHub/VBA-Library
+'@Version v1.2 March 6, 2023
+'@LastModified March 6, 2023
 
 Option Explicit
 
@@ -14,33 +14,33 @@ Private Sub TestingUInt32Add()
     Dim t1  As ULong
     Dim t2 As ULong
     
-    t1.Value = &HF6F2F1F0
-    t2.Value = &H1F3&
+    t1 = CBytesUInt32(&HF6F2F1F0)
+    t2 = CBytesUInt32(&H1F3&)
     result = UInt32Static.Add(t1, t2)
     DisplayAddition t1, t2, result
 
-    t1 = UInt32Static.CUInt32(&HF6F2F1F0)
-    t2 = UInt32Static.CUInt32(&H1F3&)
+    t1 = CBytesUInt32(&HF6F2F1F0)
+    t2 = CBytesUInt32(&H1F3&)
     result = UInt32Static.Add(t1, t2)
     DisplayAddition t1, t2, result
 
-    t1.Value = &HFF2F1F
-    t2.Value = &H1F364
+    t1 = CBytesUInt32(&HFF2F1F)
+    t2 = CBytesUInt32(&H1F364)
     result = UInt32Static.Add(t1, t2)
     DisplayAddition t1, t2, result
     
-    t1.Value = &HFF2F1F
-    t2.Value = &H0&
+    t1 = CBytesUInt32(&HFF2F1F)
+    t2 = CBytesUInt32(&H0&)
     result = UInt32Static.Add(t1, t2)
     DisplayAddition t1, t2, result
     
-    t1.Value = &H0
-    t2.Value = &HFF2F1F
+    t1 = CBytesUInt32(&H0)
+    t2 = CBytesUInt32(&HFF2F1F)
     result = UInt32Static.Add(t1, t2)
     DisplayAddition t1, t2, result
     
-    t1.Value = &HFFFFFFFE
-    t2.Value = &H1
+    t1 = CBytesUInt32(&HFFFFFFFE)
+    t2 = CBytesUInt32(&H1)
     result = UInt32Static.Add(t1, t2)
     DisplayAddition t1, t2, result
 End Sub
@@ -50,8 +50,8 @@ Private Sub TestUInt32AddOverflow()
     Dim t1  As ULong
     Dim t2 As ULong
     
-    t1.Value = &HFFFFFFFF
-    t2.Value = &H1
+    t1 = CBytesUInt32(&HFFFFFFFF)
+    t2 = CBytesUInt32(&H1)
     result = UInt32Static.Add(t1, t2)
     DisplayAddition t1, t2, result
 End Sub
@@ -66,8 +66,8 @@ Private Sub TestingUInt32PerformanceAddition()
 
     Dim lhs  As ULong
     Dim rhs As ULong
-    lhs.Value = &HF62
-    rhs.Value = &HF6
+    lhs = CBytesUInt32(&HF62)
+    rhs = CBytesUInt32(&HF6)
 
     'Perform initial subtraction so overhead of initiliasing UInt32Static isn't included in timer calculations
     result = UInt32Static.Add(lhs, rhs)

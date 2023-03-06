@@ -2,9 +2,9 @@ Attribute VB_Name = "Testing_UInt32Static_IsOddInteger"
 '@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
-'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.1 March 4, 2023
-'@LastModified March 4, 2023
+'MarkJohnstoneGitHub/VBA-Library
+'@Version v1.2 March 6, 2023
+'@LastModified March 6, 2023
 
 Option Explicit
 
@@ -12,23 +12,23 @@ Private Sub TestingUInt32StaticIsOddInteger()
     Dim val  As ULong
     Dim result As Boolean
     
-    val.Value = &HF6F2F1F0
+    val = CBytesUInt32(&HF6F2F1F0)
     result = UInt32Static.IsOddInteger(val)
     DisplayIsOddInteger val, result
     
-    val.Value = &HF6F2F1F1
+    val = CBytesUInt32(&HF6F2F1F1)
     result = UInt32Static.IsOddInteger(val)
     DisplayIsOddInteger val, result
     
-    val.Value = &H1
+    val = CBytesUInt32(&H1)
     result = UInt32Static.IsOddInteger(val)
     DisplayIsOddInteger val, result
     
-    val.Value = &H10
+    val = CBytesUInt32(&H10)
     result = UInt32Static.IsOddInteger(val)
     DisplayIsOddInteger val, result
     
-    val.Value = &H0
+    val = CBytesUInt32(&H0)
     result = UInt32Static.IsOddInteger(val)
     DisplayIsOddInteger val, result
 End Sub

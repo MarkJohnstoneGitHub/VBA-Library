@@ -2,9 +2,9 @@ Attribute VB_Name = "Testing_UInt32Static_DivRem"
 '@Folder "Testing.VBACorLib.DataTypes.UInt32Static"
 
 'Copyright(c) 2023 Mark Johnstone
-'MarkJohnstoneGitHub/VBA-Library is licensed under the MIT License
-'@Version v1.1 March 4, 2023
-'@LastModified March 4, 2023
+'MarkJohnstoneGitHub/VBA-Library
+'@Version v1.2 March 6, 2023
+'@LastModified March 6, 2023
 
 Option Explicit
 
@@ -14,7 +14,7 @@ Private Sub TestingUInt32StaticDivRem()
     Dim divisor As ULong
     Dim remainder As ULong
 
-    dividend.Value = &HF6F2F1F
+    dividend = CBytesUInt32(&HF6F2F1F)
     divisor.Value = &HF&
     quotient = UInt32Static.DivRem(dividend, divisor, remainder)
     DisplayDivRem dividend, divisor, quotient, remainder
