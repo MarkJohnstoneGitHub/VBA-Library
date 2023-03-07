@@ -43,7 +43,7 @@ End Sub
 Private Sub TestingInt32StaticCBytesUInt_Byte()
     Dim val As Byte
     Dim ulngResult As ULong
-    val = 255                                        'Hex FF  Value 255
+    val = 255                                       'Hex FF  Value 255
     ulngResult = UInt32Static.CBytesUInt32(val)     'Hex 000000FF
     Debug.Print UInt32Static.ToString(ulngResult)   '255
 End Sub

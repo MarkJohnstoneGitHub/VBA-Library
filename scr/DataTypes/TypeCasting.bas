@@ -23,23 +23,25 @@ Option Explicit
 '
 '@Exceptions
 '   ArgumentException
-'       Raised for when not a valid type to cast of a Byte, Integer, LongLong or Currency
+'       Raised for when not a valid type to cast of a Byte, Integer, Long, LongLong or Currency
 '
 '@Remarks
 '   Bytes values to be converted maybe of types Byte, Long, Integers or Currency.
 '   Negative values are converted into a larger unsigned 32-bit integers.
 '
-'   For Integer type its WORD value is copied to the ULong DWORD lower WORD.
+'   For the Byte type it is copied to the lower byte of the ULong DWORD.
+'   eg. If byte value is 255 Hex FF is converted to the ULong value of 255, Hex 000000FF
+'
+'   For the Integer type its WORD value is copied to the ULong DWORD lower WORD.
 '   eg. If Integer value is -1 Hex FFFF is converted to ULong value of 65535 Hex 0000FFFF
 '
-'   For Long type its DWORD value is copied to the ULong DWORD
+'   For the Long type its DWORD value is copied to the ULong DWORD
 '   eg. If Long value is -1 Hex FFFFFFFF is converted to ULong value of 4294967295 Hex FFFFFFFF
 '
-'
-'   For Currency type the low DWORD of a currency value is copied to the DWORD of the ULong.
+'   For the Currency type the low DWORD of a currency value is copied to the DWORD of the ULong.
 '   Eg Currency value of 0.0001 Hex 00000000 00000001 converts to ULong 00000001 i.e. of value 1.
 '
-'   For LongLong type the low DWORD of a LongLong value is copied to the DWORD of the ULong.
+'   For the LongLong type the low DWORD of a LongLong value is copied to the DWORD of the ULong.
 '   eg. If LongLong value is 42949672958 i.e. Hex 00000009 FFFFFFFE is converted to ULong value Hex FEFFFFFF
 '   i.e. value of 4294967294
 ''
