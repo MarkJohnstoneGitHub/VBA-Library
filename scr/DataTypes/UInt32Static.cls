@@ -21,9 +21,6 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 
 '@Dependencies
 '   ULongType.bas
-'   DWordType.bas
-'   WordType.bas
-'   QWordType.bas
 
 '@Remarks
 '   V1.2
@@ -40,12 +37,15 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 ' https://www.vbforums.com/showthread.php?834827-The-Decimal-Data-Type
 ' https://stackoverflow.com/questions/52099277/what-is-the-largest-possible-decimal-value-in-vba
 ' https://wiki.sei.cmu.edu/confluence/display/c/INT30-C.+Ensure+that+unsigned+integer+operations+do+not+wrap
-' https://en.wikipedia.org/wiki/Division_algorithm
 
 '@TODO
-' Add functions for operators <, <=, >, >= currently could use CompareTo
-' Add private types for DWORD, WORD, QWORD to remove dependencies?
-' Unit testing
+'   Implement functions
+'       Clamp
+'       PopCount
+'       LeadingZeroCount
+'
+'   Testing for Bitwise functions
+'   Unit testing
 
 Option Explicit
 
@@ -80,6 +80,27 @@ Private Const NotImplementedException As Long = 9999
 Private Type QWORD_Currency
     Value As Currency
 End Type
+
+Private Type WORD
+    Value    As Integer
+End Type
+
+Private Type DWORDLoHi
+    wLow     As WORD     ' the ordering is important to remain consistant with memory layout.
+    wHigh    As WORD
+End Type
+
+#If Win64 Then
+Private Type QWORD
+    Value As LongLong
+End Type
+#Else
+Private Type QWORD
+    LowPart     As Long  ' the ordering is important to remain consistant with memory layout of a 64-bit integer.
+    HighPart    As Long
+End Type
+#End If
+
 
 Private Type TUInt32Static
     decMaxUInt32 As Variant 'contains a decimal type
@@ -144,6 +165,20 @@ End Property
 
 ''
 '@Static
+'@Description "Returns a new unsigned32-bit value whose value is the absolute value"
+'@Parameters
+'   val: ULong
+'        The value to return the absolute value of.
+'@Returns ULong
+'   ULong
+'       The absolute value of the required value.
+''
+Public Function Absolute(ByRef val As ULong) As ULong
+    Absolute = val
+End Function
+
+''
+'@Static
 '@Description "Copies the source unsigned 32 bit value to the destination."
 '@Parameters
 '   destination ULong
@@ -154,6 +189,27 @@ End Property
 Public Sub Assign(ByRef destination As ULong, ByRef source As ULong)
     destination.Value = source.Value
 End Sub
+
+''
+'@Static
+'@Description "Clamps a value to an inclusive minimum and maximum value."
+'@Parameters
+'   value ULong
+'       The value to clamp.
+'   min ULong
+'       The inclusive minimum to which value should clamp.
+'   max ULong
+'       The inclusive maximum to which value should clamp.
+'@Returns ULong
+'   The result of clamping value to the inclusive range of min and max.
+'@Remarks
+'
+'@TODO Implement
+''
+Public Function Clamp(ByRef val As ULong, ByRef valMin As ULong, ByRef valMax As ULong) As ULong
+'public static uint Clamp (uint value, uint min, uint max)
+    Err.Raise NotImplementedException, "UInt32.Clamp"
+End Function
 
 ''
 '@Static
@@ -328,207 +384,6 @@ Public Function CompareTo(ByRef lhs As ULong, ByRef rhs As ULong) As Long
 End Function
 
 ''
-'@Description "Returns a value indicating whether two unsigned 32-bit values are equal."
-'@Parameters
-'   lhs: ULong
-'       unsigned  32-bit value to compare rhs.
-'   rhs: ULong
-'       unsigned  32-bit value  to compare to lhs.
-'
-'@Returns Boolean
-'   Returns true if values are equal.
-''
-Public Function Equals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
-    If (lhs.Value = rhs.Value) Then
-        Equals = True
-    End If
-End Function
-
-''
-'@Description "Returns a boolean value indicating whether two unsigned 32-bit values are not equal."
-'@Parameters
-'   lhs: ULong
-'       unsigned  32-bit value to compare rhs.
-'   rhs: ULong
-'       unsigned  32-bit value  to compare to lhs.
-'
-'@Returns Boolean
-'   Returns true if values are not equal.
-''
-Public Function NotEquals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
-Attribute NotEquals.VB_Description = "Returns a boolean value indicating whether two unsigned 32-bit values are not equal."
-    If (lhs.Value <> rhs.Value) Then
-        NotEquals = True
-    End If
-End Function
-
-''
-'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is less than another."
-'@Parameters
-'   lhs: ULong
-'       unsigned  32-bit value to compare rhs.
-'   rhs: ULong
-'       unsigned  32-bit value  to compare to lhs.
-'
-'@Returns Boolean
-'   Returns true if lhs is less than rhs value.
-''
-Public Function LessThan(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
-Attribute LessThan.VB_Description = "Returns a boolean value indicating whether an unsigned 32-bit value is less than another."
-    'If the most significant bit is different
-    If (lhs.Value Xor rhs.Value) < 0 Then
-        'If left most significant bit set it is the larger unsigned value
-        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
-             LessThan = False
-             Exit Function
-        Else
-            LessThan = True
-            Exit Function
-        End If
-    End If
-    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
-    If lhs.Value > rhs.Value Then
-        LessThan = False
-    ElseIf lhs.Value < rhs.Value Then
-        LessThan = True
-    End If
-End Function
-
-''
-'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is less than or equal to another."
-'@Parameters
-'   lhs: ULong
-'       unsigned  32-bit value to compare rhs.
-'   rhs: ULong
-'       unsigned  32-bit value  to compare to lhs.
-'
-'@Returns Boolean
-'   Returns true if lhs is less than or equal to rhs value.
-''
-Public Function LessThanOrEqual(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
-Attribute LessThanOrEqual.VB_Description = "Returns a boolean value indicating whether an unsigned 32-bit value is less than or equal to another"
-    'If the most significant bit is different
-    If (lhs.Value Xor rhs.Value) < 0 Then
-        'If left most significant bit set it is the larger unsigned value
-        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
-             LessThanOrEqual = False
-             Exit Function
-        Else
-            LessThanOrEqual = True
-            Exit Function
-        End If
-    End If
-    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
-    If lhs.Value > rhs.Value Then
-        LessThanOrEqual = False
-    ElseIf lhs.Value < rhs.Value Then
-        LessThanOrEqual = True
-    Else
-        LessThanOrEqual = True
-    End If
-End Function
-
-''
-'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is greater than another."
-'@Parameters
-'   lhs: ULong
-'       unsigned  32-bit value to compare rhs.
-'   rhs: ULong
-'       unsigned  32-bit value  to compare to lhs.
-'
-'@Returns Boolean
-'   Returns true if lhs is greater than rhs value.
-''
-Public Function GreaterThan(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
-Attribute GreaterThan.VB_Description = "Returns a boolean value indicating whether an unsigned 32-bit value is greater than another."
-    'If the most significant bit is different
-    If (lhs.Value Xor rhs.Value) < 0 Then
-        'If left most significant bit set it is the larger unsigned value
-        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
-             GreaterThan = True
-             Exit Function
-        Else
-            GreaterThan = False
-            Exit Function
-        End If
-    End If
-    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
-    If lhs.Value > rhs.Value Then
-        GreaterThan = True
-    ElseIf lhs.Value < rhs.Value Then
-        GreaterThan = False
-    End If
-End Function
-
-''
-'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is greater than or equal to another."
-'@Parameters
-'   lhs: ULong
-'       unsigned  32-bit value to compare rhs.
-'   rhs: ULong
-'       unsigned  32-bit value  to compare to lhs.
-'
-'@Returns Boolean
-'   Returns true if lhs is greater than or equal to rhs value.
-''
-Public Function GreaterThanOrEqual(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
-    'If the most significant bit is different
-    If (lhs.Value Xor rhs.Value) < 0 Then
-        'If left most significant bit set it is the larger unsigned value
-        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
-             GreaterThanOrEqual = True
-             Exit Function
-        Else
-            GreaterThanOrEqual = False
-            Exit Function
-        End If
-    End If
-    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
-    If lhs.Value > rhs.Value Then
-        GreaterThanOrEqual = True
-    ElseIf lhs.Value < rhs.Value Then
-        GreaterThanOrEqual = False
-    Else
-        GreaterThanOrEqual = True
-    End If
-End Function
-
-''
-'@Static
-'@Description "Returns a new unsigned32-bit value whose value is the absolute value"
-'@Parameters
-'   val: ULong
-'        The value to return the absolute value of.
-'@Returns ULong
-'   ULong
-'       The absolute value of the required value.
-''
-Public Function Absolute(ByRef val As ULong) As ULong
-    Absolute = val
-End Function
-
-''
-'@Static
-'@Description "Clamps a value to an inclusive minimum and maximum value."
-'@Parameters
-'   value ULong
-'       The value to clamp.
-'   min ULong
-'       The inclusive minimum to which value should clamp.
-'   max ULong
-'       The inclusive maximum to which value should clamp.
-'@Returns ULong
-'   The result of clamping value to the inclusive range of min and max.
-'@Remarks
-'
-'@TODO Implement
-''
-Public Function Clamp(ByRef val As ULong, ByRef valMin As ULong, ByRef valMax As ULong) As ULong
-'public static uint Clamp (uint value, uint min, uint max)
-    Err.Raise NotImplementedException, "UInt32.Clamp"
-End Function
-
-''
 '@Static
 '@Description "Returns the quotient and the remainder of two signed 64-bit numbers."
 '@Parameters
@@ -629,6 +484,54 @@ End Function
 
 ''
 '@Static
+'@Description("Determines if a value represents an even integral number.")
+'@Parameters
+'   Val ULong
+'       The value to be checked.
+'@Returns Boolean
+'   true if value is an even integer; otherwise, false.
+''
+Public Function IsEvenInteger(ByRef val As ULong) As Boolean
+    If (val.Value And 1) = 0 Then
+        IsEvenInteger = True
+    End If
+End Function
+
+''
+'@Static
+'@Description("Determines if a value represents an odd integral number.")
+'@Parameters
+'   Val ULong
+'       The value to be checked.
+'@Returns Boolean
+'   true if value is an odd integer; otherwise, false.
+''
+Public Function IsOddInteger(ByRef val As ULong) As Boolean
+    If (val.Value And 1) <> 0 Then
+        IsOddInteger = True
+    End If
+End Function
+
+''
+'@Static
+'@Description"Determines if a value is a power of two."
+'@Parameters
+'    val ULong
+'       The value to be checked.
+'
+'@Returns Boolean
+'   true if value is a power of two; otherwise, false.
+''
+Public Function IsPow2(ByRef val As ULong) As Boolean
+    If val.Value <> 0 Then 'to avoid overflow with subtraction of 0
+        If (val.Value And (Me.Subtract(val, this.ulngOne).Value)) = 0 And val.Value <> 0 Then
+            IsPow2 = True
+        End If
+    End If
+End Function
+
+''
+'@Static
 '@Description "Calculates the remainder of two 32-bit unsigned integers."
 '@Parameters
 '   dividend ULong
@@ -691,6 +594,264 @@ Public Function Min(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
         Min = lhs
     Else
         Min = rhs
+    End If
+End Function
+
+''
+'@Static
+'@Description "Converts the string representation of a number to its 32-bit unsigned integer equivalent."
+'@Parameters
+'   s String
+'       A string representing the number to convert.
+'
+'@Returns ULong
+'   A 32-bit unsigned integer equivalent to the number contained in s.
+'
+'@Exceptions
+'   ArgumentNullException
+'       The s parameter is null.
+'
+'   ArgumentException
+'       The s parameter is not of the correct format.
+'
+'   OverflowException
+'       The s parameter represents a number that is less than UInt32.MinValue or greater than UInt32.MaxValue.
+'@Remarks
+'@TODO Check the behaviour of conversion of values with decimals are treated. Round or truncate?
+''
+#If Win64 Then
+Public Function Parse(ByRef s As String) As ULong
+    If (Trim(s) = VBA.vbNullString) Then
+        Err.Raise ArgumentNullException, "UInt32Static.Parse", "Argument Null Exception"
+    End If
+
+    On Error GoTo ErrorHandler
+    Dim qwVal As QWORD
+    qwVal.Value = s
+    If qwVal.Value < 0 Or qwVal.Value > 4294967295# Then
+        Err.Raise OverflowException
+    Else
+        LSet Parse = qwVal
+    End If
+CleanExit:
+    Exit Function
+ErrorHandler:
+    Err.Raise ArgumentException, "UInt32Static.Parse", "Invalid argument"
+    Resume CleanExit
+End Function
+#Else
+Public Function Parse(ByRef s As String) As ULong
+    If (Trim(s) = VBA.vbNullString) Then
+        Err.Raise ArgumentNullException, "UInt32Static.Parse"
+    End If
+    On Error GoTo ErrorHandler
+    Dim decVal As Variant
+    'To cast string to UInt32 convert to rounded decimal as internal values internally are as unsigned with a sign flag and Base 10 exponent
+    decVal = Fix(CDec(s))
+    If decVal < 0 Or decVal > this.decMaxUInt32 Then
+        Err.Raise OverflowException
+    Else
+        Parse = DecimalToULong(decVal)
+    End If
+CleanExit:
+    Exit Function
+ErrorHandler:
+    Err.Raise ArgumentException, "UInt32Static.Parse", "Invalid argument"
+    Resume CleanExit
+End Function
+#End If
+
+''
+'@Static
+'@Description "Converts the numeric value of this instance to its equivalent string representation."
+'@Parameters
+'   val ULong
+'       value to be converted into a string representation of its value.
+'
+'@Returns String
+'   The string representation of the value of this instance, consisting of a sequence of digits
+'   ranging from 0 to 9, without a sign or leading zeroes.
+'
+'@Remarks
+'   Win64 converted ULong to LongLong type using a QWORD.
+'   Win32 converted ULong to decimal type.
+''
+#If Win64 Then
+Public Function ToString(ByRef val As ULong) As String
+    Dim qwVal As QWORD
+    LSet qwVal = val    'copy binary Long value to longlong without VBA numeric conversion
+    ToString = CStr(qwVal.Value)
+End Function
+#Else
+Public Function ToString(ByRef val As ULong) As String
+    Dim decimalVal As Variant
+    decimalVal = CDec(val.Value)
+    If decimalVal < 0 Then
+        decimalVal = decimalVal + 4294967296#
+    End If
+    ToString = CStr(decimalVal)
+End Function
+#End If
+
+''
+'@Description "Returns a value indicating whether two unsigned 32-bit values are equal."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if values are equal.
+''
+Public Function Equals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+    If (lhs.Value = rhs.Value) Then
+        Equals = True
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether two unsigned 32-bit values are not equal."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if values are not equal.
+''
+Public Function NotEquals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+    If (lhs.Value <> rhs.Value) Then
+        NotEquals = True
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is less than another."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if lhs is less than rhs value.
+''
+Public Function LessThan(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+    'If the most significant bit is different
+    If (lhs.Value Xor rhs.Value) < 0 Then
+        'If left most significant bit set it is the larger unsigned value
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+             LessThan = False
+             Exit Function
+        Else
+            LessThan = True
+            Exit Function
+        End If
+    End If
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
+    If lhs.Value > rhs.Value Then
+        LessThan = False
+    ElseIf lhs.Value < rhs.Value Then
+        LessThan = True
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is less than or equal to another."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if lhs is less than or equal to rhs value.
+''
+Public Function LessThanOrEqual(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+    'If the most significant bit is different
+    If (lhs.Value Xor rhs.Value) < 0 Then
+        'If left most significant bit set it is the larger unsigned value
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+             LessThanOrEqual = False
+             Exit Function
+        Else
+            LessThanOrEqual = True
+            Exit Function
+        End If
+    End If
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
+    If lhs.Value > rhs.Value Then
+        LessThanOrEqual = False
+    ElseIf lhs.Value < rhs.Value Then
+        LessThanOrEqual = True
+    Else
+        LessThanOrEqual = True
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is greater than another."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if lhs is greater than rhs value.
+''
+Public Function GreaterThan(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+    'If the most significant bit is different
+    If (lhs.Value Xor rhs.Value) < 0 Then
+        'If left most significant bit set it is the larger unsigned value
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+             GreaterThan = True
+             Exit Function
+        Else
+            GreaterThan = False
+            Exit Function
+        End If
+    End If
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
+    If lhs.Value > rhs.Value Then
+        GreaterThan = True
+    ElseIf lhs.Value < rhs.Value Then
+        GreaterThan = False
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is greater than or equal to another."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if lhs is greater than or equal to rhs value.
+''
+Public Function GreaterThanOrEqual(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+    'If the most significant bit is different
+    If (lhs.Value Xor rhs.Value) < 0 Then
+        'If left most significant bit set it is the larger unsigned value
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+             GreaterThanOrEqual = True
+             Exit Function
+        Else
+            GreaterThanOrEqual = False
+            Exit Function
+        End If
+    End If
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
+    If lhs.Value > rhs.Value Then
+        GreaterThanOrEqual = True
+    ElseIf lhs.Value < rhs.Value Then
+        GreaterThanOrEqual = False
+    Else
+        GreaterThanOrEqual = True
     End If
 End Function
 
@@ -1025,36 +1186,6 @@ End Function
 
 ''
 '@Static
-'@Description("Determines if a value represents an even integral number.")
-'@Parameters
-'   Val ULong
-'       The value to be checked.
-'@Returns Boolean
-'   true if value is an even integer; otherwise, false.
-''
-Public Function IsEvenInteger(ByRef val As ULong) As Boolean
-    If (val.Value And 1) = 0 Then
-        IsEvenInteger = True
-    End If
-End Function
-
-''
-'@Static
-'@Description("Determines if a value represents an odd integral number.")
-'@Parameters
-'   Val ULong
-'       The value to be checked.
-'@Returns Boolean
-'   true if value is an odd integer; otherwise, false.
-''
-Public Function IsOddInteger(ByRef val As ULong) As Boolean
-    If (val.Value And 1) <> 0 Then
-        IsOddInteger = True
-    End If
-End Function
-
-''
-'@Static
 '@Description "Bitwise AND of two unsigned 32-bit value."
 '@Parameters
 '   lhs ULong
@@ -1226,121 +1357,6 @@ End Function
 Public Function RotateRight(ByRef val As ULong, ByVal offset As Long) As ULong
     RotateRight.Value = RightShift(val, offset).Value Or LeftShift(val, (SIZEOF_UINT32_BITS - offset)).Value
 End Function
-
-''
-'@Static
-'@Description"Determines if a value is a power of two."
-'@Parameters
-'    val ULong
-'       The value to be checked.
-'
-'@Returns Boolean
-'   true if value is a power of two; otherwise, false.
-''
-Public Function IsPow2(ByRef val As ULong) As Boolean
-    If val.Value <> 0 Then 'to avoid overflow with subtraction of 0
-        If (val.Value And (Me.Subtract(val, this.ulngOne).Value)) = 0 And val.Value <> 0 Then
-            IsPow2 = True
-        End If
-    End If
-End Function
-
-''
-'@Static
-'@Description "Converts the numeric value of this instance to its equivalent string representation."
-'@Parameters
-'   val ULong
-'       value to be converted into a string representation of its value.
-'
-'@Returns String
-'   The string representation of the value of this instance, consisting of a sequence of digits
-'   ranging from 0 to 9, without a sign or leading zeroes.
-'
-'@Remarks
-'   Win64 converted ULong to LongLong type using a QWORD.
-'   Win32 converted ULong to decimal type.
-''
-#If Win64 Then
-Public Function ToString(ByRef val As ULong) As String
-    Dim qwVal As QWORD
-    LSet qwVal = val    'copy binary Long value to longlong without VBA numeric conversion
-    ToString = CStr(qwVal.Value)
-End Function
-#Else
-Public Function ToString(ByRef val As ULong) As String
-    Dim decimalVal As Variant
-    decimalVal = CDec(val.Value)
-    If decimalVal < 0 Then
-        decimalVal = decimalVal + 4294967296#
-    End If
-    ToString = CStr(decimalVal)
-End Function
-#End If
-
-''
-'@Static
-'@Description "Converts the string representation of a number to its 32-bit unsigned integer equivalent."
-'@Parameters
-'   s String
-'       A string representing the number to convert.
-'
-'@Returns ULong
-'   A 32-bit unsigned integer equivalent to the number contained in s.
-'
-'@Exceptions
-'   ArgumentNullException
-'       The s parameter is null.
-'
-'   ArgumentException
-'       The s parameter is not of the correct format.
-'
-'   OverflowException
-'       The s parameter represents a number that is less than UInt32.MinValue or greater than UInt32.MaxValue.
-'@Remarks
-'@TODO Check the behaviour of conversion of values with decimals are treated. Round or truncate?
-''
-#If Win64 Then
-Public Function Parse(ByRef s As String) As ULong
-    If (Trim(s) = VBA.vbNullString) Then
-        Err.Raise ArgumentNullException, "UInt32Static.Parse", "Argument Null Exception"
-    End If
-
-    On Error GoTo ErrorHandler
-    Dim qwVal As QWORD
-    qwVal.Value = s
-    If qwVal.Value < 0 Or qwVal.Value > 4294967295# Then
-        Err.Raise OverflowException
-    Else
-        LSet Parse = qwVal
-    End If
-CleanExit:
-    Exit Function
-ErrorHandler:
-    Err.Raise ArgumentException, "UInt32Static.Parse", "Invalid argument"
-    Resume CleanExit
-End Function
-
-#Else
-Public Function Parse(ByRef s As String) As ULong
-    If (Trim(s) = VBA.vbNullString) Then
-        Err.Raise ArgumentNullException, "UInt32Static.Parse"
-    End If
-    On Error GoTo ErrorHandler
-    Dim decVal As Variant
-    'To cast string to UInt32 convert to rounded decimal as internal values internally are as unsigned with a sign flag and Base 10 exponent
-    decVal = Fix(CDec(s))
-    If decVal < 0 Or decVal > this.decMaxUInt32 Then
-        Err.Raise OverflowException
-    Else
-        Parse = DecimalToULong(decVal)
-    End If
-CleanExit:
-    Exit Function
-ErrorHandler:
-    Err.Raise ArgumentException, "UInt32Static.Parse", "Invalid argument"
-    Resume CleanExit
-End Function
-#End If
 
 ''
 '@Static
