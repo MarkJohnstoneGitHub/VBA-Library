@@ -22,6 +22,8 @@ For Win32 the VBA Decimal data type is used for the Multiply, Divide and DivRem 
 
 @TODO
 
+Add functions for operators <, <=, >, >= currently could use CompareTo function and Equals.
+
 Are currency, single, double data types appropriate to typecasted to ULong?  Require investigating how other languages handle these types and unsigned integers.
 
 Unit Testing
