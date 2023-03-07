@@ -164,7 +164,7 @@ End Sub
 '       The byte value is copied to an unsigned 32-bit integer where negative values are converted
 '       into larger unsigned values.
 '@Returns ULong
-'   The unsigned 32-bit integer created from the value byte values.
+'   The unsigned 32-bit integer created from the byte value.
 '
 '@Exceptions
 '   ArgumentException
