@@ -569,7 +569,7 @@ End Function
 '       The value to compare with lhs.
 '
 '@Returns ULong
-'   left if it is greater than right; otherwise, right.
+'   lhs if it is greater than rhs; otherwise, rhs.
 '
 '@Remarks
 ''
@@ -621,7 +621,9 @@ End Function
 '   OverflowException
 '       The s parameter represents a number that is less than UInt32.MinValue or greater than UInt32.MaxValue.
 '@Remarks
-'@TODO Check the behaviour of conversion of values with decimals are treated. Round or truncate?
+'   Be careful using Parse containing strings with decimal places.
+'   If the fraction is less than or equal to .5, the result will round down.
+'   If the fraction is greater than .5, the result will round up.
 ''
 #If Win64 Then
 Public Function Parse(ByRef s As String) As ULong
@@ -651,7 +653,7 @@ Public Function Parse(ByRef s As String) As ULong
     On Error GoTo ErrorHandler
     Dim decVal As Variant
     'To cast string to UInt32 convert to rounded decimal as internal values internally are as unsigned with a sign flag and Base 10 exponent
-    decVal = Fix(CDec(s))
+    decVal = Round(CDec(s))
     If decVal < 0 Or decVal > this.decMaxUInt32 Then
         Err.Raise OverflowException
     Else
@@ -1555,7 +1557,6 @@ End Sub
 Private Function DecimalToULong(ByVal val As Variant) As ULong
     Dim decVal As Variant
     decVal = Round(val)
-
     If decVal > MAXVALUE_Int32 Then
         DecimalToULong.Value = decVal - 4294967296#
     Else
