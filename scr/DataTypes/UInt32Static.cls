@@ -101,7 +101,6 @@ Private Type QWORD
 End Type
 #End If
 
-
 Private Type TUInt32Static
     decMaxUInt32 As Variant 'contains a decimal type
 
@@ -993,7 +992,7 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     LSet qwDivisor = divisor
     
     Dim qwResult As QWORD
-    'performing integer division decimal places truncated
+    'performing floating point division decimal places around rounded
     qwResult.Value = qwDividend.Value / qwDivisor.Value
     
     LSet Divide = qwResult
