@@ -328,7 +328,7 @@ Public Function CompareTo(ByRef lhs As ULong, ByRef rhs As ULong) As Long
 End Function
 
 ''
-'@Description"Returns a value indicating whether two unsigned 32-bit values are equal."
+'@Description "Returns a value indicating whether two unsigned 32-bit values are equal."
 '@Parameters
 '   lhs: ULong
 '       unsigned  32-bit value to compare rhs.
@@ -341,6 +341,155 @@ End Function
 Public Function Equals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
     If (lhs.Value = rhs.Value) Then
         Equals = True
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether two unsigned 32-bit values are not equal."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if values are not equal.
+''
+Public Function NotEquals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+Attribute NotEquals.VB_Description = "Returns a boolean value indicating whether two unsigned 32-bit values are not equal."
+    If (lhs.Value <> rhs.Value) Then
+        NotEquals = True
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is less than another."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if lhs is less than rhs value.
+''
+Public Function LessThan(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+Attribute LessThan.VB_Description = "Returns a boolean value indicating whether an unsigned 32-bit value is less than another."
+    'If the most significant bit is different
+    If (lhs.Value Xor rhs.Value) < 0 Then
+        'If left most significant bit set it is the larger unsigned value
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+             LessThan = False
+             Exit Function
+        Else
+            LessThan = True
+            Exit Function
+        End If
+    End If
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
+    If lhs.Value > rhs.Value Then
+        LessThan = False
+    ElseIf lhs.Value < rhs.Value Then
+        LessThan = True
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is less than or equal to another."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if lhs is less than or equal to rhs value.
+''
+Public Function LessThanOrEqual(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+Attribute LessThanOrEqual.VB_Description = "Returns a boolean value indicating whether an unsigned 32-bit value is less than or equal to another"
+    'If the most significant bit is different
+    If (lhs.Value Xor rhs.Value) < 0 Then
+        'If left most significant bit set it is the larger unsigned value
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+             LessThanOrEqual = False
+             Exit Function
+        Else
+            LessThanOrEqual = True
+            Exit Function
+        End If
+    End If
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
+    If lhs.Value > rhs.Value Then
+        LessThanOrEqual = False
+    ElseIf lhs.Value < rhs.Value Then
+        LessThanOrEqual = True
+    Else
+        LessThanOrEqual = True
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is greater than another."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if lhs is greater than rhs value.
+''
+Public Function GreaterThan(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+Attribute GreaterThan.VB_Description = "Returns a boolean value indicating whether an unsigned 32-bit value is greater than another."
+    'If the most significant bit is different
+    If (lhs.Value Xor rhs.Value) < 0 Then
+        'If left most significant bit set it is the larger unsigned value
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+             GreaterThan = True
+             Exit Function
+        Else
+            GreaterThan = False
+            Exit Function
+        End If
+    End If
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
+    If lhs.Value > rhs.Value Then
+        GreaterThan = True
+    ElseIf lhs.Value < rhs.Value Then
+        GreaterThan = False
+    End If
+End Function
+
+''
+'@Description "Returns a boolean value indicating whether an unsigned 32-bit value is greater than or equal to another."
+'@Parameters
+'   lhs: ULong
+'       unsigned  32-bit value to compare rhs.
+'   rhs: ULong
+'       unsigned  32-bit value  to compare to lhs.
+'
+'@Returns Boolean
+'   Returns true if lhs is greater than or equal to rhs value.
+''
+Public Function GreaterThanOrEqual(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
+    'If the most significant bit is different
+    If (lhs.Value Xor rhs.Value) < 0 Then
+        'If left most significant bit set it is the larger unsigned value
+        If lhs.Value And MOST_SIGNIFICANT_BIT_MASK Then
+             GreaterThanOrEqual = True
+             Exit Function
+        Else
+            GreaterThanOrEqual = False
+            Exit Function
+        End If
+    End If
+    'If "same sign" i.e. the most significant bit are the same compare raw Int32 values
+    If lhs.Value > rhs.Value Then
+        GreaterThanOrEqual = True
+    ElseIf lhs.Value < rhs.Value Then
+        GreaterThanOrEqual = False
+    Else
+        GreaterThanOrEqual = True
     End If
 End Function
 
@@ -1392,5 +1541,3 @@ Private Function DecimalToULong(ByVal val As Variant) As ULong
         DecimalToULong.Value = decVal
     End If
 End Function
-
-
