@@ -16,21 +16,32 @@ Option Explicit
 '@Parameters
 '   val Variant
 '       The value to be converted to an unsigned 32-bit integer.
-'       The byte value is copied to an unsigned 32-bit integer, where negative values are converted
-'       into large unsigned values.
+'       The byte value is copied to an unsigned 32-bit integer where negative values are converted
+'       into larger unsigned values.
 '@Returns ULong
 '   The unsigned 32-bit integer created from the value byte values.
 '
 '@Exceptions
-'   OverflowException
-'       Raised when a hex string or LongLong value exceeds the max unsigned 32-bit value of 4294967295
 '   ArgumentException
-'       Raised for when not a valid type to cast of a Byte, Integer, LongLong or string
-'       containing a hex value i.e. "&H" preceeding the hex value within the string.
+'       Raised for when not a valid type to cast of a Byte, Integer, LongLong or Currency
 '
 '@Remarks
-'   Bytes values to be converted maybe of types Byte, Long, Integers or string containing a hex value.
-'   Negative values are converted into a large unsigned 32-bit integer.
+'   Bytes values to be converted maybe of types Byte, Long, Integers or Currency.
+'   Negative values are converted into a larger unsigned 32-bit integers.
+'
+'   For Integer type its WORD value is copied to the ULong DWORD lower WORD.
+'   eg. If Integer value is -1 Hex FFFF is converted to ULong value of 65535 Hex 0000FFFF
+'
+'   For Long type its DWORD value is copied to the ULong DWORD
+'   eg. If Long value is -1 Hex FFFFFFFF is converted to ULong value of 4294967295 Hex FFFFFFFF
+'
+'
+'   For Currency type the low DWORD of a currency value is copied to the DWORD of the ULong.
+'   Eg Currency value of 0.0001 Hex 00000000 00000001 converts to ULong 00000001 i.e. of value 1.
+'
+'   For LongLong type the low DWORD of a LongLong value is copied to the DWORD of the ULong.
+'   eg. If LongLong value is 42949672958 i.e. Hex 00000009 FFFFFFFE is converted to ULong value Hex FEFFFFFF
+'   i.e. value of 4294967294
 ''
 Public Function CBytesUInt32(ByVal val As Variant) As ULong
     CBytesUInt32 = UInt32Static.CBytesUInt32(val)

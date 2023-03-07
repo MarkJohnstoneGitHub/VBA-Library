@@ -4,7 +4,7 @@ Attribute VB_Name = "Testing_UInt32Static_CompareTo"
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.2 March 6, 2023
-'@LastModified March 6, 2023
+'@LastModified March 7, 2023
 
 Option Explicit
 
@@ -51,7 +51,5 @@ Private Sub DisplayCompareTo(ByRef lhs As ULong, ByRef rhs As ULong, ByVal compa
         Case -1
             Debug.Print UInt32Static.ToString(lhs) & " < " & UInt32Static.ToString(rhs)
     End Select
-    
-
 End Sub
 

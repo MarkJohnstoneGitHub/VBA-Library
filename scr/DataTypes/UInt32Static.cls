@@ -29,8 +29,8 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '   V1.2
 '   Changed the behaviour of CUInt32 to raise overflow exception for negative values.
 '   Added CBytesUInt32 function to copy the byte value. i.e. Negative values will be converted to
-'   large unsigned 32-bit values.
-'   CBytesUInt32 or CUInt functions are the recommended methods to cast a value to a ULong and
+'   larger unsigned 32-bit values.
+'   CBytesUInt32 CUInt or Parse functions are the recommended methods to cast a value to a ULong and
 '   avoid directly using the ULong.Value property.
 
 '@References
@@ -43,10 +43,8 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 ' https://en.wikipedia.org/wiki/Division_algorithm
 
 '@TODO
-' Are currency, single, double appropriate to typecasted to ULong?
-' CBytesUInt32  function remove string type?
 ' Add functions for operators <, <=, >, >= currently could use CompareTo
-' Add private types for DWORD, WORD, QWORD to remove dependencies
+' Add private types for DWORD, WORD, QWORD to remove dependencies?
 ' Unit testing
 
 Option Explicit
@@ -169,21 +167,19 @@ End Sub
 '   The unsigned 32-bit integer created from the value byte values.
 '
 '@Exceptions
-'   OverflowException
-'       Raised when a hex string or LongLong value exceeds the max unsigned 32-bit value of 4294967295
 '   ArgumentException
-'       Raised for when not a valid type to cast of a Byte, Integer, LongLong or string
-'       containing a hex value i.e. "&H" preceeding the hex value within the string.
+'       Raised for when not a valid type to cast of a Byte, Integer, LongLong or Currency
 '
 '@Remarks
-'   Bytes values to be converted maybe of types Byte, Long, Integers or string containing a hex value.
-'   Negative values are converted into a large unsigned 32-bit integer.
+'   Bytes values to be converted maybe of types Byte, Long, Integers or Currency.
+'   Negative values are converted into a larger unsigned 32-bit integers.
+'
+'   For Integer type its WORD value is copied to the ULong DWORD lower WORD.
+'   eg. If Integer value is -1 Hex FFFF is converted to ULong value of 65535 Hex 0000FFFF
 '
 '   For Long type its DWORD value is copied to the ULong DWORD
 '   eg. If Long value is -1 Hex FFFFFFFF is converted to ULong value of 4294967295 Hex FFFFFFFF
 '
-'   For Integer type its WORD value is copied to the ULong DWORD lower WORD.
-'   eg. If Integer value is -1 Hex FFFF is converted to ULong value of 65535 Hex 0000FFFF
 '
 '   For Currency type the low DWORD of a currency value is copied to the DWORD of the ULong.
 '   Eg Currency value of 0.0001 Hex 00000000 00000001 converts to ULong 00000001 i.e. of value 1.
@@ -191,22 +187,21 @@ End Sub
 '   For LongLong type the low DWORD of a LongLong value is copied to the DWORD of the ULong.
 '   eg. If LongLong value is 42949672958 i.e. Hex 00000009 FFFFFFFE is converted to ULong value Hex FEFFFFFF
 '   i.e. value of 4294967294
-'
 ''
 Public Function CBytesUInt32(ByVal val As Variant) As ULong
-    Const HEXSTRING = "&H"
     Select Case VarType(val)
         Case VBA.vbLong
             CBytesUInt32.Value = val
         Case VBA.vbByte
             CBytesUInt32.Value = val
         Case VBA.vbInteger
+            'copy Integer type WORD to lower WORD of ULong
             Dim wVal As WORD
             wVal.Value = val
             LSet CBytesUInt32 = wVal
         #If Win64 Then
         Case VBA.vbLongLong
-            'copy low DWORD of QWORD to ULong
+            'copy low DWORD of LongLong type to ULong
             Dim qwVal As QWORD
             qwVal.Value = val
             LSet CBytesUInt32 = qwVal
@@ -216,24 +211,9 @@ Public Function CBytesUInt32(ByVal val As Variant) As ULong
             Dim qwValCurrency As QWORD_Currency
             qwValCurrency.Value = val
             LSet CBytesUInt32 = qwValCurrency
-            
-        '@TODO Is it appropriate handle hex string in CBytesUInt32? Possibly remove
-        Case VBA.vbString
-            If Left$(val, 2) = HEXSTRING Then
-                On Error GoTo HexStringExceptionHandler
-                CBytesUInt32 = Parse(CStr(val))
-            Else
-                Err.Raise ArgumentException, "UInt32Static.CBytesUInt32", "Invalid argument"
-            End If
         Case Else
             Err.Raise ArgumentException, "UInt32Static.CBytesUInt32", "Invalid argument"
     End Select
-    
-CleanExit:
-    Exit Function
-HexStringExceptionHandler:
-    Err.Raise Err.Number, "UInt32Static.CBytesUInt32", Err.Description
-    Resume CleanExit
 End Function
 
 ''

@@ -4,7 +4,7 @@ Attribute VB_Name = "Testing_UInt32Static_DivRem"
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.2 March 6, 2023
-'@LastModified March 6, 2023
+'@LastModified March 7, 2023
 
 Option Explicit
 
@@ -15,27 +15,27 @@ Private Sub TestingUInt32StaticDivRem()
     Dim remainder As ULong
 
     dividend = CBytesUInt32(&HF6F2F1F)
-    divisor.Value = &HF&
+    divisor = CBytesUInt32(&HF&)
     quotient = UInt32Static.DivRem(dividend, divisor, remainder)
     DisplayDivRem dividend, divisor, quotient, remainder
     
-    dividend.Value = &HF62
-    divisor.Value = &HF6
+    dividend = CBytesUInt32(&HF62)
+    divisor = CBytesUInt32(&HF6)
     quotient = UInt32Static.DivRem(dividend, divisor, remainder)
     DisplayDivRem dividend, divisor, quotient, remainder
 
-    dividend.Value = &HF6F2F1F0
-    divisor.Value = &H7&
+    dividend = CBytesUInt32(&HF6F2F1F0)
+    divisor = CBytesUInt32(&H7&)
     quotient = UInt32Static.DivRem(dividend, divisor, remainder)
     DisplayDivRem dividend, divisor, quotient, remainder
         
-    dividend.Value = &HFFFFFFFF
-    divisor.Value = &H2&
+    dividend = CBytesUInt32(&HFFFFFFFF)
+    divisor = CBytesUInt32(&H2&)
     quotient = UInt32Static.DivRem(dividend, divisor, remainder)
     DisplayDivRem dividend, divisor, quotient, remainder
     
-    dividend.Value = &HF72
-    divisor.Value = &H1F2
+    dividend = CBytesUInt32(&HF72)
+    divisor = CBytesUInt32(&H1F2)
     quotient = UInt32Static.DivRem(dividend, divisor, remainder)
     DisplayDivRem dividend, divisor, quotient, remainder
 End Sub
@@ -52,8 +52,8 @@ Private Sub TestingUInt32StaticPerformanceDivRem()
     Dim divisor As ULong
     Dim remainder As ULong
     
-    dividend.Value = &HF62
-    divisor.Value = &HF6
+    dividend = CBytesUInt32(&HF62)
+    divisor = CBytesUInt32(&HF6)
 
     'Perform initial subtraction so overhead of initiliasing UInt32Static isn't included in timer calculations
     quotient = UInt32Static.DivRem(dividend, divisor, remainder)
