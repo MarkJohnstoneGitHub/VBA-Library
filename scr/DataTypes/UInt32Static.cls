@@ -17,9 +17,9 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.2 March 6, 2023
-'@LastModified March 6, 2023
+'@LastModified March 7, 2023
 
-'@Dependancies
+'@Dependencies
 '   ULongType.bas
 '   DWordType.bas
 '   WordType.bas
@@ -44,6 +44,9 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 
 '@TODO
 ' Are currency, single, double appropriate to typecasted to ULong?
+' CBytesUInt32  function remove string type?
+' Add functions for operators <, <=, >, >= currently could use CompareTo
+' Add private types for DWORD, WORD, QWORD to remove dependencies
 ' Unit testing
 
 Option Explicit
@@ -76,6 +79,10 @@ Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
 '------------------------------------------------------------------
 'Types
 '------------------------------------------------------------------
+Private Type QWORD_Currency
+    Value As Currency
+End Type
+
 Private Type TUInt32Static
     decMaxUInt32 As Variant 'contains a decimal type
 
@@ -157,7 +164,7 @@ End Sub
 '   val Variant
 '       The value to be converted to an unsigned 32-bit integer.
 '       The byte value is copied to an unsigned 32-bit integer where negative values are converted
-'       into large unsigned values.
+'       into larger unsigned values.
 '@Returns ULong
 '   The unsigned 32-bit integer created from the value byte values.
 '
@@ -171,6 +178,20 @@ End Sub
 '@Remarks
 '   Bytes values to be converted maybe of types Byte, Long, Integers or string containing a hex value.
 '   Negative values are converted into a large unsigned 32-bit integer.
+'
+'   For Long type its DWORD value is copied to the ULong DWORD
+'   eg. If Long value is -1 Hex FFFFFFFF is converted to ULong value of 4294967295 Hex FFFFFFFF
+'
+'   For Integer type its WORD value is copied to the ULong DWORD lower WORD.
+'   eg. If Integer value is -1 Hex FFFF is converted to ULong value of 65535 Hex 0000FFFF
+'
+'   For Currency type the low DWORD of a currency value is copied to the DWORD of the ULong.
+'   Eg Currency value of 0.0001 Hex 00000000 00000001 converts to ULong 00000001 i.e. of value 1.
+'
+'   For LongLong type the low DWORD of a LongLong value is copied to the DWORD of the ULong.
+'   eg. If LongLong value is 42949672958 i.e. Hex 00000009 FFFFFFFE is converted to ULong value Hex FEFFFFFF
+'   i.e. value of 4294967294
+'
 ''
 Public Function CBytesUInt32(ByVal val As Variant) As ULong
     Const HEXSTRING = "&H"
@@ -185,14 +206,18 @@ Public Function CBytesUInt32(ByVal val As Variant) As ULong
             LSet CBytesUInt32 = wVal
         #If Win64 Then
         Case VBA.vbLongLong
-            If val < 0 Or val > 4294967295# Then
-                Err.Raise OverflowException, "UInt32Static.CBytesUInt32"
-            Else
-                Dim qwVal As QWORD
-                qwVal.Value = val
-                LSet CBytesUInt32 = qwVal
-            End If
+            'copy low DWORD of QWORD to ULong
+            Dim qwVal As QWORD
+            qwVal.Value = val
+            LSet CBytesUInt32 = qwVal
         #End If
+        Case VBA.vbCurrency
+            'copy low DWORD of Currency type to ULong
+            Dim qwValCurrency As QWORD_Currency
+            qwValCurrency.Value = val
+            LSet CBytesUInt32 = qwValCurrency
+            
+        '@TODO Is it appropriate handle hex string in CBytesUInt32? Possibly remove
         Case VBA.vbString
             If Left$(val, 2) = HEXSTRING Then
                 On Error GoTo HexStringExceptionHandler
