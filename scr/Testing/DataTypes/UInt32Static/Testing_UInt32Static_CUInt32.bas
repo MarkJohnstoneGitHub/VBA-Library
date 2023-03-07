@@ -4,7 +4,7 @@ Attribute VB_Name = "Testing_UInt32Static_CUInt32"
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.2 March 6, 2023
-'@LastModified March 6, 2023
+'@LastModified March 7, 2023
 
 Option Explicit
 
@@ -72,5 +72,29 @@ Private Sub TestingUInt32StaticCUInt32()
     Debug.Print UInt32Static.ToString(ulngResult)
     
     ulngResult = CUInt32(0@)
+    Debug.Print UInt32Static.ToString(ulngResult)
+    
+    Dim curVal As Currency
+    
+    'Rounded down
+    curVal = 1245.43@
+    ulngResult = CUInt32(curVal)
+    Debug.Print UInt32Static.ToString(ulngResult)
+    
+    'Rounded up
+    curVal = 1245.51@
+    ulngResult = CUInt32(curVal)
+    Debug.Print UInt32Static.ToString(ulngResult)
+    
+    Dim dbVal As Double
+    
+    'Rounded down
+    dbVal = 34325.5
+    ulngResult = CUInt32(dbVal)
+    Debug.Print UInt32Static.ToString(ulngResult)
+    
+    'Rounded up
+    dbVal = 34325.56
+    ulngResult = CUInt32(dbVal)
     Debug.Print UInt32Static.ToString(ulngResult)
 End Sub

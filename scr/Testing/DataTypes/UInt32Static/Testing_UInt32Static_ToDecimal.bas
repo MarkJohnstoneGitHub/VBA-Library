@@ -16,10 +16,6 @@ Private Sub TestingUInt32ToDecimal()
     decResult = UInt32Static.ToDecimal(t1)
     Debug.Print decResult
     
-    t1 = CUInt32("&HF6F2F1F0")
-    decResult = UInt32Static.ToDecimal(t1)
-    Debug.Print decResult
-    
     t1 = UInt32Static.Parse("&HF6F2F1F0")
     decResult = UInt32Static.ToDecimal(t1)
     Debug.Print decResult

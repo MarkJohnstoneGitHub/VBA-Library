@@ -289,8 +289,13 @@ End Function
 '   ArgumentException
 '       Raised for an invalid value which is not numeric.
 '@Remarks
-'   Decimal values are truncated
-'   Negative values return an overflow exception
+'   Valid types to convert are Byte, Integer, Long, LongLong, Currency, Double, Single, Strings
+'   containing numeric or hex strings.
+'   Negative values return an overflow exception.
+'
+'   Be careful using CUInt32 with decimal places.
+'   If the fraction is less than or equal to .5, the result will round down.
+'   If the fraction is greater than .5, the result will round up.
 ''
 Public Function CUInt32(ByRef val As Variant) As ULong
     Select Case VarType(val)
@@ -964,8 +969,9 @@ End Function
 '       Raised when a divisor is 0, runtime error 11
 '
 '@Remarks
-'   Win64 version using QWORD approximately 40 times better performance.
-'   Decimal places are truncated.
+'   Decimal places are rounded.
+'   If the fraction is less than or equal to .5, the result will round down.
+'   If the fraction is greater than .5, the result will round up.
 ''
 #If Win64 Then
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
@@ -988,7 +994,7 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     
     Dim qwResult As QWORD
     'performing integer division decimal places truncated
-    qwResult.Value = qwDividend.Value \ qwDivisor.Value
+    qwResult.Value = qwDividend.Value / qwDivisor.Value
     
     LSet Divide = qwResult
 End Function
@@ -1020,7 +1026,7 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     End If
     
     Dim decimalQuotient As Variant
-    decimalQuotient = Fix(decimalDividend / decimalDivisor)
+    decimalQuotient = Round(decimalDividend / decimalDivisor)
     
     'Convert decimal result to ULong
     If decimalQuotient > MAXVALUE_Int32 Then
@@ -1549,7 +1555,7 @@ End Sub
 
 Private Function DecimalToULong(ByVal val As Variant) As ULong
     Dim decVal As Variant
-    decVal = Fix(val)
+    decVal = Round(val)
 
     If decVal > MAXVALUE_Int32 Then
         DecimalToULong.Value = decVal - 4294967296#
