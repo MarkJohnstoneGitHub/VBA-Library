@@ -62,17 +62,17 @@ Private Const MAX_UINT32 As Long = &HFFFFFFFF
 Private Const MIN_UINT32 As Long = &H0
 Private Const MAXVALUE_Int32 As Long = 2147483647
 
-Private Const decimalLo32Offset As Long = 8
+'Bit shifting constants
+Private Const MIN_BITSHIFT As Long = 0
+Private Const MAX_BITSHIFT As Long = 32
+Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
 
+'Error number constants
 Private Const OverflowException As Long = &H6&
 Private Const ArgumentException As Long = &H5&  'Invalid procedure call or argument.
 Private Const DivideByZeroException As Long = &H11&
 Private Const ArgumentNullException As Long = &H80004003
 Private Const NotImplementedException As Long = 9999
-
-Private Const MIN_BITSHIFT As Long = 0
-Private Const MAX_BITSHIFT As Long = 32
-Private Const MOST_SIGNIFICANT_BIT_MASK As Long = &H80000000
 
 '------------------------------------------------------------------
 'Types
