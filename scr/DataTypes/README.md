@@ -17,6 +17,8 @@ For Win32 the VBA Decimal data type is used for the Multiply, Divide and DivRem 
 
 @TODO
 
+Implement UInt32 class
+
 Implement functions
 
 Clamp
@@ -30,5 +32,6 @@ Testing for Bitwise functions
 Unit Testing
 
 Examples of use
+
 
 Also working on unsigned 64-bit integers which will be posted soon.
