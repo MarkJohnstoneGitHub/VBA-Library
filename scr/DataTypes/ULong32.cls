@@ -210,7 +210,7 @@ End Sub
 ''
 Public Function Clamp(ByRef val As ULong, ByRef minVal As ULong, ByRef maxVal As ULong) As ULong
     If Me.GreaterThan(minVal, maxVal) Then
-        Err.Raise MinMaxException, "UInt32Static.Clamp", "Argument min value cannot be greater than max value."
+        Err.Raise MinMaxException, "ULong32.Clamp", "Argument min value cannot be greater than max value."
     End If
     If Me.LessThan(val, minVal) Then
         LSet Clamp = minVal
@@ -284,7 +284,7 @@ Public Function CreateTruncating(ByVal val As Variant) As ULong
             qwValCurrency.Value = val
             LSet CreateTruncating = qwValCurrency
         Case Else
-            Err.Raise ArgumentException, "UInt32Static.CreateTruncating", "Invalid argument"
+            Err.Raise ArgumentException, "ULong32.CreateTruncating", "Invalid argument"
     End Select
 End Function
 
@@ -315,7 +315,7 @@ Public Function CreateChecked(ByRef val As Variant) As ULong
     Select Case VarType(val)
         Case VBA.vbLong
             If val < 0 Then
-                Err.Raise OverflowException, "UInt32Static.CreateChecked"
+                Err.Raise OverflowException, "ULong32.CreateChecked"
             Else
                 CreateChecked.Value = val
             End If
@@ -325,26 +325,26 @@ Public Function CreateChecked(ByRef val As Variant) As ULong
             CreateChecked.Value = val
         Case VBA.vbInteger
             If val < 0 Then
-                Err.Raise OverflowException, "UInt32Static.CreateChecked"
+                Err.Raise OverflowException, "ULong32.CreateChecked"
             Else
                 CreateChecked.Value = val
             End If
         Case VBA.vbCurrency
             If val < 0 Or val > 4294967295# Then
-                Err.Raise OverflowException, "UInt32Static.CreateChecked"
+                Err.Raise OverflowException, "ULong32.CreateChecked"
             Else
                 CreateChecked = DecimalToULong(val)
             End If
         Case VBA.vbDecimal
             If val < 0 Or val > this.decMaxUInt32 Then
-                Err.Raise OverflowException, "UInt32Static.CreateChecked"
+                Err.Raise OverflowException, "ULong32.CreateChecked"
             Else
                 CreateChecked = DecimalToULong(val)
             End If
         #If Win64 Then
         Case VBA.vbLongLong
             If val < 0 Or val > 4294967295# Then
-                Err.Raise OverflowException, "UInt32Static.CreateChecked"
+                Err.Raise OverflowException, "ULong32.CreateChecked"
             Else
                 Dim qwVal As QWORD
                 qwVal.Value = val
@@ -353,18 +353,18 @@ Public Function CreateChecked(ByRef val As Variant) As ULong
         #End If
         Case VBA.vbDouble
             If val < 0 Or val > 4294967295# Then
-                Err.Raise OverflowException, "UInt32Static.CreateChecked"
+                Err.Raise OverflowException, "ULong32.CreateChecked"
             Else
                 CreateChecked = DecimalToULong(val)
             End If
         Case VBA.vbSingle
             If val < 0 And val > 4294967295# Then
-                Err.Raise OverflowException, "UInt32Static.CreateChecked"
+                Err.Raise OverflowException, "ULong32.CreateChecked"
             Else
                 CreateChecked = DecimalToULong(val)
             End If
         Case Else
-            Err.Raise ArgumentException, "UInt32Static.CreateChecked", "Invalid argument"
+            Err.Raise ArgumentException, "ULong32.CreateChecked", "Invalid argument"
     End Select
     
 End Function
@@ -424,7 +424,7 @@ End Function
 #If Win64 Then
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
     If divisor.Value = 0 Then
-        Err.Raise DivideByZeroException, "UInt32Static.DivRem"
+        Err.Raise DivideByZeroException, "ULong32.DivRem"
     End If
     ' perform a couple of quick checks that have an easy result.
     If dividend.Value = 0 Then
@@ -453,7 +453,7 @@ End Function
 #Else
 Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef outRemainder As ULong) As ULong
     If divisor.Value = 0 Then
-        Err.Raise DivideByZeroException, "UInt32Static.DivRem"
+        Err.Raise DivideByZeroException, "ULong32.DivRem"
     End If
     ' perform a couple of quick checks that have an easy result.
     If dividend.Value = 0 Then
@@ -569,7 +569,7 @@ End Function
 ''
 Public Function Modulus(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     If divisor.Value = 0 Then
-        Err.Raise DivideByZeroException, "UInt32Static.Modulus"
+        Err.Raise DivideByZeroException, "ULong32.Modulus"
     End If
     DivRem dividend, divisor, Modulus
 End Function
@@ -643,7 +643,7 @@ End Function
 #If Win64 Then
 Public Function Parse(ByRef s As String) As ULong
     If (Trim(s) = VBA.vbNullString) Then
-        Err.Raise ArgumentNullException, "UInt32Static.Parse", "Argument Null Exception"
+        Err.Raise ArgumentNullException, "ULong32.Parse", "Argument Null Exception"
     End If
 
     On Error GoTo ErrorHandler
@@ -657,13 +657,13 @@ Public Function Parse(ByRef s As String) As ULong
 CleanExit:
     Exit Function
 ErrorHandler:
-    Err.Raise ArgumentException, "UInt32Static.Parse", "Invalid argument"
+    Err.Raise ArgumentException, "ULong32.Parse", "Invalid argument"
     Resume CleanExit
 End Function
 #Else
 Public Function Parse(ByRef s As String) As ULong
     If (Trim(s) = VBA.vbNullString) Then
-        Err.Raise ArgumentNullException, "UInt32Static.Parse"
+        Err.Raise ArgumentNullException, "ULong32.Parse"
     End If
     On Error GoTo ErrorHandler
     Dim decVal As Variant
@@ -677,7 +677,7 @@ Public Function Parse(ByRef s As String) As ULong
 CleanExit:
     Exit Function
 ErrorHandler:
-    Err.Raise ArgumentException, "UInt32Static.Parse", "Invalid argument"
+    Err.Raise ArgumentException, "ULong32.Parse", "Invalid argument"
     Resume CleanExit
 End Function
 #End If
@@ -997,7 +997,7 @@ End Function
 #If Win64 Then
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     If divisor.Value = 0 Then
-        Err.Raise DivideByZeroException, "UInt32Static.Divide"
+        Err.Raise DivideByZeroException, "ULong32.Divide"
     End If
     ' perform a couple of quick checks that have an easy result.
     If dividend.Value = 0 Then
@@ -1022,7 +1022,7 @@ End Function
 #Else
 Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     If divisor.Value = 0 Then
-        Err.Raise DivideByZeroException, "UInt32Static.Divide"
+        Err.Raise DivideByZeroException, "ULong32.Divide"
     End If
     ' perform a couple of quick checks that have an easy result.
     If dividend.Value = 0 Then
@@ -1085,7 +1085,7 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     qwResult.Value = qwLhs.Value * qwRhs.Value
     
     If qwResult.Value > 4294967295# Then
-       Err.Raise OverflowException, "UInt32Static.Multiply"
+       Err.Raise OverflowException, "ULong32.Multiply"
     End If
     LSet Multiply = qwResult
 End Function
@@ -1112,7 +1112,7 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     Dim decimalResult As Variant
     decimalResult = decimalLhs * decimalRhs
     If decimalResult > 4294967295# Then
-       Err.Raise OverflowException, "UInt32Static.Multiply"
+       Err.Raise OverflowException, "ULong32.Multiply"
     End If
     
     'Convert decimal result to ULong
@@ -1154,7 +1154,7 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     Dim qwResult As QWORD
     qwResult.Value = qwLhs.Value - qwRhs.Value
     If qwResult.Value < MIN_UINT32 Then
-       Err.Raise OverflowException, "UInt32Static.Subtract"
+       Err.Raise OverflowException, "ULong32.Subtract"
     End If
     LSet Subtract = qwResult
 End Function
@@ -1174,7 +1174,7 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
         Subtract.Value = lhs.Value
         Exit Function
     ElseIf Me.CompareTo(lhs, rhs) = -1 Then
-        Err.Raise OverflowException, "UInt32Static.Subtract"
+        Err.Raise OverflowException, "ULong32.Subtract"
         Exit Function
     End If
 
@@ -1203,7 +1203,7 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     LSet wrhs = dwrhs.wHigh
     result.Value = wlhs.Value - wrhs.Value - dwResult.wHigh.Value
     If result.Value < MINVALUE_WORD Then
-        Err.Raise OverflowException, "UInt32Static.Subtract"
+        Err.Raise OverflowException, "ULong32.Subtract"
     End If
     LSet dwResult.wHigh = result 'copy low word of result without VBA conversion
     
