@@ -3,6 +3,7 @@
 Compatible with VBA Win64, Win32, Mac, VB6
 
 Data Types
+
 ULong32.cls Static class for processing unsigned 32 bit integers. This class processes the UDT ULong.  
 
   **Dependencies:**
