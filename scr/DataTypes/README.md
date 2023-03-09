@@ -3,7 +3,8 @@
 Compatible with VBA Win64, Win32, Mac, VB6
 
 Data Types
-UInt32Static.cls Static class for processing unsigned 32 bit values.
+
+ULong32.cls Static class for processing unsigned 32 bit integers. This class processes the UDT ULong.  
 
   **Dependencies:**
   
@@ -21,8 +22,6 @@ Implement UInt32 class
 
 Implement functions
 
-Clamp
-
 PopCount
 
 LeadingZeroCount
@@ -34,4 +33,4 @@ Unit Testing
 Examples of use
 
 
-Also working on unsigned 64-bit integers which will be posted soon.
+Also working on UInt32 class and unsigned 64-bit integers which will be posted soon.
