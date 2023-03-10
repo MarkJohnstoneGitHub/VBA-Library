@@ -10,9 +10,22 @@ ULong32.cls Static class for processing unsigned 32 bit integers. This class pro
   
     - [ULongType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/ULongType.bas)     
 
+
 ULongType.bas
 
 -ULong data structure for unsigned 32-bit integers	
+
+UInt32.cls Class for 32-bit integer objects.
+
+  **Dependencies:**
+  
+    - [ULongType.bas](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/ULongType.bas)  
+    
+    - [ULong32.cls](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/ULong32.cls)
+    
+    - [UInt32Static.cls](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/UInt32Static.cls) 
+    
+
 
 For Win32 the VBA Decimal data type is used for the Multiply, Divide and DivRem math operations and results converted to an unsigned 32-bit integer.  Win64 uses the LongLong type for math operations and results converted to an unsigned 32-bit integer.
 
