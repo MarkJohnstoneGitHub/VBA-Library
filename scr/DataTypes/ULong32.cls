@@ -1366,23 +1366,23 @@ End Function
 '@Description "Bitwise logical left-shift operation, by the given number of bits."
 '@Parameters
 '   val: ULong value
-'   offset: The number of bits to left-shift by.
+'   shiftAmount: The number of bits to left-shift by.
 '@Returns ULong
 '   Returns a Int32 of the bitwise logical left-shift operation, by the given number of bits.
 '@Remarks
 '   Left shifting is equal to multiplying Value by 2Shift.
-'   If offset <= 0 the value is returned
-'   If the offset >= the maximum bitshift i.e. 32 then 0 is returned
+'   If shiftAmount <= 0 the value is returned
+'   If the shiftAmount >= the maximum bitshift i.e. 32 then 0 is returned
 ''
-Public Function ShiftLeft(ByRef val As ULong, ByVal offset As Long) As ULong
-    If offset > MIN_BITSHIFT And offset < SIZEOF_UINT32_BITS Then
-        ShiftLeft.Value = (val.Value And this.Masks(31 - offset)) * this.Powers(offset)
-        If val.Value And this.Powers(31 - offset) Then
+Public Function ShiftLeft(ByRef val As ULong, ByVal shiftAmount As Long) As ULong
+    If shiftAmount > MIN_BITSHIFT And shiftAmount < SIZEOF_UINT32_BITS Then
+        ShiftLeft.Value = (val.Value And this.Masks(31 - shiftAmount)) * this.Powers(shiftAmount)
+        If val.Value And this.Powers(31 - shiftAmount) Then
             ShiftLeft.Value = ShiftLeft.Value Or MOST_SIGNIFICANT_BIT_MASK  ' set bit 31
         End If
-    ElseIf offset <= 0 Then
+    ElseIf shiftAmount <= 0 Then
         ShiftLeft = val
-    ElseIf offset >= MAX_BITSHIFT Then
+    ElseIf shiftAmount >= MAX_BITSHIFT Then
         ShiftLeft.Value = &H0
     End If
 End Function
@@ -1392,19 +1392,19 @@ End Function
 '@Description "Bitwise logical right-shift operation, by the given number of bits."
 '@Parameters
 '   val: ULong value
-'   offset: The number of bits to right-shift by.
+'   shiftAmount: The number of bits to right-shift by.
 '@Returns ULong
 '   Returns a Int32 of the bitwise logical right-shift operation, by the given number of bits.
 '@Remarks
 '   Right shifting is equal to dividing value by 2^Shift.
 ''
-Public Function ShiftRight(ByRef val As ULong, ByVal offset As Long) As ULong
-    If offset > MIN_BITSHIFT And offset < SIZEOF_UINT32_BITS Then
-        ShiftRight.Value = ((val.Value And this.RevMasks(offset)) \ this.Powers(offset)) _
-                    And this.Masks(MAX_BITSHIFT - offset)
-    ElseIf offset = MIN_BITSHIFT Then
+Public Function ShiftRight(ByRef val As ULong, ByVal shiftAmount As Long) As ULong
+    If shiftAmount > MIN_BITSHIFT And shiftAmount < SIZEOF_UINT32_BITS Then
+        ShiftRight.Value = ((val.Value And this.RevMasks(shiftAmount)) \ this.Powers(shiftAmount)) _
+                    And this.Masks(MAX_BITSHIFT - shiftAmount)
+    ElseIf shiftAmount = MIN_BITSHIFT Then
         ShiftRight = val
-    ElseIf offset >= MAX_BITSHIFT Then
+    ElseIf shiftAmount >= MAX_BITSHIFT Then
         ShiftRight.Value = &H0
     End If
 End Function
@@ -1415,7 +1415,7 @@ End Function
 '"
 '@Parameters
 '   val ULong value
-'   offset The number of bits to rotate-left by.
+'   shiftAmount The number of bits to rotate-left by.
 '@Returns ULong
 '   Returns a ULong of the bitwise rotate-left, by the given number of bits.
 '
@@ -1426,8 +1426,8 @@ End Function
 '@References
 '   https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs
 ''
-Public Function RotateLeft(ByRef val As ULong, ByVal offset As Long) As ULong
-    RotateLeft.Value = ShiftLeft(val, offset).Value Or ShiftRight(val, (SIZEOF_UINT32_BITS - offset)).Value
+Public Function RotateLeft(ByRef val As ULong, ByVal shiftAmount As Long) As ULong
+    RotateLeft.Value = ShiftLeft(val, shiftAmount).Value Or ShiftRight(val, (SIZEOF_UINT32_BITS - shiftAmount)).Value
 End Function
 
 ''
@@ -1436,7 +1436,7 @@ End Function
 '@Parameters
 '   val ULong
 '       value
-'   offset
+'   shiftAmount
 '       The number of bits to rotate-right by.
 '@Returns ULong
 '   Returns a UInt32 of the bitwise rotate-right, by the given number of bits.
@@ -1447,8 +1447,8 @@ End Function
 '@Reference
 ' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,f37eec40a05d7095
 ''
-Public Function RotateRight(ByRef val As ULong, ByVal offset As Long) As ULong
-    RotateRight.Value = ShiftRight(val, offset).Value Or ShiftLeft(val, (SIZEOF_UINT32_BITS - offset)).Value
+Public Function RotateRight(ByRef val As ULong, ByVal shiftAmount As Long) As ULong
+    RotateRight.Value = ShiftRight(val, shiftAmount).Value Or ShiftLeft(val, (SIZEOF_UINT32_BITS - shiftAmount)).Value
 End Function
 
 ''
