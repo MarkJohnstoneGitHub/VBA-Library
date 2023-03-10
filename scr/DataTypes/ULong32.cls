@@ -17,7 +17,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.3 March 9, 2023
-'@LastModified March 9, 2023
+'@LastModified March 10, 2023
 
 '@Dependencies
 '   ULongType.bas
@@ -31,6 +31,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 ' https://wiki.sei.cmu.edu/confluence/display/c/INT30-C.+Ensure+that+unsigned+integer+operations+do+not+wrap
 ' https://nolongerset.com/return-multiple-values-udt/
 ' https://cdn.ttgtmedia.com/searchEnterpriseLinux/downloads/WGC_Chapter_3.pdf
+' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Math.cs,bc38e67ca558e060
 
 '@TODO
 '   Implement functions
@@ -312,6 +313,7 @@ End Function
 '   If the fraction is greater than .5, the result will round up.
 ''
 Public Function CreateChecked(ByRef val As Variant) As ULong
+
     Select Case VarType(val)
         Case VBA.vbLong
             If val < 0 Then
@@ -351,22 +353,85 @@ Public Function CreateChecked(ByRef val As Variant) As ULong
                 LSet CreateChecked = qwVal
             End If
         #End If
-        Case VBA.vbDouble
+        Case VBA.vbDouble Or VBA.vbSingle
+
             If val < 0 Or val > 4294967295# Then
                 Err.Raise OverflowException, "ULong32.CreateChecked"
             Else
-                CreateChecked = DecimalToULong(val)
-            End If
-        Case VBA.vbSingle
-            If val < 0 And val > 4294967295# Then
-                Err.Raise OverflowException, "ULong32.CreateChecked"
-            Else
-                CreateChecked = DecimalToULong(val)
+                Dim decVal As Variant
+                decVal = CDec(val)
+                CreateChecked = DecimalToULong(decVal)
             End If
         Case Else
             Err.Raise ArgumentException, "ULong32.CreateChecked", "Invalid argument"
     End Select
-    
+End Function
+
+''
+'@Static
+'@Description "Creates an instance of the current type from a value, saturating any values that fall outside the representable range of the current type."
+'   val Variant
+'       The value which is used to create the instance of an unsigned 32-bit integer.
+'@Remarks
+'   Creates a value, clamping to T.MinValue or T.MaxValue if the input can't fit.
+''
+Public Function CreateSaturating(ByVal val As Variant) As ULong
+    Select Case VarType(val)
+        Case VBA.vbLong
+            If val < 0 Then
+                LSet CreateSaturating = this.minVal
+            Else
+                CreateSaturating.Value = val
+            End If
+        Case VBA.vbByte
+            CreateSaturating.Value = val
+        Case VBA.vbInteger
+            If val < 0 Then
+                LSet CreateSaturating = this.minVal
+            Else
+                CreateSaturating.Value = val
+            End If
+        Case VBA.vbCurrency
+            If val < 0 Then
+                LSet CreateSaturating = this.minVal
+            ElseIf val > 4294967295# Then
+                LSet CreateSaturating = this.maxVal
+            Else
+                CreateSaturating = DecimalToULong(val)
+            End If
+        Case VBA.vbDecimal
+            If val < 0 Then
+                LSet CreateSaturating = this.minVal
+            ElseIf val > this.decMaxUInt32 Then
+                LSet CreateSaturating = this.maxVal
+            Else
+                CreateSaturating = DecimalToULong(val)
+            End If
+        #If Win64 Then
+        Case VBA.vbLongLong
+            If val < 0 Then
+                LSet CreateSaturating = this.minVal
+            ElseIf val > 4294967295# Then
+                LSet CreateSaturating = this.maxVal
+            Else
+                Dim qwVal As QWORD
+                qwVal.Value = val
+                LSet CreateSaturating = qwVal
+            End If
+        #End If
+        Case VBA.vbDouble Or VBA.vbSingle
+            If val < 0 Then
+                LSet CreateSaturating = this.minVal
+            ElseIf val > 4294967295# Then
+                LSet CreateSaturating = this.maxVal
+            Else
+                Dim decVal As Variant
+                decVal = CDec(val)
+                CreateSaturating = DecimalToULong(decVal)
+            End If
+        Case Else
+            Err.Raise ArgumentException, "ULong32.CreateSaturating", "Invalid argument"
+    End Select
 End Function
 
 ''
@@ -1279,7 +1344,7 @@ End Function
 '@TODO Implement
 ''
 Public Function LeadingZeroCount(ByRef val As ULong) As ULong
-    Err.Raise NotImplementedException, "UInt32.LeadingZeroCount"
+    Err.Raise NotImplementedException, "ULong32.LeadingZeroCount"
 End Function
 
 ''
@@ -1293,7 +1358,7 @@ End Function
 '@TODO Implement
 ''
 Public Function PopCount(ByRef val As ULong) As ULong
-    Err.Raise NotImplementedException, "UInt32.PopCount"
+    Err.Raise NotImplementedException, "ULong32.PopCount"
 End Function
 
 ''
@@ -1574,6 +1639,11 @@ Private Sub InitRevMasks()
     this.RevMasks(32) = &H0&        ' 00000000000000000000000000000000      0
 End Sub
 
+''
+'Converts Decimal type to ULong
+'@Remarks
+'   Previously checked for MaxULong32
+''
 Private Function DecimalToULong(ByVal val As Variant) As ULong
     Dim decVal As Variant
     decVal = Round(val)

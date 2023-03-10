@@ -15,12 +15,12 @@ Attribute VB_Exposed = False
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.0 March 8, 2023
-'@LastModified March 9 2023
+'@LastModified March 10, 2023
 
 '@Dependencies
 '   ULongType.bas
 '   ULong32.cls
-'   UInt32.cls
+'   UInt32Static.cls
 
 'Remarks
 ' Unsigned 32-bit Integer ojbect.
@@ -29,7 +29,18 @@ Attribute VB_Exposed = False
 ' https://learn.microsoft.com/en-us/dotnet/api/system.uint32?view=net-7.0
 ' https://github.com/dotnet/docs/blob/main/docs/standard/generics/math.md
 
-'@TODO Testing
+'@TODO
+'Implement
+'   ToBoolean
+'   ToByte
+'   ToInt16
+'   ToInt32
+'
+'Performance improvements
+'   possibly move in ULong32 logic, change friend property value to Long
+'   move bitwise arrays to module
+'
+'ToInt16
 
 Option Explicit
 
@@ -206,13 +217,16 @@ End Function
 ''
 '@Static
 '@Description "Creates an instance of the current type from a value, saturating any values that fall outside the representable range of the current type."
+'   val Variant
+'       The value which is used to create the instance of an unsigned 32-bit integer.
+'@Remarks
+'   Creates a value, clamping to T.MinValue or T.MaxValue if the input can't fit.
 ''
 Public Function CreateSaturating(ByVal val As Variant) As UInt32
-    Err.Raise NotImplementedException, "UInt32.CreateSaturating"
-'    With New UInt32
-'        .Value = ULong32.CreateSaturating(val)
-'        Set CreateSaturating = .Self
-'    End With
+    With New UInt32
+        .Value = ULong32.CreateSaturating(val)
+        Set CreateSaturating = .Self
+    End With
 End Function
 
 ''
@@ -583,13 +597,13 @@ End Function
 '   val: UInt32
 '       unsigned  32-bit value to decrement.
 ''
-Public Function Decrement(ByRef val As UInt32)
+Public Sub Decrement(ByRef val As UInt32)
     If Me.GreaterThan(val, Me.MinValue) Then
        val.Value = ULong32.Subtract(val.Value, ULong32.One)
     Else
         Err.Raise OverflowException, "UInt32.Decrement"
     End If
-End Function
+End Sub
 
 '------------------------------------------------------------------
 'Increment Operator
@@ -602,13 +616,13 @@ End Function
 '   val: UInt32
 '       unsigned  32-bit value to increment.
 ''
-Public Function Increment(ByRef val As UInt32)
+Public Sub Increment(ByRef val As UInt32)
     If Me.LessThan(val, Me.MaxValue) Then
        val.Value = ULong32.Add(val.Value, ULong32.One)
     Else
         Err.Raise OverflowException, "UInt32.Increment"
     End If
-End Function
+End Sub
 
 '------------------------------------------------------------------
 'Math Operators
@@ -871,9 +885,11 @@ End Function
 'IConvertible implementation
 '------------------------------------------------------------------
 Public Function ToBoolean() As Boolean
+    Err.Raise NotImplementedException, "UInt32.ToBoolean"
 End Function
 
 Public Function ToByte() As Byte
+    Err.Raise NotImplementedException, "UInt32.ToByte"
 End Function
 
 'Public Function ToChar() As Char
@@ -891,9 +907,11 @@ Public Function ToDecimal() As Variant
 End Function
 
 Public Function ToInt16() As Integer
+    Err.Raise NotImplementedException, "UInt32.ToInt16"
 End Function
 
 Public Function ToInt32() As Long
+    Err.Raise NotImplementedException, "ToInt32.LeadingZeroCount"
 End Function
 
 'Public Function ToInt64() As Int64
