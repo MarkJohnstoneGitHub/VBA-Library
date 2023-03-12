@@ -46,4 +46,4 @@ Unit Testing
 Examples of use
 
 
-Also working on UInt32 class and unsigned 64-bit integers which will be posted soon.
+Also working on UInt32 and UInt64 classes for unsigned integer objects which will be posted soon.
