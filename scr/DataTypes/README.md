@@ -26,8 +26,16 @@ UInt32.cls Class for 32-bit integer objects.
     - [UInt32Static.cls](https://github.com/MarkJohnstoneGitHub/VBA-Library/blob/main/scr/DataTypes/UInt32Static.cls) 
     
 
+For Win32 the VBA Currency data type is used for the Multiply, Divide and DivRem math operations and results converted to an unsigned 32-bit integer.  Win64 uses the LongLong type for math operations and results converted to an unsigned 32-bit integer.
 
-For Win32 the VBA Decimal data type is used for the Multiply, Divide and DivRem math operations and results converted to an unsigned 32-bit integer.  Win64 uses the LongLong type for math operations and results converted to an unsigned 32-bit integer.
+**Version 1.4 March 21, 2023 ULong32.cls  **
+
+- Performance improvements to math functions, Add, Subtract, Multiply, Divide and DivRem.  
+
+- Updated Parsing function to support Hex and Octal string literals.  
+
+- Updated CreateSaturating function to truncate decimals as per .Net 7.0 behaviour. 
+
 
 @TODO
 
