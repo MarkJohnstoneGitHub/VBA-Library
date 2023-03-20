@@ -3,8 +3,8 @@ Attribute VB_Name = "Test_ULong32_Subtract"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
-'@Version v1.3 March 9, 2023
-'@LastModified March 9, 2023
+'@Version v1.4 March 21, 2023
+'@LastModified March 21, 2023
 
 Option Explicit
 
@@ -57,7 +57,7 @@ Private Sub TestingULong32PerformanceSubtract()
     lhs = ULong32.CreateTruncating(&HF6F2F1F0)
     rhs = ULong32.CreateTruncating(&H1F3)
 
-    'Perform initial subtraction so overhead of initiliasing ULong32 isn't included in timer calculations
+    'Perform so overhead of initiliasing ULong32 isn't included in timer calculations
     result = ULong32.Subtract(lhs, rhs)
     DisplaySubtract lhs, rhs, result
     
@@ -73,4 +73,6 @@ Private Sub TestingULong32PerformanceSubtract()
     dTime = MicroTimer - dTime
     Debug.Print VBA.vbNewLine & "Subtraction duration for 1,000,000 calculations : " & dTime
 End Sub
+
+
 

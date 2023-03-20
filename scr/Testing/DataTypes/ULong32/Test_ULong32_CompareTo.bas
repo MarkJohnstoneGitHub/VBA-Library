@@ -3,8 +3,8 @@ Attribute VB_Name = "Test_ULong32_CompareTo"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
-'@Version v1.3 March 9, 2023
-'@LastModified March 9, 2023
+'@Version v1.4 March 21, 2023
+'@LastModified March 21, 2023
 
 Option Explicit
 
@@ -19,7 +19,6 @@ Private Sub TestingUInt32CompareTo()
     lhs = ULong32.CreateTruncating(&H1F3&)
     rhs = ULong32.CreateTruncating(&HF6F2F1F0)
     DisplayCompareTo lhs, rhs, ULong32.CompareTo(lhs, rhs)
-    
     
     lhs = ULong32.CreateTruncating(&HF6F2F1F0)
     rhs = ULong32.CreateTruncating(&HF6F2F1F0)

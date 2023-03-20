@@ -3,8 +3,8 @@ Attribute VB_Name = "Test_ULong32_Addition"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
-'@Version v1.3 March 9, 2023
-'@LastModified March 9, 2023
+'@Version v1.4 March 21, 2023
+'@LastModified March 21, 2023
 
 Option Explicit
 
@@ -66,10 +66,10 @@ Private Sub TestingULong32PerformanceAddition()
 
     Dim lhs  As ULong
     Dim rhs As ULong
-    lhs = ULong32.CreateTruncating(&HF62)
+    lhs = ULong32.CreateTruncating(&HF6200000)
     rhs = ULong32.CreateTruncating(&HF6)
 
-    'Perform initial subtraction so overhead of initiliasing ULong32 isn't included in timer calculations
+    'Perform so overhead of initiliasing ULong32 isn't included in timer calculations
     result = ULong32.Add(lhs, rhs)
     DisplayAddition lhs, rhs, result
     
@@ -77,12 +77,13 @@ Private Sub TestingULong32PerformanceAddition()
     ' Initialize
     dTime = MicroTimer
 
-    For i = 1 To 1000000
+    For i = 1 To 10000000
         result = ULong32.Add(lhs, rhs)
     Next i
 
     ' Calculate duration.
     dTime = MicroTimer - dTime
-    Debug.Print VBA.vbNewLine & "Addition duration for ADD 1,000,000 calculations : " & dTime
+    Debug.Print VBA.vbNewLine & "Addition duration for ADD 100,000,000 calculations : " & dTime
 End Sub
+
 

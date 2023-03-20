@@ -3,8 +3,8 @@ Attribute VB_Name = "Test_ULong32_Parse"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
-'@Version v1.3 March 9, 2023
-'@LastModified March 9, 2023
+'@Version v1.4 March 21, 2023
+'@LastModified March 21, 2023
 
 Option Explicit
 
@@ -16,26 +16,11 @@ Private Sub TestingULong32Parse()
     ulngResult = ULong32.Parse(strVal)
     Debug.Print ULong32.ToString(ulngResult)
     
-    strVal = "0.45"
-    ulngResult = ULong32.Parse(strVal)
-    Debug.Print ULong32.ToString(ulngResult)
-    
-    strVal = "0.5"
-    ulngResult = ULong32.Parse(strVal)
-    Debug.Print ULong32.ToString(ulngResult)
-    
-    strVal = "0.51"
-    ulngResult = ULong32.Parse(strVal)
-    Debug.Print ULong32.ToString(ulngResult)
     
     strVal = "4294967295"
     ulngResult = ULong32.Parse(strVal)
     Debug.Print ULong32.ToString(ulngResult)
-    
-    strVal = "4294967294.95"
-    ulngResult = ULong32.Parse(strVal)
-    Debug.Print ULong32.ToString(ulngResult)
-    
+        
     strVal = "    4294967295"
     ulngResult = ULong32.Parse(strVal)
     Debug.Print ULong32.ToString(ulngResult)
@@ -44,11 +29,23 @@ Private Sub TestingULong32Parse()
     ulngResult = ULong32.Parse(strVal)
     Debug.Print ULong32.ToString(ulngResult)
     
-    strVal = "    4294967294.95  "
+    strVal = "&H0"
+    ulngResult = ULong32.Parse(strVal)
+    Debug.Print ULong32.ToString(ulngResult)
+    
+    strVal = "&HFF"
     ulngResult = ULong32.Parse(strVal)
     Debug.Print ULong32.ToString(ulngResult)
     
     strVal = "&HFFFFFFFE"
+    ulngResult = ULong32.Parse(strVal)
+    Debug.Print ULong32.ToString(ulngResult)
+    
+    strVal = "&HFFFFFFFF"
+    ulngResult = ULong32.Parse(strVal)
+    Debug.Print ULong32.ToString(ulngResult)
+    
+    strVal = "&O37777777777"
     ulngResult = ULong32.Parse(strVal)
     Debug.Print ULong32.ToString(ulngResult)
 End Sub
@@ -81,7 +78,6 @@ On Error Resume Next
     strVal = VBA.vbNullString
     ulngResult = ULong32.Parse(strVal)
     Debug.Print ULong32.ToString(ulngResult)
-    
 End Sub
 
 Private Sub TestingULong32ParseArgumentNullException()
@@ -89,7 +85,47 @@ Private Sub TestingULong32ParseArgumentNullException()
     Dim strVal As String
     
     strVal = VBA.vbNullString
+    On Error GoTo ErrorHandler
     ulngResult = ULong32.Parse(strVal)
     Debug.Print ULong32.ToString(ulngResult)
+ErrorHandler:
+    Debug.Print Err.Number, Err.source, Err.Description
 End Sub
+
+Private Sub TestingULong32ParseHexStringOverflow()
+    Dim ulngResult As ULong
+    Dim strVal As String
+    
+    strVal = "&HFFFFFFFFF"
+    On Error GoTo ErrorHandler
+    ulngResult = ULong32.Parse(strVal)
+    Debug.Print ULong32.ToString(ulngResult)
+ErrorHandler:
+    Debug.Print Err.Number, Err.source, Err.Description
+End Sub
+
+Private Sub TestingULong32ParseErrorInvalid()
+    Dim ulngResult As ULong
+    Dim strVal As String
+    
+    strVal = "&FFFFFFFFF"
+    On Error GoTo ErrorHandler
+    ulngResult = ULong32.Parse(strVal)
+    Debug.Print ULong32.ToString(ulngResult)
+ErrorHandler:
+    Debug.Print Err.Number, Err.source, Err.Description
+End Sub
+
+Private Sub TestingULong32ParseErrorArgumentException()
+    Dim ulngResult As ULong
+    Dim strVal As String
+    
+    strVal = "10.45"
+    On Error GoTo ErrorHandler
+    ulngResult = ULong32.Parse(strVal)
+    Debug.Print ULong32.ToString(ulngResult)
+ErrorHandler:
+    Debug.Print Err.Number, Err.source, Err.Description
+End Sub
+
 

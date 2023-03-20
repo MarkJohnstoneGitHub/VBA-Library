@@ -3,8 +3,8 @@ Attribute VB_Name = "Test_ULong32_Divide"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
-'@Version v1.3 March 9, 2023
-'@LastModified March 9, 2023
+'@Version v1.4 March 21, 2023
+'@LastModified March 21, 2023
 
 Option Explicit
 
@@ -43,7 +43,7 @@ Private Sub DisplayDivide(ByRef dividend As ULong, ByRef divisor As ULong, ByRef
     Debug.Print ULong32.ToString(dividend) & " / " & ULong32.ToString(divisor) & " = " & ULong32.ToString(result)
 End Sub
 
-Private Sub TestingUInt32StaticPerformanceDivide()
+Private Sub PerformanceULong32Divide()
     Dim result As ULong
     Dim dTime As Double
 
@@ -52,7 +52,7 @@ Private Sub TestingUInt32StaticPerformanceDivide()
     dividend = ULong32.CreateTruncating(&HF62)
     divisor = ULong32.CreateTruncating(&HF6)
 
-    'Perform initial subtraction so overhead of initiliasing ULong32 isn't included in timer calculations
+    'Perform so overhead of initiliasing ULong32 isn't included in timer calculations
     result = ULong32.Divide(dividend, divisor)
     DisplayDivide dividend, divisor, result
     
@@ -68,4 +68,5 @@ Private Sub TestingUInt32StaticPerformanceDivide()
     dTime = MicroTimer - dTime
     Debug.Print VBA.vbNewLine & "Divide duration for 1,000,000 calculations : " & dTime
 End Sub
+
 

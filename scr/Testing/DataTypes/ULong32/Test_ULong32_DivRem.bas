@@ -3,8 +3,8 @@ Attribute VB_Name = "Test_ULong32_DivRem"
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
-'@Version v1.3 March 9, 2023
-'@LastModified March 9, 2023
+'@Version v1.4 March 21, 2023
+'@LastModified March 21, 2023
 
 Option Explicit
 
@@ -55,7 +55,7 @@ Private Sub TestingULong32PerformanceDivRem()
     dividend = ULong32.CreateTruncating(&HF62)
     divisor = ULong32.CreateTruncating(&HF6)
 
-    'Perform initial subtraction so overhead of initiliasing ULong32 isn't included in timer calculations
+    'Perform so overhead of initiliasing ULong32 isn't included in timer calculations
     quotient = ULong32.DivRem(dividend, divisor, remainder)
     DisplayDivRem dividend, divisor, quotient, remainder
     
@@ -71,3 +71,5 @@ Private Sub TestingULong32PerformanceDivRem()
     dTime = MicroTimer - dTime
     Debug.Print VBA.vbNewLine & "Divide duration for 1,000,000 calculations : " & dTime
 End Sub
+
+
