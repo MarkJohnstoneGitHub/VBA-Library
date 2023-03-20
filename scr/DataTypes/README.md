@@ -28,7 +28,7 @@ UInt32.cls Class for 32-bit integer objects.
 
 For Win32 the VBA Currency data type is used for the Multiply, Divide and DivRem math operations and results converted to an unsigned 32-bit integer.  Win64 uses the LongLong type for math operations and results converted to an unsigned 32-bit integer.
 
-**Version 1.4 March 21, 2023 ULong32.cls  **
+**Version 1.4 March 21, 2023 ULong32.cls**
 
 - Performance improvements to math functions, Add, Subtract, Multiply, Divide and DivRem.  
 
