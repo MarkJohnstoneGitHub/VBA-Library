@@ -769,12 +769,10 @@ Public Function Parse(ByRef s As String) As ULong
     If (strInput = VBA.vbNullString) Then
         Err.Raise ArgumentNullException, "ULong32.Parse", "Argument Null Exception"
     End If
-    
     '.Net raises ArgumentException for decimal point
     If InStr(1, strInput, DECIMALPOINT) <> 0 Then
         Err.Raise ArgumentException, "ULong32.Parse", "Invalid argument"
     End If
-    
     'Convert Hex or Octal literal to ULong
     If Left$(strInput, 2) = HEX_LITERAL Or Left$(strInput, 2) = OCT_LITERAL Then
         On Error GoTo ErrorHandler
@@ -782,8 +780,6 @@ Public Function Parse(ByRef s As String) As ULong
         On Error GoTo 0         'Disable ErrorHandler
         Exit Function
     End If
-
-
     'Convert decimal input to ULong
     On Error GoTo ErrorHandler
     Dim val As LongLong
@@ -818,12 +814,10 @@ Public Function Parse(ByRef s As String) As ULong
     If (strInput = VBA.vbNullString) Then
         Err.Raise ArgumentNullException, "ULong32.Parse", "Argument Null Exception"
     End If
-    
     '.Net raises ArgumentException for decimal point
     If InStr(1, strInput, DECIMALPOINT) <> 0 Then
         Err.Raise ArgumentException, "ULong32.Parse", "Invalid argument"
     End If
-    
     'Convert Hex or Octal literal to ULong
     If Left$(strInput, 2) = HEX_LITERAL Or Left$(strInput, 2) = OCT_LITERAL Then
         On Error GoTo ErrorHandler
@@ -831,7 +825,6 @@ Public Function Parse(ByRef s As String) As ULong
         On Error GoTo 0         'Disable ErrorHandler
         Exit Function
     End If
-
     'Convert decimal input to ULong
     On Error GoTo ErrorHandler
     Dim val As Currency
