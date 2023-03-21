@@ -17,7 +17,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.4 March 21, 2023
-'@LastModified March 21, 2023
+'@LastModified March 22, 2023
 
 '@Dependencies
 '   ULongType.bas
@@ -35,6 +35,8 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '   Parse
 '       Added Hex and Octal parsing
 '       Raise error ArgumentException for decimal point for consistency with Net 7.0 behaviour.
+'   Log2 Added function
+'
 '   Added Friend properties for bitwise arrays for reuse in ULongLong64.
 '   Possibly move bitwise arrays to separate BitOperator class.
 
@@ -702,6 +704,34 @@ Public Function IsPow2(ByRef val As ULong) As Boolean
         End If
     End If
 End Function
+
+''
+'@Static
+'@Description "Computes the log2 of a value."
+'@Parameters
+'    val ULong
+'       The value whose log2 is to be computed.
+'
+'@Returns ULong
+'   The log2 of value.
+'@References
+' https://www.oreilly.com/library/view/vb-vba/1565923588/1565923588_ch07-1509-fm2xml.html
+''
+Public Function Log2(ByRef val As ULong) As ULong
+    Const LOG_2 As Double = 0.693147180559945
+    Const NegativeInt32 As Double = 4294967296#
+
+    'Convert val to double
+    Dim dbVal As Double
+    If val.Value < MIN_ULONG Then
+        dbVal = val.Value + NegativeInt32
+    Else
+        dbVal = val.Value
+    End If
+    
+    Log2.Value = CLng(Log(dbVal) / LOG_2)
+End Function
+
 
 ''
 '@Static
@@ -1896,10 +1926,10 @@ End Function
 'Converts Checked Currency to ULong
 ''
 Private Function CurrencyToULong(ByVal val As Currency) As ULong
-    Const MAXUInt32 As Currency = 4294967295@
+    Const MAXInt32 As Currency = 2147483647@
     Const NegativeInt32 As Currency = 4294967296@ ' Convert negative Currency values to positive ULong value
 
-    If val > MAXUInt32 Then
+    If val > MAXInt32 Then
         CurrencyToULong.Value = CLng(Fix(val) - NegativeInt32)
     Else
         CurrencyToULong.Value = CLng(Fix(val))
@@ -1910,10 +1940,10 @@ End Function
 'Converts Checked Double to ULong
 ''
 Private Function DoubleToULong(ByVal val As Double) As ULong
-    Const MAXUInt32 As Double = 4294967295#
+    Const MAXInt32 As Double = 2147483647#
     Const NegativeInt32 As Double = 4294967296# ' Convert negative Currency values to positive ULong value
-    
-    If val > MAXUInt32 Then
+
+    If val > MAXInt32 Then
         DoubleToULong.Value = CLng(Fix(val) - NegativeInt32)
     Else
         DoubleToULong.Value = CLng(Fix(val))
@@ -1924,10 +1954,10 @@ End Function
 'Converts Checked Single to ULong
 ''
 Private Function SingleToULong(ByVal val As Single) As ULong
-    Const MAXUInt32 As Single = 4294967295#
+    Const MAXInt32 As Single = 2147483647
     Const NegativeInt32 As Single = 4294967296# ' Convert negative Single values to positive ULong value
     
-    If val > MAXUInt32 Then
+    If val > MAXInt32 Then
         SingleToULong.Value = CLng(Fix(val) - NegativeInt32)
     Else
         SingleToULong.Value = CLng(Fix(val))
@@ -1946,5 +1976,4 @@ Private Function LongLongToULong(ByVal val As LongLong) As ULong
     End If
 End Function
 #End If
-
 
