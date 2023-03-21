@@ -36,6 +36,8 @@ For Win32 the VBA Currency data type is used for the Multiply, Divide and DivRem
 
 - Updated CreateSaturating function to truncate decimals as per .Net 7.0 behaviour. 
 
+- Updated CreateTruncating to support Decimal, Double, Single data types. Note behaviour for these types is same as CreateSaturating as per .Net 7.0 behaviour.
+
 
 @TODO
 
