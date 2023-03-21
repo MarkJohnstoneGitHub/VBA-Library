@@ -29,6 +29,9 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '       Changed to truncate decimal values for consistency with .Net 7.0 behaviour.
 '   CreateChecked
 '       Removed String parsing, only numeric types allowed  for consistency with .Net 7.0 behaviour.
+'   CreateTruncating
+'       Added suppport for Decimal, Double, Single data types.
+'       Note for these types the behaviour is CreateSaturating as per .Net 7.0 behaviour.
 '   Parse
 '       Added Hex and Octal parsing
 '       Raise error ArgumentException for decimal point for consistency with Net 7.0 behaviour.
