@@ -45,9 +45,11 @@ Implement UInt32 class
 
 Implement functions
 
-PopCount
+- Log2
 
-LeadingZeroCount
+- PopCount
+
+- LeadingZeroCount
 
 Testing for Bitwise functions
 
