@@ -35,7 +35,8 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '   Parse
 '       Added Hex and Octal parsing
 '       Raise error ArgumentException for decimal point for consistency with Net 7.0 behaviour.
-'   Log2 Added function
+'   Log2 function added
+'   LeadingZeroCount function added
 '
 '   Added Friend properties for bitwise arrays for reuse in ULongLong64.
 '   Possibly move bitwise arrays to separate BitOperator class.
@@ -55,7 +56,6 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '@TODO
 '   Implement functions
 '       PopCount
-'       LeadingZeroCount
 '       TryFormat
 '       TryParse
 '
@@ -730,7 +730,7 @@ Public Function LeadingZeroCount(ByRef val As ULong) As ULong
         dbVal = val.Value
     End If
     
-    LeadingZeroCount = 31 - CLng(Fix(Log(dbVal) / LOG_2))
+    LeadingZeroCount.Value = 31 - CLng(Fix(Log(dbVal) / LOG_2))
 End Function
 
 
@@ -1014,6 +1014,21 @@ End Function
 Public Function PopCount(ByRef val As ULong) As ULong
     Err.Raise NotImplementedException, "ULong32.PopCount"
 End Function
+
+''
+'@Description "Computes the number of trailing zeros in a value."
+'@Parameters
+'   Value ULong
+'       The value whose trailing zero bits are to be counted.
+'
+'Returns ULong
+'   The number of trailing zeros in value.
+''
+Public Function TrailingZeroCount(ByRef val As ULong) As ULong
+    Err.Raise NotImplementedException, "ULong32.TrailingZeroCount"
+End Function
+
+
 
 '------------------------------------------------------------------
 'Equality Operators
