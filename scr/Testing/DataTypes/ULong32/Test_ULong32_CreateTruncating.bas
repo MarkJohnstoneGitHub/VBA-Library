@@ -50,3 +50,41 @@ Private Sub TestingULong32CreateTruncating_Byte()
     Debug.Print ULong32.ToString(ulngResult)        '255
 End Sub
 
+'CreateTruncating of vbDecimal, vbDouble, vbSingle behave as CreateSaturating
+Private Sub TestingULong32CreateTruncating_Decimal()
+    Dim val As Variant
+    Dim ulngResult As ULong
+    val = CDec(42949672958#)                        'Greater then max ULong
+    ulngResult = ULong32.CreateTruncating(val)      '4294967295 result is clamped to Max ULong
+    Debug.Print ULong32.ToString(ulngResult)
+    
+    val = -42949672958.11                           'Less than Min ULong
+    ulngResult = ULong32.CreateTruncating(val)      '0 result is clamped to Min ULong
+    Debug.Print ULong32.ToString(ulngResult)
+End Sub
+
+'CreateTruncating of Double data type behaves as CreateSaturating
+Private Sub TestingULong32CreateTruncating_Double()
+    Dim val As Double
+    Dim ulngResult As ULong
+    val = 42949672958.11                            'Greater then Min ULong
+    ulngResult = ULong32.CreateTruncating(val)      '4294967295 result is clamped to Max ULong
+    Debug.Print ULong32.ToString(ulngResult)
+    
+    val = -42949672958.11                           'Less than Min ULong
+    ulngResult = ULong32.CreateTruncating(val)      '0 result is clamped to Min ULong
+    Debug.Print ULong32.ToString(ulngResult)
+End Sub
+
+'CreateTruncating of Double data type behaves as CreateSaturating
+Private Sub TestingULong32CreateTruncating_Single()
+    Dim val As Single
+    Dim ulngResult As ULong
+    val = 42949672958.11                            'Greater then max ULong
+    ulngResult = ULong32.CreateTruncating(val)      '4294967295 result is clamped to Max ULong
+    Debug.Print ULong32.ToString(ulngResult)
+    
+    val = -42949672958.11                           'Less than Min ULong
+    ulngResult = ULong32.CreateTruncating(val)      '0 result is clamped to Min ULong
+    Debug.Print ULong32.ToString(ulngResult)
+End Sub
