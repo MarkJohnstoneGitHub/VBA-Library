@@ -295,8 +295,15 @@ End Function
 '   eg. If LongLong value is 42949672958 i.e. Hex 00000009 FFFFFFFE is converted to ULong value Hex FFFFFFFE
 '   i.e. value of 4294967294
 '
+'   The Create* methods also have some special considerations for IEEE 754 floating-point types,
+'   like float and double, as they have the special values PositiveInfinity, NegativeInfinity, and
+'   NaN. All three Create* APIs behave as CreateSaturating. Also, while MinValue and MaxValue
+'   represent the largest negative/positive "normal" number, the actual minimum and maximum values
+'   are NegativeInfinity and PositiveInfinity, so they clamp to these values instead.
+
 '@References
 ' https://github.com/dotnet/docs/blob/main/docs/standard/generics/math.md
+' https://learn.microsoft.com/en-us/dotnet/standard/generics/math
 ''
 Public Function CreateTruncating(ByVal val As Variant) As ULong
     Select Case VarType(val)
@@ -321,6 +328,31 @@ Public Function CreateTruncating(ByVal val As Variant) As ULong
             Dim qwValCurrency As QWORD_Currency
             qwValCurrency.Value = val
             LSet CreateTruncating = qwValCurrency
+        'vbDecimal, vbDouble, vbSingle behave as CreateSaturating
+        Case VBA.vbDecimal
+            If val < MIN_ULONG Then
+                CreateTruncating.Value = this.minVal.Value
+            ElseIf val > this.decMaxUInt32 Then
+                CreateTruncating.Value = this.maxVal.Value
+            Else
+                CreateTruncating = DecimalToULong(val)
+            End If
+        Case VBA.vbDouble
+            If val < MIN_ULONG Then
+                CreateTruncating.Value = this.minVal.Value
+            ElseIf val > MAXUInt32 Then
+                CreateTruncating.Value = this.maxVal.Value
+            Else
+                CreateTruncating.Value = DoubleToULong(val).Value
+            End If
+        Case VBA.vbSingle
+            If val < MIN_ULONG Then
+                CreateTruncating.Value = this.minVal.Value
+            ElseIf val > MAXUInt32 Then
+                CreateTruncating.Value = this.maxVal.Value
+            Else
+                CreateTruncating.Value = SingleToULong(val).Value
+            End If
         Case Else
             Err.Raise ArgumentException, "ULong32.CreateTruncating", "Invalid argument"
     End Select
@@ -459,7 +491,7 @@ Public Function CreateSaturating(ByVal val As Variant) As ULong
             Else
                 CreateSaturating.Value = DoubleToULong(val).Value
             End If
-          Case VBA.vbSingle
+        Case VBA.vbSingle
             If val < MIN_ULONG Then
                 CreateSaturating.Value = this.minVal.Value
             ElseIf val > MAXUInt32 Then
