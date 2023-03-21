@@ -5,14 +5,13 @@ Attribute VB_Description = "Converts a value to the required type."
 
 'Copyright(c) 2023 Mark Johnstone
 ''MarkJohnstoneGitHub/VBA-Library
-'@Version v1.3 March 6, 2023
-'@LastModified March 9, 2023
+'@Version v1.4 March 21, 2023
+'@LastModified March 21, 2023
 
 '@References
 ' Casts are unchecked by default
 ' https://github.com/dotnet/runtime/issues/30580
-'
-'
+''
 
 Option Explicit
 
@@ -20,14 +19,12 @@ Option Explicit
 '@Static
 '@Description "Converts a value to unsigned 32-bit integer."
 '@Parameters
-'   val: Variant
-'       value to be converted to an unsigned 32-bit value
+'   val Variant
+'       Value to be converted to an unsigned 32-bit value
 '@Returns ULong
-'   value converted to an unsigned 32 bit value
+'   Value converted to an unsigned 32 bit value
 '
 '@Exceptions
-'   OverflowException
-'       Raised when a value is less then 0 or exceeds the max unsigned 32-bit value of 4294967295
 '   ArgumentException
 '       Raised for an invalid value which is not numeric.
 '@Remarks
