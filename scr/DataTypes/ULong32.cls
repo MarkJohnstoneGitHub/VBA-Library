@@ -707,6 +707,35 @@ End Function
 
 ''
 '@Static
+'@Description "Computes the number of leading zeros in a value."
+'@Parameters
+'   val ULong
+'       The value whose leading zero bits are to be counted.
+'
+'@Returns ULong
+'   The number of leading zeros in value.
+'
+'@References
+' https://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html#numberOfLeadingZeros(long)
+''
+Public Function LeadingZeroCount(ByRef val As ULong) As ULong
+    Const LOG_2 As Double = 0.693147180559945
+    Const NegativeInt32 As Double = 4294967296#
+
+    'Convert val to double
+    Dim dbVal As Double
+    If val.Value < MIN_ULONG Then
+        dbVal = val.Value + NegativeInt32
+    Else
+        dbVal = val.Value
+    End If
+    
+    LeadingZeroCount = 31 - CLng(Fix(Log(dbVal) / LOG_2))
+End Function
+
+
+''
+'@Static
 '@Description "Computes the log2 of a value."
 '@Parameters
 '    val ULong
@@ -716,6 +745,9 @@ End Function
 '   The log2 of value.
 '@References
 ' https://www.oreilly.com/library/view/vb-vba/1565923588/1565923588_ch07-1509-fm2xml.html
+'
+'@Remarks
+'  Decimal result is truncated as per .Net 7.0 behaviour
 ''
 Public Function Log2(ByRef val As ULong) As ULong
     Const LOG_2 As Double = 0.693147180559945
@@ -729,7 +761,7 @@ Public Function Log2(ByRef val As ULong) As ULong
         dbVal = val.Value
     End If
     
-    Log2.Value = CLng(Log(dbVal) / LOG_2)
+    Log2.Value = CLng(Fix(Log(dbVal) / LOG_2))
 End Function
 
 
@@ -967,22 +999,6 @@ Public Function Equals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
     If (lhs.Value = rhs.Value) Then
         Equals = True
     End If
-End Function
-
-''
-'@Static
-'@Description "Computes the number of leading zeros in a value."
-'@Parameters
-'   val ULong
-'       The value whose leading zero bits are to be counted.
-'
-'@Returns ULong
-'   The number of leading zeros in value.
-'
-'@TODO Implement
-''
-Public Function LeadingZeroCount(ByRef val As ULong) As ULong
-    Err.Raise NotImplementedException, "ULong32.LeadingZeroCount"
 End Function
 
 ''
