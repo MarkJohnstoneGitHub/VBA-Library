@@ -45,11 +45,15 @@ Implement UInt32 class
 
 Implement functions
 
-- Log2
-
 - PopCount
 
-- LeadingZeroCount
+- TrailingZeroCount
+
+- TryFormat
+
+- TryParse
+
+- Parse Add overloads to parse formatting for currency sign, commas etc.
 
 Testing for Bitwise functions
 
