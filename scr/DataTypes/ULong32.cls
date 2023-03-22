@@ -721,18 +721,20 @@ End Function
 Public Function LeadingZeroCount(ByRef val As ULong) As ULong
     Const LOG_2 As Double = 0.693147180559945
     Const NegativeInt32 As Double = 4294967296#
-
-    'Convert val to double
+    
+    If (val.Value = 0) Then
+        LeadingZeroCount.Value = 32
+        Exit Function
+    End If
+    'Convert ULong val to double
     Dim dbVal As Double
     If val.Value < MIN_ULONG Then
         dbVal = val.Value + NegativeInt32
     Else
         dbVal = val.Value
     End If
-    
     LeadingZeroCount.Value = 31 - CLng(Fix(Log(dbVal) / LOG_2))
 End Function
-
 
 ''
 '@Static
@@ -763,7 +765,6 @@ Public Function Log2(ByRef val As ULong) As ULong
     
     Log2.Value = CLng(Fix(Log(dbVal) / LOG_2))
 End Function
-
 
 ''
 '@Static
@@ -1027,8 +1028,6 @@ End Function
 Public Function TrailingZeroCount(ByRef val As ULong) As ULong
     Err.Raise NotImplementedException, "ULong32.TrailingZeroCount"
 End Function
-
-
 
 '------------------------------------------------------------------
 'Equality Operators
@@ -1746,6 +1745,79 @@ End Function
 
 ''
 '@Static
+'@Description "Converts an unsigned 32-bit value to Byte value."
+'@Parameters
+'   val ULong
+'@Returns Byte
+'
+'@Exceptions
+'   OverflowException
+'       Raised when the value is greater the maximum Byte value of 255.
+''
+Public Function ToByte(ByRef val As ULong) As Byte
+    Const ByteMaxValue As Long = 255
+    If val.Value > ByteMaxValue Or val.Value < MIN_ULONG Then
+        Err.Raise OverflowException, "ULong32.ToByte"      ' ThrowByteOverflowException
+    End If
+    ToByte = val.Value
+End Function
+
+''
+'@Static
+'@Description "Converts an unsigned 32-bit value to signed 16-bit integer value."
+'@Parameters
+'   val ULong
+'@Returns Integer
+'
+'@Exceptions
+'   OverflowException
+'       Raised when the value is greater the maximum Int16 value of 32767.
+''
+Public Function ToInt16(ByRef val As ULong) As Integer
+    Const Int16MaxValue As Long = 32767
+    If val.Value > Int16MaxValue Or val.Value < MIN_ULONG Then
+        Err.Raise OverflowException, "ULong32.ToInt16"
+    End If
+    ToInt16 = val.Value
+End Function
+
+''
+'@Static
+'@Description "Converts an unsigned 32-bit value to signed 32-bit integer value."
+'@Parameters
+'   val ULong
+'@Returns Long
+'
+'@Exceptions
+'   OverflowException
+'       Raised when the value is greater the maximum 32-bit integer value of 2147483647.
+''
+Public Function ToInt32(ByRef val As ULong) As Long
+    Const Int32MaxValue As Long = 2147483647
+    If val.Value < MIN_ULONG Then
+        Err.Raise OverflowException, "ULong32.ToInt32"
+    End If
+    ToInt32 = val.Value
+End Function
+
+''
+'@Static
+'@Description "Converts an unsigned 32-bit value to Currency value."
+'@Parameters
+'   val ULong
+'@Returns Currency
+''
+Public Function ToCurrency(ByRef val As ULong) As Currency
+    Const NegativeInt32 As Currency = 4294967296@ ' For converting to ULong for negative Currency values
+    If val.Value < MIN_ULONG Then
+        ToCurrency = val.Value + NegativeInt32
+    Else
+        ToCurrency = val.Value
+    End If
+End Function
+
+''
+'@Static
 '@Description "Converts a ULong/UInt32 to the VBA decimal type."
 '@Parameters
 '   val ULong
@@ -1757,6 +1829,22 @@ Public Function ToDecimal(ByRef val As ULong) As Variant
         ToDecimal = CDec(val.Value) + NegativeInt32
     Else
         ToDecimal = CDec(val.Value)
+    End If
+End Function
+
+''
+'@Static
+'@Description "Converts an unsigned 32-bit value to Double data type."
+'@Parameters
+'   val ULong
+'@Returns Double
+''
+Public Function ToDouble(ByRef val As ULong) As Double
+    Const NegativeInt32 As Double = 4294967296#
+    If val.Value < MIN_ULONG Then
+        ToDouble = val.Value + NegativeInt32
+    Else
+        ToDouble = val.Value
     End If
 End Function
 
@@ -1782,23 +1870,89 @@ End Function
 
 ''
 '@Static
-'@Description "Converts an unsigned 32-bit value to Currency value."
+'@Description "Converts an unsigned 32-bit value to Double data type."
 '@Parameters
 '   val ULong
-'@Returns Currency
+'@Returns Double
 ''
-Public Function ToCurrency(ByRef val As ULong) As Currency
-    Const NegativeInt32 As Currency = 4294967296@ ' For converting to ULong for negative Currency values
+Public Function ToSingle(ByRef val As ULong) As Single
+    Const NegativeInt32 As Single = 4294967296#
     If val.Value < MIN_ULONG Then
-        ToCurrency = val.Value + NegativeInt32
+        ToSingle = val.Value + NegativeInt32
     Else
-        ToCurrency = val.Value
+        ToSingle = val.Value
     End If
 End Function
 
 '------------------------------------------------------------------
 'Private Methods
 '------------------------------------------------------------------
+
+''
+'Converts Checked Decimal to ULong
+''
+Private Function DecimalToULong(ByVal val As Variant) As ULong
+    If val > MAXInt32 Then
+        DecimalToULong.Value = CLng(Fix(val) - NegativeInt32)
+    Else
+        DecimalToULong.Value = CLng(Fix(val))
+    End If
+End Function
+
+''
+'Converts Checked Currency to ULong
+''
+Private Function CurrencyToULong(ByVal val As Currency) As ULong
+    Const MAXInt32 As Currency = 2147483647@
+    Const NegativeInt32 As Currency = 4294967296@ ' Convert negative Currency values to positive ULong value
+
+    If val > MAXInt32 Then
+        CurrencyToULong.Value = CLng(Fix(val) - NegativeInt32)
+    Else
+        CurrencyToULong.Value = CLng(Fix(val))
+    End If
+End Function
+
+''
+'Converts Checked Double to ULong
+''
+Private Function DoubleToULong(ByVal val As Double) As ULong
+    Const MAXInt32 As Double = 2147483647#
+    Const NegativeInt32 As Double = 4294967296# ' Convert negative Currency values to positive ULong value
+
+    If val > MAXInt32 Then
+        DoubleToULong.Value = CLng(Fix(val) - NegativeInt32)
+    Else
+        DoubleToULong.Value = CLng(Fix(val))
+    End If
+End Function
+
+''
+'Converts Checked Single to ULong
+''
+Private Function SingleToULong(ByVal val As Single) As ULong
+    Const MAXInt32 As Single = 2147483647
+    Const NegativeInt32 As Single = 4294967296# ' Convert negative Single values to positive ULong value
+    
+    If val > MAXInt32 Then
+        SingleToULong.Value = CLng(Fix(val) - NegativeInt32)
+    Else
+        SingleToULong.Value = CLng(Fix(val))
+    End If
+End Function
+
+''
+'Converts Checked LongLong to ULong
+''
+#If Win64 Then
+Private Function LongLongToULong(ByVal val As LongLong) As ULong
+    If val > MAXInt32 Then
+        LongLongToULong.Value = CLng(val - NegativeInt32)
+    Else
+        LongLongToULong.Value = CLng(val)
+    End If
+End Function
+#End If
 
 '2^i
 Private Sub InitPowers()
@@ -1941,70 +2095,4 @@ Private Sub InitRevMasks()
     
     this.RevMasks(32) = &H0&        ' 00000000000000000000000000000000      0
 End Sub
-
-''
-'Converts Checked Decimal to ULong
-''
-Private Function DecimalToULong(ByVal val As Variant) As ULong
-    If val > MAXInt32 Then
-        DecimalToULong.Value = CLng(Fix(val) - NegativeInt32)
-    Else
-        DecimalToULong.Value = CLng(Fix(val))
-    End If
-End Function
-
-''
-'Converts Checked Currency to ULong
-''
-Private Function CurrencyToULong(ByVal val As Currency) As ULong
-    Const MAXInt32 As Currency = 2147483647@
-    Const NegativeInt32 As Currency = 4294967296@ ' Convert negative Currency values to positive ULong value
-
-    If val > MAXInt32 Then
-        CurrencyToULong.Value = CLng(Fix(val) - NegativeInt32)
-    Else
-        CurrencyToULong.Value = CLng(Fix(val))
-    End If
-End Function
-
-''
-'Converts Checked Double to ULong
-''
-Private Function DoubleToULong(ByVal val As Double) As ULong
-    Const MAXInt32 As Double = 2147483647#
-    Const NegativeInt32 As Double = 4294967296# ' Convert negative Currency values to positive ULong value
-
-    If val > MAXInt32 Then
-        DoubleToULong.Value = CLng(Fix(val) - NegativeInt32)
-    Else
-        DoubleToULong.Value = CLng(Fix(val))
-    End If
-End Function
-
-''
-'Converts Checked Single to ULong
-''
-Private Function SingleToULong(ByVal val As Single) As ULong
-    Const MAXInt32 As Single = 2147483647
-    Const NegativeInt32 As Single = 4294967296# ' Convert negative Single values to positive ULong value
-    
-    If val > MAXInt32 Then
-        SingleToULong.Value = CLng(Fix(val) - NegativeInt32)
-    Else
-        SingleToULong.Value = CLng(Fix(val))
-    End If
-End Function
-
-''
-'Converts Checked LongLong to ULong
-''
-#If Win64 Then
-Private Function LongLongToULong(ByVal val As LongLong) As ULong
-    If val > MAXInt32 Then
-        LongLongToULong.Value = CLng(val - NegativeInt32)
-    Else
-        LongLongToULong.Value = CLng(val)
-    End If
-End Function
-#End If
 
