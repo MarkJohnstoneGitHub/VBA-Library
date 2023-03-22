@@ -15,7 +15,7 @@ ULongType.bas
 
 -ULong data structure for unsigned 32-bit integers	
 
-UInt32.cls Class for 32-bit integer objects.
+UInt32.cls Class for unsigned 32-bit integer objects.
 
   **Dependencies:**
   
