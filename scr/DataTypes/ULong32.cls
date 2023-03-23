@@ -37,6 +37,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '       Raise error ArgumentException for decimal point for consistency with Net 7.0 behaviour.
 '   Log2 function added
 '   LeadingZeroCount function added
+'   PopCount function added for Win64
 '
 '   Added Friend properties for bitwise arrays for reuse in ULongLong64.
 '   Possibly move bitwise arrays to separate BitOperator class.
@@ -52,13 +53,23 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 ' https://cdn.ttgtmedia.com/searchEnterpriseLinux/downloads/WGC_Chapter_3.pdf
 ' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Math.cs,bc38e67ca558e060
 ' https://onlinetoolz.net/bitshift
+' LeadingZeroCount
+' https://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html#numberOfLeadingZeros(long)
+' https://www.javatpoint.com/java-integer-numberofleadingzeros-method
+' PopCount
+' https://patents.google.com/patent/US6516330
+' http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,1f415bab5cc6fe00
+' https://stackoverflow.com/questions/109023/count-the-number-of-set-bits-in-a-32-bit-integer
+''
 
 '@TODO
 '   Implement functions
-'       PopCount
+'       PopCount for Win32
+'       TrailingZeroCount
 '       TryFormat
 '       TryParse
-'
+'       Parse Add support parsing using formatted strings overloading Parse function.
 '   Testing for Bitwise functions
 '   Testing for Clamp
 '   Testing for Win32 compiler constraints
@@ -717,6 +728,7 @@ End Function
 '
 '@References
 ' https://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html#numberOfLeadingZeros(long)
+' https://www.javatpoint.com/java-integer-numberofleadingzeros-method
 ''
 Public Function LeadingZeroCount(ByRef val As ULong) As ULong
     Const LOG_2 As Double = 0.693147180559945
@@ -1010,11 +1022,49 @@ End Function
 '@Returns ULong
 '   The number of set bits in value.
 '
-'@TODO Implement
+'@Remarks
+'   Implemented from the algorithm at https://patents.google.com/patent/US6516330
+'
+'@References
+' https://patents.google.com/patent/US6516330
+' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,1f415bab5cc6fe00
+' https://stackoverflow.com/questions/109023/count-the-number-of-set-bits-in-a-32-bit-integer
+' http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+'
+'@TODO Compare against CountBitsSetParallel algorithm peformance
 ''
+#If Win64 Then
+Public Function PopCount(ByRef val As ULong) As ULong
+    Const c1 As Long = &H55555555
+    Const c2 As Long = &H33333333
+    Const c3 As Long = "&H0F0F0F0F"
+    Const c4 As Long = "&H01010101"
+    
+    'convert val to LongLong for calculations
+    Dim lnglngX As LongLong
+    If val.Value < MIN_ULONG Then
+        lnglngX = val.Value + NegativeInt32
+    Else
+        lnglngX = val.Value
+    End If
+    
+    Dim lnglngA As LongLong
+    lnglngA = c1 And lnglngX
+    lnglngA = lnglngA + ((((lnglngX And &HFFFFFFFE) \ &H2&) And &H7FFFFFFF) And c1) 'a += (x >>> 1) & 0x55555555
+    lnglngX = lnglngA And c2                                                        'x = a & 0x33333333
+    lnglngX = lnglngX + ((((lnglngA And &HFFFFFFF8) \ &H4&) And &H3FFFFFFF) And c2) 'x += (a >>> 2) & 0x33333333
+    lnglngA = lnglngX And c3                                                        'a = x & 0x0f0f0f0f
+    lnglngA = lnglngA + ((((lnglngX And &HFFFFFFF0) \ &H10) And &HFFFFFFF) And c3)  'a += (x >>> 4) & 0x0f0f0f0f
+    lnglngA = lnglngA + (((lnglngA And &HFFFFFF00) \ &H100&) And &HFFFFFF)          'a += a >>> 8
+    lnglngA = lnglngA + (((lnglngA And &HFFFF0000) \ &H10000) And &HFFFF&)          'a += a >>> 16
+    PopCount.Value = CLng(lnglngA And &HFF&)                                        'return a & 0xff
+End Function
+
+#Else
 Public Function PopCount(ByRef val As ULong) As ULong
     Err.Raise NotImplementedException, "ULong32.PopCount"
 End Function
+#End If
 
 ''
 '@Description "Computes the number of trailing zeros in a value."
