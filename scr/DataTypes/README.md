@@ -15,7 +15,7 @@ ULongType.bas
 
 -ULong data structure for unsigned 32-bit integers	
 
-UInt32.cls Class for 32-bit integer objects.
+UInt32.cls Class for unsigned 32-bit integer objects.
 
   **Dependencies:**
   
@@ -38,6 +38,10 @@ For Win32 the VBA Currency data type is used for the Multiply, Divide and DivRem
 
 - Updated CreateTruncating to support Decimal, Double, Single data types. Note behaviour for these types is same as CreateSaturating as per .Net 7.0 behaviour.
 
+- Log2 function added
+
+- LeadingZeroCount function added. Potiential performance improvements required with more efficient algorithm.
+
 
 @TODO
 
@@ -45,11 +49,15 @@ Implement UInt32 class
 
 Implement functions
 
-- Log2
-
 - PopCount
 
-- LeadingZeroCount
+- TrailingZeroCount
+
+- TryFormat
+
+- TryParse
+
+- Parse Add overloads to parse formatting for currency sign, commas etc.
 
 Testing for Bitwise functions
 
