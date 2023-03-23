@@ -17,7 +17,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.41 March 21, 2023
-'@LastModified  March 23, 2023
+'@LastModified  March 24, 2023
 
 '@Dependencies
 '   ULongType.bas
@@ -37,7 +37,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 '       Raise error ArgumentException for decimal point for consistency with Net 7.0 behaviour.
 '   Log2 function added
 '   LeadingZeroCount function added
-'   PopCount function added for Win64
+'   PopCount function added for Win64 and Win32
 '
 '   Added Friend properties for bitwise arrays for reuse in ULongLong64.
 '   Possibly move bitwise arrays to separate BitOperator class.
@@ -134,14 +134,23 @@ Private Type WORD
     Value    As Integer
 End Type
 
+'For PopCount
+Private Type DWORD
+    Byte1   As Byte
+    Byte2   As Byte
+    Byte3   As Byte
+    Byte4   As Byte
+End Type
+
 Private Type TULong32
-    decMaxUInt32 As Variant 'contains a decimal type
+    decMaxUInt32 As Variant     'decimal type MaxUInt32 constant
     maxVal  As ULong
     minVal  As ULong
-    ulngOne As ULong    'For caculation in IsPow2
-    Powers() As Long    'Used for bitwise operations
-    Masks() As Long     'Used for bitwise operations
-    RevMasks() As Long  'Used for bitwise operations
+    ulngOne As ULong            'For caculation in IsPow2
+    Powers() As Long            'Used for bitwise operations
+    Masks() As Long             'Used for bitwise operations
+    RevMasks() As Long          'Used for bitwise operations
+    PopCountByte256() As Byte   'Used for bitwise operation PopCount
 End Type
 
 '------------------------------------------------------------------
@@ -162,6 +171,7 @@ Private Sub Class_Initialize()
     InitPowers
     InitMasks
     InitRevMasks
+    InitPopCountByte256
 End Sub
 
 '------------------------------------------------------------------
@@ -1023,48 +1033,20 @@ End Function
 '   The number of set bits in value.
 '
 '@Remarks
-'   Implemented from the algorithm at https://patents.google.com/patent/US6516330
+'   Implemented using a lookup table of PopCount of a byte value.
 '
 '@References
 ' https://patents.google.com/patent/US6516330
 ' https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Numerics/BitOperations.cs,1f415bab5cc6fe00
 ' https://stackoverflow.com/questions/109023/count-the-number-of-set-bits-in-a-32-bit-integer
 ' http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-'
-'@TODO Compare against CountBitsSetParallel algorithm peformance
+' https://www.youtube.com/watch?v=Hzuzo9NJrlc
 ''
-#If Win64 Then
 Public Function PopCount(ByRef val As ULong) As ULong
-    Const c1 As Long = &H55555555
-    Const c2 As Long = &H33333333
-    Const c3 As Long = "&H0F0F0F0F"
-    Const c4 As Long = "&H01010101"
-    
-    'convert val to LongLong for calculations
-    Dim lnglngX As LongLong
-    If val.Value < MIN_ULONG Then
-        lnglngX = val.Value + NegativeInt32
-    Else
-        lnglngX = val.Value
-    End If
-    
-    Dim lnglngA As LongLong
-    lnglngA = c1 And lnglngX
-    lnglngA = lnglngA + ((((lnglngX And &HFFFFFFFE) \ &H2&) And &H7FFFFFFF) And c1) 'a += (x >>> 1) & 0x55555555
-    lnglngX = lnglngA And c2                                                        'x = a & 0x33333333
-    lnglngX = lnglngX + ((((lnglngA And &HFFFFFFF8) \ &H4&) And &H3FFFFFFF) And c2) 'x += (a >>> 2) & 0x33333333
-    lnglngA = lnglngX And c3                                                        'a = x & 0x0f0f0f0f
-    lnglngA = lnglngA + ((((lnglngX And &HFFFFFFF0) \ &H10) And &HFFFFFFF) And c3)  'a += (x >>> 4) & 0x0f0f0f0f
-    lnglngA = lnglngA + (((lnglngA And &HFFFFFF00) \ &H100&) And &HFFFFFF)          'a += a >>> 8
-    lnglngA = lnglngA + (((lnglngA And &HFFFF0000) \ &H10000) And &HFFFF&)          'a += a >>> 16
-    PopCount.Value = CLng(lnglngA And &HFF&)                                        'return a & 0xff
+    Dim dwVal As DWORD
+    LSet dwVal = val
+    PopCount.Value = this.PopCountByte256(dwVal.Byte1) + this.PopCountByte256(dwVal.Byte2) + this.PopCountByte256(dwVal.Byte3) + this.PopCountByte256(dwVal.Byte4)
 End Function
-
-#Else
-Public Function PopCount(ByRef val As ULong) As ULong
-    Err.Raise NotImplementedException, "ULong32.PopCount"
-End Function
-#End If
 
 ''
 '@Description "Computes the number of trailing zeros in a value."
@@ -2146,3 +2128,12 @@ Private Sub InitRevMasks()
     this.RevMasks(32) = &H0&        ' 00000000000000000000000000000000      0
 End Sub
 
+'Initializes PopCount Byte array for PopCount lookup
+Private Sub InitPopCountByte256()
+    ReDim this.PopCountByte256(255)
+    Dim i As Long
+    this.PopCountByte256(0) = 0
+    For i = 1 To 255
+        this.PopCountByte256(i) = this.PopCountByte256(i \ 2) + (i And 1)
+    Next
+End Sub
