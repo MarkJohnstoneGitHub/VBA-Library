@@ -16,8 +16,8 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
-'@Version v1.4 March 21, 2023
-'@LastModified March 22, 2023
+'@Version v1.41 March 21, 2023
+'@LastModified  March 23, 2023
 
 '@Dependencies
 '   ULongType.bas
