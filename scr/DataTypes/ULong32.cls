@@ -1025,6 +1025,7 @@ Public Function Equals(ByRef lhs As ULong, ByRef rhs As ULong) As Boolean
 End Function
 
 ''
+'@Static
 '@Description "Computes the number of bits that are set in a value."
 '@Parameters
 '   val ULong
