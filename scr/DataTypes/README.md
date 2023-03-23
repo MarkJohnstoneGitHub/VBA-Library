@@ -42,15 +42,13 @@ For Win32 the VBA Currency data type is used for the Multiply, Divide and DivRem
 
 - LeadingZeroCount function added. Potiential performance improvements required with more efficient algorithm.
 
-- PopCount added for Win64
+- PopCount added
 
 @TODO
 
 Implement UInt32 class
 
 Implement functions
-
-- PopCount for Win32
 
 - TrailingZeroCount
 
