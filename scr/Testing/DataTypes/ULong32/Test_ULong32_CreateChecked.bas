@@ -4,7 +4,7 @@ Attribute VB_Name = "Test_ULong32_CreateChecked"
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.4 March 21, 2023
-'@LastModified March 21, 2023
+'@LastModified March 28, 2023
 
 '@Remarks
 '   Be careful using CreateChecked with decimal places as decimal places are truncated.
