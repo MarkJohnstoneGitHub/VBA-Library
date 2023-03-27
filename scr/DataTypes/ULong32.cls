@@ -16,8 +16,8 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
-'@Version v1.41 March 21, 2023
-'@LastModified  March 24, 2023
+'@Version v1.4  March 21, 2023
+'@LastModified  March 28, 2023
 
 '@Dependencies
 '   ULongType.bas
@@ -299,7 +299,8 @@ End Function
 '
 '@Exceptions
 '   ArgumentException
-'       Raised for when not a valid type to cast of a Byte, Integer, Long, LongLong or Currency
+'       Raised for when not a valid numeric type to cast of a Byte, Integer, Long, LongLong,
+'       Currency, Decimal, Single, Double
 '
 '@Remarks
 '   Bytes values to be converted maybe of types Byte, Long, Integers or Currency.
@@ -399,12 +400,10 @@ End Function
 '   ArgumentException
 '       Raised for an invalid value which is not numeric.
 '@Remarks
-'   Valid types to convert are Byte, Integer, Long, LongLong, Currency, Double, Single, Strings
-'   containing numeric or hex strings.
+'   Valid types to convert are Byte, Integer, Long, LongLong, Currency, Decimal, Double, Single.
 '   Negative values return an overflow exception.
 '
-'   Be careful using CreateChecked with decimal places.
-'   Decimal places are truncated.
+'   Be careful using CreateChecked with decimal places as decimal places are truncated.
 ''
 Public Function CreateChecked(ByVal val As Variant) As ULong
     Select Case VarType(val)
@@ -464,8 +463,14 @@ End Function
 '@Description "Creates an instance of the current type from a value, saturating any values that fall outside the representable range of the current type."
 '   val Variant
 '       The value which is used to create the instance of an unsigned 32-bit integer.
+'@Exceptions
+'   ArgumentException
+'       Raised for when not a valid numeric type to cast of a Byte, Integer, Long, LongLong,
+'       Currency, Decimal, Single, Double
 '@Remarks
 '   Creates a value, clamping to T.MinValue or T.MaxValue if the input can't fit.
+'   Values to be converted must be numeric types Byte, Integer, Long, Currency, LongLong, Decimal,
+'   Double or Single.
 ''
 Public Function CreateSaturating(ByVal val As Variant) As ULong
     Select Case VarType(val)
@@ -534,10 +539,10 @@ End Function
 '@Static
 '@Description "Compares two 32-bit unsigned integers and returns an indication of their relative values."
 '@Parameters
-'   lhs: ULong
-'       unsigned long value to compare to rhs
-'   rhs: ULong
-'       unsigned long value to compare to lhs
+'   lhs ULong
+'       Unsigned long value to compare to rhs
+'   rhs ULong
+'       Unsigned long value to compare to lhs
 '
 '@Returns Long
 '   Returns If greater than is 1, equals is 0, less than is -1
@@ -597,35 +602,35 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     End If
 
     'Convert dividend and divisor to LongLong
-    Dim lnglngDividend As LongLong
+    Dim dividendValue As LongLong
     If dividend.Value < 0 Then
-        lnglngDividend = dividend.Value + NegativeInt32
+        dividendValue = dividend.Value + NegativeInt32
     Else
-        lnglngDividend = dividend.Value
+        dividendValue = dividend.Value
     End If
-    Dim lnglngDivisor As LongLong
+    Dim divisorValue As LongLong
     If divisor.Value < 0 Then
-        lnglngDivisor = divisor.Value + NegativeInt32
+        divisorValue = divisor.Value + NegativeInt32
     Else
-        lnglngDivisor = divisor.Value
+        divisorValue = divisor.Value
     End If
     
-    Dim lnglngQuotient As LongLong
-    lnglngQuotient = lnglngDividend \ lnglngDivisor 'Using integer division which truncates decimal places
-    Dim lnglngRemainder As LongLong
-    lnglngRemainder = lnglngDividend - (lnglngDivisor * lnglngQuotient)
+    Dim quotientValue As LongLong
+    quotientValue = dividendValue \ divisorValue 'Using integer division which truncates decimal places
+    Dim remainderValue As LongLong
+    remainderValue = dividendValue - (divisorValue * quotientValue)
     
-    'Convert lnglngQuotient to ULong
-    If lnglngQuotient > MAXInt32 Then
-        DivRem.Value = CLng(lnglngQuotient - NegativeInt32)
+    'Convert quotientValue to ULong
+    If quotientValue > MAXInt32 Then
+        DivRem.Value = CLng(quotientValue - NegativeInt32)
     Else
-        DivRem.Value = CLng(lnglngQuotient)
+        DivRem.Value = CLng(quotientValue)
     End If
-    'Convert lnglngRemainder to outRemainder ULong
-    If lnglngRemainder > MAXInt32 Then
-        outRemainder.Value = CLng(lnglngRemainder - NegativeInt32)
+    'Convert remainderValue to outRemainder ULong
+    If remainderValue > MAXInt32 Then
+        outRemainder.Value = CLng(remainderValue - NegativeInt32)
     Else
-        outRemainder.Value = CLng(lnglngRemainder)
+        outRemainder.Value = CLng(remainderValue)
     End If
 End Function
 #Else
@@ -645,35 +650,35 @@ Public Function DivRem(ByRef dividend As ULong, ByRef divisor As ULong, ByRef ou
     End If
 
     'Convert dividend and divisor to Currency
-    Dim curDividend As Currency
+    Dim dividendValue As Currency
     If dividend.Value < 0 Then
-        curDividend = dividend.Value + NegativeInt32
+        dividendValue = dividend.Value + NegativeInt32
     Else
-        curDividend = dividend.Value
+        dividendValue = dividend.Value
     End If
-    Dim curDivisor As Currency
+    Dim divisorValue As Currency
     If divisor.Value < 0 Then
-        curDivisor = divisor.Value + NegativeInt32
+        divisorValue = divisor.Value + NegativeInt32
     Else
-        curDivisor = divisor.Value
+        divisorValue = divisor.Value
     End If
     
-    Dim curQuotient As Currency
-    curQuotient = Fix(curDividend / curDivisor) 'Using integer division which truncates decimal places
-    Dim curRemainder As Currency
-    curRemainder = curDividend - (curDivisor * curQuotient)
+    Dim quotientValue As Currency
+    quotientValue = Fix(dividendValue / divisorValue) 'Using integer division which truncates decimal places
+    Dim remainderValue As Currency
+    remainderValue = dividendValue - (divisorValue * quotientValue)
     
-    'Convert curQuotient to ULong
-    If curQuotient > MAXInt32 Then
-        DivRem.Value = CLng(curQuotient - NegativeInt32)
+    'Convert quotientValue to ULong
+    If quotientValue > MAXInt32 Then
+        DivRem.Value = CLng(quotientValue - NegativeInt32)
     Else
-        DivRem.Value = CLng(curQuotient)
+        DivRem.Value = CLng(quotientValue)
     End If
-    'Convert curRemainder to outRemainder ULong
-    If curRemainder > MAXInt32 Then
-        outRemainder.Value = CLng(curRemainder - NegativeInt32)
+    'Convert remainderValue to outRemainder ULong
+    If remainderValue > MAXInt32 Then
+        outRemainder.Value = CLng(remainderValue - NegativeInt32)
     Else
-        outRemainder.Value = CLng(curRemainder)
+        outRemainder.Value = CLng(remainderValue)
     End If
 End Function
 #End If
@@ -828,7 +833,7 @@ End Function
 '@Remarks
 ''
 Public Function Max(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    If CompareTo(lhs, rhs) > 0 Then
+    If Me.GreaterThan(lhs, rhs) Then
         Max.Value = lhs.Value
     Else
         Max.Value = rhs.Value
@@ -848,7 +853,7 @@ End Function
 '   lhs if it is less than rhs; otherwise, rhs.
 ''
 Public Function Min(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
-    If CompareTo(lhs, rhs) < 0 Then
+    If Me.LessThan(lhs, rhs) Then
         Min.Value = lhs.Value
     Else
         Min.Value = rhs.Value
@@ -902,17 +907,17 @@ Public Function Parse(ByRef s As String) As ULong
     End If
     'Convert decimal input to ULong
     On Error GoTo ErrorHandler
-    Dim val As LongLong
-    val = strInput
+    Dim parseValue As LongLong
+    parseValue = strInput
     On Error GoTo 0         'Disable ErrorHandler
-    If val < MINUInt32 Or val > MAXUInt32 Then
+    If parseValue < MINUInt32 Or parseValue > MAXUInt32 Then
         Err.Raise OverflowException, "ULong32.Parse"
     End If
     'convert LongLong to ULong
-    If val > MAXInt32 Then
-        Parse.Value = CLng(val - NegativeInt32)
+    If parseValue > MAXInt32 Then
+        Parse.Value = CLng(parseValue - NegativeInt32)
     Else
-        Parse.Value = CLng(val)
+        Parse.Value = CLng(parseValue)
     End If
     Exit Function
 ErrorHandler:
@@ -947,17 +952,17 @@ Public Function Parse(ByRef s As String) As ULong
     End If
     'Convert decimal input to ULong
     On Error GoTo ErrorHandler
-    Dim val As Currency
-    val = CCur(strInput)
+    Dim parseValue As Currency
+    parseValue = CCur(strInput)
     On Error GoTo 0             'Disable ErrorHandler
-    If val < MINUInt32 Or val > MAXUInt32 Then
+    If parseValue < MINUInt32 Or parseValue > MAXUInt32 Then
         Err.Raise OverflowException
     End If
     'convert currency to ULong
-    If val > MAXInt32 Then
-        Parse.Value = val - NegativeInt32
+    If parseValue > MAXInt32 Then
+        Parse.Value = parseValue - NegativeInt32
     Else
-        Parse.Value = val
+        Parse.Value = parseValue
     End If
     Exit Function
 ErrorHandler:
@@ -986,23 +991,23 @@ End Function
 ''
 #If Win64 Then
 Public Function ToString(ByRef val As ULong) As String
-    Dim outputVal As LongLong
+    Dim outputValue As LongLong
     If val.Value < MIN_ULONG Then
-        outputVal = val.Value + NegativeInt32
+        outputValue = val.Value + NegativeInt32
     Else
-        outputVal = val.Value
+        outputValue = val.Value
     End If
-    ToString = CStr(outputVal)
+    ToString = CStr(outputValue)
 End Function
 #Else
 Public Function ToString(ByRef val As ULong) As String
-    Dim outputVal As Currency
+    Dim outputValue As Currency
     If val.Value < MIN_ULONG Then
-        outputVal = val.Value + NegativeInt32
+        outputValue = val.Value + NegativeInt32
     Else
-        outputVal = val.Value
+        outputValue = val.Value
     End If
-    ToString = CStr(outputVal)
+    ToString = CStr(outputValue)
 End Function
 #End If
 
@@ -1044,9 +1049,9 @@ End Function
 ' https://www.youtube.com/watch?v=Hzuzo9NJrlc
 ''
 Public Function PopCount(ByRef val As ULong) As ULong
-    Dim dwVal As DWORD
-    LSet dwVal = val
-    PopCount.Value = this.PopCountByte256(dwVal.Byte1) + this.PopCountByte256(dwVal.Byte2) + this.PopCountByte256(dwVal.Byte3) + this.PopCountByte256(dwVal.Byte4)
+    Dim dwValue As DWORD
+    LSet dwValue = val
+    PopCount.Value = this.PopCountByte256(dwValue.Byte1) + this.PopCountByte256(dwValue.Byte2) + this.PopCountByte256(dwValue.Byte3) + this.PopCountByte256(dwValue.Byte4)
 End Function
 
 ''
@@ -1255,30 +1260,30 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     End If
     
     'Convert lhs and rhs to LongLong
-    Dim lnglngLhs As LongLong
+    Dim lhsValue As LongLong
     If lhs.Value < MIN_ULONG Then
-        lnglngLhs = lhs.Value + NegativeInt32
+        lhsValue = lhs.Value + NegativeInt32
     Else
-        lnglngLhs = lhs.Value
+        lhsValue = lhs.Value
     End If
-    Dim lnglngRhs As LongLong
+    Dim rhsValue As LongLong
     If rhs.Value < MIN_ULONG Then
-        lnglngRhs = rhs.Value + NegativeInt32
+        rhsValue = rhs.Value + NegativeInt32
     Else
-        lnglngRhs = rhs.Value
+        rhsValue = rhs.Value
     End If
     
-    Dim lnglngResult As LongLong
-    lnglngResult = lnglngLhs + lnglngRhs
-    If lnglngResult > MAXUInt32 Then
+    Dim result As LongLong
+    result = lhsValue + rhsValue
+    If result > MAXUInt32 Then
        Err.Raise OverflowException, "ULong32.Add"
     End If
     
     'Convert result to ULong
-    If lnglngResult > MAXInt32 Then
-        Add.Value = CLng(lnglngResult - NegativeInt32)
+    If result > MAXInt32 Then
+        Add.Value = CLng(result - NegativeInt32)
     Else
-        Add.Value = CLng(lnglngResult)
+        Add.Value = CLng(result)
     End If
 End Function
 #Else
@@ -1293,30 +1298,30 @@ Public Function Add(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     End If
     
     'Convert ULong lhs and ULong rhs to Currency
-    Dim curLhs As Currency
+    Dim lhsValue As Currency
     If lhs.Value < MIN_ULONG Then
-        curLhs = lhs.Value + NegativeInt32
+        lhsValue = lhs.Value + NegativeInt32
     Else
-        curLhs = lhs.Value
+        lhsValue = lhs.Value
     End If
-    Dim curRhs As Currency
+    Dim rhsValue As Currency
     If rhs.Value < MIN_ULONG Then
-        curRhs = rhs.Value + NegativeInt32
+        rhsValue = rhs.Value + NegativeInt32
     Else
-        curRhs = rhs.Value
+        rhsValue = rhs.Value
     End If
     
-    Dim curResult As Currency
-    curResult = curLhs + curRhs
-    If curResult > MAXUInt32 Then
+    Dim result As Currency
+    result = lhsValue + rhsValue
+    If result > MAXUInt32 Then
        Err.Raise OverflowException, "ULong32.Add"
     End If
     
     'Convert result to ULong
-    If curResult > MAXInt32 Then
-        Add.Value = CLng(curResult - NegativeInt32)
+    If result > MAXInt32 Then
+        Add.Value = CLng(result - NegativeInt32)
     Else
-        Add.Value = CLng(curResult)
+        Add.Value = CLng(result)
     End If
 End Function
 #End If
@@ -1359,27 +1364,27 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     End If
     
     'Convert lhs and rhs to LongLong
-    Dim lnglngDividend As LongLong
+    Dim dividendValue As LongLong
     If dividend.Value < MIN_ULONG Then
-        lnglngDividend = dividend.Value + NegativeInt32
+        dividendValue = dividend.Value + NegativeInt32
     Else
-        lnglngDividend = dividend.Value
+        dividendValue = dividend.Value
     End If
     
-    Dim lnglngDivisor As LongLong
+    Dim divisorValue As LongLong
     If divisor.Value < MIN_ULONG Then
-        lnglngDivisor = divisor.Value + NegativeInt32
+        divisorValue = divisor.Value + NegativeInt32
     Else
-        lnglngDivisor = divisor.Value
+        divisorValue = divisor.Value
     End If
     
-    Dim lnglngResult As LongLong
-    lnglngResult = lnglngDividend / lnglngDivisor     'performing floating point division, decimal places are rounded
+    Dim result As LongLong
+    result = dividendValue / divisorValue     'performing floating point division, decimal places are rounded
     'Convert result to ULong
-    If lnglngResult > MAXInt32 Then
-        Divide.Value = CLng(lnglngResult - NegativeInt32)
+    If result > MAXInt32 Then
+        Divide.Value = CLng(result - NegativeInt32)
     Else
-        Divide.Value = CLng(lnglngResult)
+        Divide.Value = CLng(result)
     End If
 End Function
 #Else
@@ -1396,27 +1401,27 @@ Public Function Divide(ByRef dividend As ULong, ByRef divisor As ULong) As ULong
     End If
     
     'Convert lhs and rhs to LongLong
-    Dim curDividend As Currency
+    Dim dividendValue As Currency
     If dividend.Value < MIN_ULONG Then
-        curDividend = dividend.Value + NegativeInt32
+        dividendValue = dividend.Value + NegativeInt32
     Else
-        curDividend = dividend.Value
+        dividendValue = dividend.Value
     End If
     
-    Dim curDivisor As Currency
+    Dim divisorValue As Currency
     If divisor.Value < MIN_ULONG Then
-        curDivisor = divisor.Value + NegativeInt32
+        divisorValue = divisor.Value + NegativeInt32
     Else
-        curDivisor = divisor.Value
+        divisorValue = divisor.Value
     End If
     
-    Dim curResult As Currency
-    curResult = curDividend / curDivisor     'performing floating point division, decimal places are rounded
+    Dim result As Currency
+    result = dividendValue / divisorValue     'performing floating point division, decimal places are rounded
     'Convert result to ULong
-    If curResult > MAXInt32 Then
-        Divide.Value = CLng(curResult - NegativeInt32)
+    If result > MAXInt32 Then
+        Divide.Value = CLng(result - NegativeInt32)
     Else
-        Divide.Value = CLng(curResult)
+        Divide.Value = CLng(result)
     End If
 End Function
 #End If
@@ -1447,32 +1452,32 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     End If
     
     'Convert lhs and rhs to LongLong
-    Dim lnglngLhs As LongLong
+    Dim lhsValue As LongLong
     If lhs.Value < MIN_ULONG Then
-        lnglngLhs = lhs.Value + NegativeInt32
+        lhsValue = lhs.Value + NegativeInt32
     Else
-        lnglngLhs = lhs.Value
+        lhsValue = lhs.Value
     End If
-    Dim lnglngRhs As LongLong
+    Dim rhsValue As LongLong
     If rhs.Value < MIN_ULONG Then
-        lnglngRhs = rhs.Value + NegativeInt32
+        rhsValue = rhs.Value + NegativeInt32
     Else
-        lnglngRhs = rhs.Value
+        rhsValue = rhs.Value
     End If
     
-    Dim lnglngResult As LongLong
+    Dim result As LongLong
     On Error GoTo ExceptionHandler
-    lnglngResult = lnglngLhs * lnglngRhs
+    result = lhsValue * rhsValue
     On Error GoTo 0                                     'Disable ExceptionHandler handler.
-    If lnglngResult > MAXUInt32 Then
+    If result > MAXUInt32 Then
        Err.Raise OverflowException, "ULong32.Multiply"
     End If
     
     'Convert result to ULong
-    If lnglngResult > MAXInt32 Then
-        Multiply.Value = CLng(lnglngResult - NegativeInt32)
+    If result > MAXInt32 Then
+        Multiply.Value = CLng(result - NegativeInt32)
     Else
-        Multiply.Value = CLng(lnglngResult)
+        Multiply.Value = CLng(result)
     End If
 Exit Function
 ExceptionHandler:
@@ -1489,32 +1494,32 @@ Public Function Multiply(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     End If
     
     'Convert lhs and rhs to LongLong
-    Dim curLhs As Currency
+    Dim lhsValue As Currency
     If lhs.Value < MIN_ULONG Then
-        curLhs = lhs.Value + NegativeInt32
+        lhsValue = lhs.Value + NegativeInt32
     Else
-        curLhs = lhs.Value
+        lhsValue = lhs.Value
     End If
-    Dim curRhs As Currency
+    Dim rhsValue As Currency
     If rhs.Value < MIN_ULONG Then
-        curRhs = rhs.Value + NegativeInt32
+        rhsValue = rhs.Value + NegativeInt32
     Else
-        curRhs = rhs.Value
+        rhsValue = rhs.Value
     End If
     
-    Dim curResult As Currency
+    Dim result As Currency
     On Error GoTo ExceptionHandler
-    curResult = curLhs * curRhs
+    result = lhsValue * rhsValue
     On Error GoTo 0             'Disable ExceptionHandler
-    If curResult > MAXUInt32 Then
+    If result > MAXUInt32 Then
        Err.Raise OverflowException, "ULong32.Multiply"
     End If
     
     'Convert result to ULong
-    If curResult > MAXInt32 Then
-        Multiply.Value = CLng(curResult - NegativeInt32)
+    If result > MAXInt32 Then
+        Multiply.Value = CLng(result - NegativeInt32)
     Else
-        Multiply.Value = CLng(curResult)
+        Multiply.Value = CLng(result)
     End If
 Exit Function
 ExceptionHandler:
@@ -1552,30 +1557,30 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     End If
     
     'Convert lhs and rhs to LongLong
-    Dim lnglngLhs As LongLong
+    Dim lhsValue As LongLong
     If lhs.Value < MIN_ULONG Then
-        lnglngLhs = lhs.Value + NegativeInt32
+        lhsValue = lhs.Value + NegativeInt32
     Else
-        lnglngLhs = lhs.Value
+        lhsValue = lhs.Value
     End If
-    Dim lnglngRhs As LongLong
+    Dim rhsValue As LongLong
     If rhs.Value < MIN_ULONG Then
-        lnglngRhs = rhs.Value + NegativeInt32
+        rhsValue = rhs.Value + NegativeInt32
     Else
-        lnglngRhs = rhs.Value
+        rhsValue = rhs.Value
     End If
     
-    Dim lnglngResult As LongLong
-    lnglngResult = lnglngLhs - lnglngRhs
-    If lnglngResult < MINUInt32 Then
+    Dim result As LongLong
+    result = lhsValue - rhsValue
+    If result < MINUInt32 Then
        Err.Raise OverflowException, "ULong32.Subtract"
     End If
     
     'Convert result to ULong
-    If lnglngResult > MAXInt32 Then
-        Subtract.Value = CLng(lnglngResult - NegativeInt32)
+    If result > MAXInt32 Then
+        Subtract.Value = CLng(result - NegativeInt32)
     Else
-        Subtract.Value = CLng(lnglngResult)
+        Subtract.Value = CLng(result)
     End If
 End Function
 
@@ -1591,30 +1596,30 @@ Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     End If
     
     'Convert ULong lhs and ULong rhs to Currency
-    Dim curLhs As Currency
+    Dim lhsValue As Currency
     If lhs.Value < MIN_ULONG Then
-        curLhs = lhs.Value + NegativeInt32
+        lhsValue = lhs.Value + NegativeInt32
     Else
-        curLhs = lhs.Value
+        lhsValue = lhs.Value
     End If
-    Dim curRhs As Currency
+    Dim rhsValue As Currency
     If rhs.Value < MIN_ULONG Then
-        curRhs = rhs.Value + NegativeInt32
+        rhsValue = rhs.Value + NegativeInt32
     Else
-        curRhs = rhs.Value
+        rhsValue = rhs.Value
     End If
     
-    Dim curResult As Currency
-    curResult = curLhs - curRhs
-    If curResult < MINUInt32 Then
+    Dim result As Currency
+    result = lhsValue - rhsValue
+    If result < MINUInt32 Then
        Err.Raise OverflowException, "ULong32.Subtract"
     End If
     
     'Convert result to ULong
-    If curResult > MAXInt32 Then
-        Subtract.Value = CLng(curResult - NegativeInt32)
+    If result > MAXInt32 Then
+        Subtract.Value = CLng(result - NegativeInt32)
     Else
-        Subtract.Value = CLng(curResult)
+        Subtract.Value = CLng(result)
     End If
 End Function
 #End If
@@ -1903,10 +1908,10 @@ End Function
 
 ''
 '@Static
-'@Description "Converts an unsigned 32-bit value to Double data type."
+'@Description "Converts an unsigned 32-bit value to Single data type."
 '@Parameters
 '   val ULong
-'@Returns Double
+'@Returns Single
 ''
 Public Function ToSingle(ByRef val As ULong) As Single
     Const NegativeInt32 As Single = 4294967296#
