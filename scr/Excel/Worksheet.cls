@@ -72,6 +72,46 @@ End Property
 
 ''
 '@Static
+'@Description "Sets a cell value2 property for a specified Worksheet, row index and column index."
+'@Parameters
+'   sheetName String
+'       Name of Worksheet to obtain the cell value2 property.
+'   rowNumber Long
+'       Row index of the cell to obtain its value2 property.
+'   columnNumber Long
+'       Column index of the cell to obtain its value2 property.
+''
+Public Property Let Value2(ByVal sheetName As String, ByVal rowNumber As Long, ByVal columnNumber, ByVal val As Variant)
+    Dim rng As Range
+    With Sheets(sheetName)
+        Set rng = .Range(.Cells(rowNumber, columnNumber), .Cells(rowNumber, columnNumber))
+    End With
+    rng.Value2 = val
+End Property
+
+''
+'@Static
+'@Description "Gets a cell value2 property for a specified Worksheet, row index and column index."
+'@Parameters
+'   sheetName String
+'       Name of Worksheet to obtain the cell value2 property.
+'   rowNumber Long
+'       Row index of the cell to obtain its value2 property.
+'   columnNumber Long
+'       Column index of the cell to obtain its value2 property.
+'@Returns Variant
+'   Cell Value2 property for the specified Worksheet, row index and column index.
+''
+Public Property Get Value2(ByVal sheetName As String, ByVal rowNumber As Long, ByVal columnNumber) As Variant
+    Dim rng As Range
+    With Sheets(sheetName)
+        Set rng = .Range(.Cells(rowNumber, columnNumber), .Cells(rowNumber, columnNumber))
+    End With
+    Value2 = rng.Value2
+End Property
+
+''
+'@Static
 '@Description "Copies an 2D array to a specified Worksheet at a starting row and  starting column"
 '@Parameters
 '   data Variant
@@ -95,13 +135,13 @@ End Property
 ' Add row and column headings?
 ''
 Public Sub From2DArray(ByRef data As Variant, sheetName As String, ByVal startRow As Integer, ByVal startColumn As Integer)
-    Dim Rng As Range
+    Dim rng As Range
     With Sheets(sheetName)
-        Set Rng = .Range(.Cells(startRow, startColumn), _
+        Set rng = .Range(.Cells(startRow, startColumn), _
             .Cells(UBound(data, 1) - LBound(data, 1) + startRow, _
             UBound(data, 2) - LBound(data, 2) + startColumn))
     End With
-    Rng.Value2 = data
+    rng.Value2 = data
 End Sub
 
 ''
@@ -138,8 +178,8 @@ End Sub
 '@Parameters
 '   sheetName String
 '       Array to copy to the specified Worksheet, starting row and starting column
-'   column Long
-'       Column indexto copy to array
+'   columnNumber Long
+'       Column index to copy to array
 '   startRow Long
 '       Starting row index of column to copy to array.
 '   endRow Long
@@ -157,12 +197,12 @@ End Sub
 '       doesn't exceed MaxRow
 ''
 Public Function ColumnToArray(ByVal sheetName As String, ByVal columnNumber As Long, ByVal startRow As Long, ByVal endRow As Long, Optional ByVal zeroBaseArray As Boolean = False) As Variant
-    Dim Rng As Range
+    Dim rng As Range
     With Sheets(sheetName)
-        Set Rng = .Range(.Cells(startRow, columnNumber), .Cells(endRow, columnNumber))
+        Set rng = .Range(.Cells(startRow, columnNumber), .Cells(endRow, columnNumber))
     End With
     Dim rangeArray As Variant
-    rangeArray = Rng.Value2
+    rangeArray = rng.Value2
     
     Dim arrayBaseOffset As Long
     If zeroBaseArray Then
@@ -183,8 +223,8 @@ End Function
 '@Parameters
 '   sheetName String
 '       Array to copy to the specified Worksheet, starting row and starting column
-'   row Long
-'       Row to copy to array
+'   rowNumber Long
+'       Row index to copy to array
 '   startColumn Long
 '       Starting column index of row to copy to array.
 '   endColumn Long
@@ -202,12 +242,12 @@ End Function
 '       doesn't exceed MaxColumn
 ''
 Public Function RowToArray(ByVal sheetName As String, ByVal rowNumber As Long, ByVal startColumn As Long, ByVal endColumn As Long, Optional ByVal zeroBaseArray As Boolean = False) As Variant
-    Dim Rng As Range
+    Dim rng As Range
     With Sheets(sheetName)
-        Set Rng = .Range(.Cells(rowNumber, startColumn), .Cells(rowNumber, endColumn))
+        Set rng = .Range(.Cells(rowNumber, startColumn), .Cells(rowNumber, endColumn))
     End With
     Dim rangeArray As Variant
-    rangeArray = Rng.Value2
+    rangeArray = rng.Value2
     
     Dim arrayBaseOffset As Long
     If zeroBaseArray Then
@@ -224,24 +264,57 @@ End Function
 
 ''
 '@Static
-'@Description "Obtains a row number from a cell address."
+'@Description "Test if a Worksheet or Range exists on a Worksheet"
 '@Parameters
-'   cellAddress String
-'@Returns Long
-'   Row number from address
-Public Function GetRowFromAddress(ByVal cellAddress As String) As Long
-    GetRowFromAddress = Range(cellAddress).Row
+'   sheetName String
+'       Name of the Worksheet to check
+'   rangeAddress
+'       Range address Optional, Default = "A1"
+'@Remarks
+'   Leave range blank to test if sheet exists
+'@Reference
+' https://www.automateexcel.com/vba/rename-sheet#check-if-sheet-name-exists
+''
+Public Function Exists(ByVal sheetName As String, Optional ByVal rangeAddress As String = "A1") As Boolean
+    Dim test As Range
+    On Error Resume Next
+    Set test = ActiveWorkbook.Sheets(sheetName).Range(rangeAddress)
+    Exists = Err.Number = 0
+    On Error GoTo 0
 End Function
 
 ''
 '@Static
-'@Description "Obtains a column number from a cell address."
+'@Description "Converts a given row and column index into its' corresponding cell address reference."
+'@Parameters
+'   rowNumber Long
+'       Row index to convert to a cell address
+'   columnNumber Long
+'       Column index to convert to a cell address
+Public Function CellAddress(ByVal rowNumber As Long, ByVal columnNumber As Long) As String
+    CellAddress = Cells(rowNumber, columnNumber).address
+End Function
+
+''
+'@Static
+'@Description "Obtains a row index from a cell address."
+'@Parameters
+'   cellAddress String
+'@Returns Long
+'   Row number from address
+Public Function RowIndex(ByVal CellAddress As String) As Long
+    RowIndex = Range(CellAddress).Row
+End Function
+
+''
+'@Static
+'@Description "Obtains a column index from a cell address."
 '@Parameters
 '   cellAddress String
 '@Returns Long
 '   Column number from address
-Public Function GetColumnFromAddress(ByVal cellAddress As String) As Long
-    GetColumnFromAddress = Range(cellAddress).Column
+Public Function ColumnIndex(ByVal CellAddress As String) As Long
+    ColumnIndex = Range(CellAddress).Column
 End Function
 
 ''
