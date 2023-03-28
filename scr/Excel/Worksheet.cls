@@ -22,9 +22,8 @@ Attribute VB_Description = "Workbook functions"
 ' https://stackoverflow.com/questions/6063672/excel-vba-function-to-print-an-array-to-the-workbook
 ' https://stackoverflow.com/questions/181596/how-to-convert-a-column-number-e-g-127-into-an-excel-column-e-g-aa
 ' https://usefulgyaan.wordpress.com/2013/06/12/vba-trick-of-the-week-slicing-an-array-without-loop-application-index/
-
-'@TODO
-' Add convert to and from bijective base-26
+' https://stackoverflow.com/questions/181596/how-to-convert-a-column-number-e-g-127-into-an-excel-column-e-g-aa
+' https://www.exceldemy.com/excel-vba-get-row-and-column-number-from-cell-address/
 
 Option Explicit
 Private Type TWorksheet
@@ -147,7 +146,6 @@ End Sub
 '       Last row index of column to copy to array.
 '   zeroBaseArray Boolean
 '       Array returned is be zero based,  default is one based.
-
 '@TODO
 ' Validation of parameters
 '   sheetName exists
@@ -158,10 +156,10 @@ End Sub
 '   endRow
 '       doesn't exceed MaxRow
 ''
-Public Function ColumnToArray(ByVal sheetName As String, ByVal column As Long, ByVal startRow As Long, ByVal endRow As Long, Optional ByVal zeroBaseArray As Boolean = False) As Variant
+Public Function ColumnToArray(ByVal sheetName As String, ByVal columnNumber As Long, ByVal startRow As Long, ByVal endRow As Long, Optional ByVal zeroBaseArray As Boolean = False) As Variant
     Dim Rng As Range
     With Sheets(sheetName)
-        Set Rng = .Range(.Cells(startRow, column), .Cells(endRow, column))
+        Set Rng = .Range(.Cells(startRow, columnNumber), .Cells(endRow, columnNumber))
     End With
     Dim rangeArray As Variant
     rangeArray = Rng.Value2
@@ -179,7 +177,6 @@ Public Function ColumnToArray(ByVal sheetName As String, ByVal column As Long, B
     ColumnToArray = output
 End Function
 
-
 ''
 '@Static
 '@Description "Copies to one-dimensional variant array for a row of a specified Workseet."
@@ -194,7 +191,6 @@ End Function
 '       Last column index of row to copy to array.
 '   zeroBaseArray Boolean
 '       Array returned is be zero based,  default is one based.
-
 '@TODO
 ' Validation of parameters
 '   sheetName exists
@@ -205,10 +201,10 @@ End Function
 '   endColumn
 '       doesn't exceed MaxColumn
 ''
-Public Function RowToArray(ByVal sheetName As String, ByVal row As Long, ByVal startColumn As Long, ByVal endColumn As Long, Optional ByVal zeroBaseArray As Boolean = False) As Variant
+Public Function RowToArray(ByVal sheetName As String, ByVal rowNumber As Long, ByVal startColumn As Long, ByVal endColumn As Long, Optional ByVal zeroBaseArray As Boolean = False) As Variant
     Dim Rng As Range
     With Sheets(sheetName)
-        Set Rng = .Range(.Cells(row, startColumn), .Cells(row, endColumn))
+        Set Rng = .Range(.Cells(rowNumber, startColumn), .Cells(rowNumber, endColumn))
     End With
     Dim rangeArray As Variant
     rangeArray = Rng.Value2
@@ -224,6 +220,28 @@ Public Function RowToArray(ByVal sheetName As String, ByVal row As Long, ByVal s
         output(i - arrayBaseOffset) = rangeArray(1, i)
     Next i
     RowToArray = output
+End Function
+
+''
+'@Static
+'@Description "Obtains a row number from a cell address."
+'@Parameters
+'   cellAddress String
+'@Returns Long
+'   Row number from address
+Public Function GetRowFromAddress(ByVal cellAddress As String) As Long
+    GetRowFromAddress = Range(cellAddress).Row
+End Function
+
+''
+'@Static
+'@Description "Obtains a column number from a cell address."
+'@Parameters
+'   cellAddress String
+'@Returns Long
+'   Column number from address
+Public Function GetColumnFromAddress(ByVal cellAddress As String) As Long
+    GetColumnFromAddress = Range(cellAddress).Column
 End Function
 
 ''
@@ -251,61 +269,3 @@ Public Sub TurnOnFunctionality()
     Application.EnableEvents = True
     Application.ScreenUpdating = True
 End Sub
-
-'https://stackoverflow.com/questions/181596/how-to-convert-a-column-number-e-g-127-into-an-excel-column-e-g-aa
-'Although there are already a bunch of valid answers1, none get into the theory behind it.
-'
-'Excel column names are bijective base-26 representations of their number. This is quite different than an ordinary base 26 (there is no leading zero), and I really recommend reading the Wikipedia entry to grasp the differences. For example, the decimal value 702 (decomposed in 26*26 + 26) is represented in "ordinary" base 26 by 110 (i.e. 1x26^2 + 1x26^1 + 0x26^0) and in bijective base-26 by ZZ (i.e. 26x26^1 + 26x26^0).
-'
-'Differences aside, bijective numeration is a positional notation, and as such we can perform conversions using an iterative (or recursive) algorithm which on each iteration finds the digit of the next position (similarly to an ordinary base conversion algorithm).
-'
-'The general formula to get the digit at the last position (the one indexed 0) of the bijective base-k representation of a decimal number m is (f being the ceiling function minus 1):
-'
-'m -(f(m / k) * k)
-'The digit at the next position (i.e. the one indexed 1) is found by applying the same formula to the result of f(m / k). We know that for the last digit (i.e. the one with the highest index) f(m / k) is 0.
-'
-'This forms the basis for an iteration that finds each successive digit in bijective base-k of a decimal number. In pseudo-code it would look like this (digit() maps a decimal integer to its representation in the bijective base -- e.g. digit(1) would return A in bijective base-26):
-'
-'fun conv(m)
-'    q = f(m / k)
-'    a = m - (q * k)
-'    if (q == 0)
-'        return digit(a)
-'    Else
-'        return conv(q) + digit(a);
-'So we can translate this to C#2 to get a generic3 "conversion to bijective base-k" ToBijective() routine:
-'
-'class BijectiveNumeration {
-'    private int baseK;
-'    private Func<int, char> getDigit;
-'    public BijectiveNumeration(int baseK, Func<int, char> getDigit) {
-'        this.baseK = baseK;
-'        this.getDigit = getDigit;
-'    }
-'
-'    public string ToBijective(double decimalValue) {
-'        double q = f(decimalValue / baseK);
-'        double a = decimalValue - (q * baseK);
-'        return ((q > 0) ? ToBijective(q) : "") + getDigit((int)a);
-'    }
-'
-'    private static double f(double i) {
-'        return (Math.Ceiling(i) - 1);
-'    }
-'}
-'Now for conversion to bijective base-26 (our "Excel column name" use case):
-'
-'static void Main(string[] args)
-'{
-'    BijectiveNumeration bijBase26 = new BijectiveNumeration(
-'        26,
-'        (value) => Convert.ToChar('A' + (value - 1))
-'    );
-'
-'    Console.WriteLine(bijBase26.ToBijective(1));     // prints "A"
-'    Console.WriteLine(bijBase26.ToBijective(26));    // prints "Z"
-'    Console.WriteLine(bijBase26.ToBijective(27));    // prints "AA"
-'    Console.WriteLine(bijBase26.ToBijective(702));   // prints "ZZ"
-'    Console.WriteLine(bijBase26.ToBijective(16384)); // prints "XFD"
-'}
-'Excel 's maximum column index is 16384 / XFD, but this code will convert any positive number.
