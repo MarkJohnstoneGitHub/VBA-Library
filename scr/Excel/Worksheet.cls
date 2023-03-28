@@ -218,10 +218,10 @@ Public Function RowToArray(ByVal sheetName As String, ByVal row As Long, ByVal s
         arrayBaseOffset = 1
     End If
     Dim output As Variant
-    ReDim output(LBound(rangeArray) - arrayBaseOffset To UBound(rangeArray) - arrayBaseOffset)
+    ReDim output(LBound(rangeArray, 2) - arrayBaseOffset To UBound(rangeArray, 2) - arrayBaseOffset)
     Dim i As Long
-    For i = LBound(rangeArray) To UBound(rangeArray)
-        output(i - arrayBaseOffset) = rangeArray(i, 1)
+    For i = LBound(rangeArray, 2) To UBound(rangeArray, 2)
+        output(i - arrayBaseOffset) = rangeArray(1, i)
     Next i
     RowToArray = output
 End Function
