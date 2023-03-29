@@ -15,7 +15,7 @@ Attribute VB_Description = "Workbook functions"
 
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.0 March 28, 2023
-'@LastModified March 28, 2023
+'@LastModified March 29, 2023
 
 '@References
 ' https://www.ExcelMacroMastery.com
@@ -26,6 +26,14 @@ Attribute VB_Description = "Workbook functions"
 ' https://www.exceldemy.com/excel-vba-get-row-and-column-number-from-cell-address/
 
 Option Explicit
+'------------------------------------------------------------------
+'Types
+'------------------------------------------------------------------
+Public Enum RangePosition
+    First = 0
+    Last = 1
+End Enum
+
 Private Type TWorksheet
     MaxRows     As Long
     MaxColumns  As Long
@@ -291,30 +299,59 @@ End Function
 '       Row index to convert to a cell address
 '   columnNumber Long
 '       Column index to convert to a cell address
+'@TODO Option to return absolute reference or relative reference
+'@TODO Option to return a range address?
+''
 Public Function CellAddress(ByVal rowNumber As Long, ByVal columnNumber As Long) As String
-    CellAddress = Cells(rowNumber, columnNumber).address
+    CellAddress = Cells(rowNumber, columnNumber).Address
 End Function
 
 ''
 '@Static
-'@Description "Obtains a row index from a cell address."
+'@Description "Obtains the row index from a range address."
 '@Parameters
-'   cellAddress String
+'   rangeAddress String
+'   position RangePosition
+'       First or Last row index to return for the range address
 '@Returns Long
-'   Row number from address
-Public Function RowIndex(ByVal CellAddress As String) As Long
-    RowIndex = Range(CellAddress).Row
+'   Row number from range address and range position i.e. first or last
+''
+Public Function Row(ByVal rangeAddress As String, Optional position As RangePosition = RangePosition.First) As Long
+    '@TODO Test if rangeAddress is valid i.e. Exists, Not VBA.vbNullString etc
+    With Range(rangeAddress)
+        Select Case position
+            Case RangePosition.First
+                Row = .Row
+            Case RangePosition.Last
+                Row = .Row + .Rows.Count - 1
+            Case Else
+                '@TODO Raise Error
+        End Select
+    End With
 End Function
 
 ''
 '@Static
-'@Description "Obtains a column index from a cell address."
+'@Description "Obtains the column index from a range address."
 '@Parameters
-'   cellAddress String
+'   rangeAddress String
+'   position RangePosition
+'       First or Last column index to return for the range address
 '@Returns Long
-'   Column number from address
-Public Function ColumnIndex(ByVal CellAddress As String) As Long
-    ColumnIndex = Range(CellAddress).Column
+'   Column number from range address and range position i.e. first or last
+''
+Public Function Column(ByVal rangeAddress As String, Optional position As RangePosition = RangePosition.First) As Long
+    '@TODO Test if rangeAddress is valid i.e. Exists, Not VBA.vbNullString etc
+    With Range(rangeAddress)
+        Select Case position
+            Case RangePosition.First
+                Column = .Column
+            Case RangePosition.Last
+                Column = .Column + .Columns.Count - 1
+            Case Else
+                '@TODO Raise Error
+        End Select
+    End With
 End Function
 
 ''
