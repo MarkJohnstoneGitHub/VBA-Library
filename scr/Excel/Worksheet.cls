@@ -120,7 +120,7 @@ End Property
 
 ''
 '@Static
-'@Description "Copies an 2D array to a specified Worksheet at a starting row and  starting column"
+'@Description "Copies a two-dimensional array to a specified Worksheet at a starting row and  starting column"
 '@Parameters
 '   data Variant
 '       Array to copy to the specified Worksheet, starting row and starting column
@@ -142,7 +142,7 @@ End Property
 '@TODO
 ' Add row and column headings?
 ''
-Public Sub From2DArray(ByRef data As Variant, sheetName As String, ByVal startRow As Integer, ByVal startColumn As Integer)
+Public Sub FromArray2D(ByRef data As Variant, sheetName As String, ByVal startRow As Integer, ByVal startColumn As Integer)
     Dim rng As Range
     With Sheets(sheetName)
         Set rng = .Range(.Cells(startRow, startColumn), _
@@ -154,7 +154,7 @@ End Sub
 
 ''
 '@Static
-'@Description "Copies an 2D array to a specified Worksheet at a starting row and  starting column"
+'@Description "Copies an one-dimensional array to a specified Worksheet at a starting row and  starting column"
 '@Parameters
 '   data Variant
 '       Array to copy to the specified Worksheet, starting row and starting column
@@ -174,10 +174,11 @@ End Sub
 ' https://stackoverflow.com/questions/6063672/excel-vba-function-to-print-an-array-to-the-workbook
 '
 '@TODO
-' Add row and column headings?
+'@TODO Add Error Handling validating parameters
+'   Add row and column headings?
 ''
-Public Sub From1DArray(ByRef data As Variant, ByVal sheetName As String, ByVal startRow As Integer, ByVal startColumn As Integer)
-    From2DArray Application.WorksheetFunction.Transpose(data), sheetName, startRow, startColumn
+Public Sub FromArray1D(ByRef data As Variant, ByVal sheetName As String, ByVal startRow As Integer, ByVal startColumn As Integer)
+    Me.FromArray2D Application.WorksheetFunction.Transpose(data), sheetName, startRow, startColumn
 End Sub
 
 ''
@@ -379,3 +380,5 @@ Public Sub TurnOnFunctionality()
     Application.EnableEvents = True
     Application.ScreenUpdating = True
 End Sub
+
+
