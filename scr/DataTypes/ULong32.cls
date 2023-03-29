@@ -17,7 +17,7 @@ Attribute VB_Description = "Represents a 32-bit unsigned integer."
 'Copyright(c) 2023 Mark Johnstone
 'MarkJohnstoneGitHub/VBA-Library
 '@Version v1.4  March 21, 2023
-'@LastModified  March 28, 2023
+'@LastModified  March 30, 2023
 
 '@Dependencies
 '   ULongType.bas
@@ -1549,7 +1549,11 @@ End Function
 Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     ' Perform a couple of quick checks that have an easy result.
     If lhs.Value = 0 Then
-        Subtract.Value = rhs.Value
+        If rhs.Value = 0 Then
+            Subtract.Value = 0
+        Else
+            Err.Raise OverflowException, "ULong32.Subtract"
+        End If
         Exit Function
     ElseIf rhs.Value = 0 Then
         Subtract.Value = lhs.Value
@@ -1588,7 +1592,11 @@ End Function
 Public Function Subtract(ByRef lhs As ULong, ByRef rhs As ULong) As ULong
     ' Perform a couple of quick checks that have an easy result.
     If lhs.Value = 0 Then
-        Subtract.Value = rhs.Value
+        If rhs.Value = 0 Then
+            Subtract.Value = 0
+        Else
+            Err.Raise OverflowException, "ULong32.Subtract"
+        End If
         Exit Function
     ElseIf rhs.Value = 0 Then
         Subtract.Value = lhs.Value
